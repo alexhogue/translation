@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text Translation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- <h1>Text Translation Playground</h1> -->
+
+  <!-- <h2>Result</h2> -->
+  <div id="all-content">
+    <form id="translation-form">
+
+        <!-- <label for="mode">Translate into</label><br /> -->
+        <div id="mode-buttons" aria-label="Translation mode">
+          <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
+          <button type="button" class="mode-btn" data-mode="visualColor1">Color grid</button>
+          <button type="button" class="mode-btn" data-mode="visualColor2">Square grid</button>
+          <button type="button" class="mode-btn" data-mode="gridRadius">Grid Radius</button>
+          <button type="button" class="mode-btn" data-mode="concretePoem">Blackout Poem</button>
+          <button type="button" class="mode-btn" data-mode="visualColor3">Color Line</button>
+          <button type="button" class="mode-btn" data-mode="colorLine2">Color Line 2</button>
+          <button type="button" class="mode-btn" data-mode="neuron">Neuron</button>
+          <button type="button" class="mode-btn" data-mode="neuron2">Neuron 2</button>
+          <button type="button" class="mode-btn" data-mode="neuron3">Neuron 3</button>
+          <button type="button" class="mode-btn" data-mode="binary">Binary</button>
+          <button type="button" class="mode-btn" data-mode="french">French</button>
+        </div>
+        <div>
+          <!-- <label for="source">Source text</label><br /> -->
+          <div id="source-wrap" class="drop-area">
+            <textarea id="source" placeholder="Type any text or image here..."></textarea>
+          </div>
+        </div>
+
+        <!-- <button type="submit">Translate</button> -->
+
+    </form>
+
+    <div id="canvas-area">
+      <!-- <pre id="result">—</pre> -->
+      <div id="canvas-container"></div>
+    </div>
+  </div>
+
+  <!-- p5.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+
+  <!-- p5 mono visual renderer -->
+  <script src="text.js"></script>
+
+  <!-- p5 mono visual renderer -->
+  <script src="visual.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="circleGrid.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="squareGrid.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="squareGridRadius.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="colorLine.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="colorLine2.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="neuron.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="neuron2.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="neuron3.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="poem.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="imageTrans.js"></script>
+
+  <!-- p5 visual color 1 renderer -->
+  <script src="imageText.js"></script>
+
+  <!-- App logic using translation functions -->
+  <script src="sketch.js"></script>
+</body>
+</html>
