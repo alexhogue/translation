@@ -54,12 +54,15 @@ function translateSync(input, mode) {
 
 // Wire up the simple form UI
 
-const form = document.getElementById('translation-form');
+const panel = document.getElementById('translation-panel');
 const sourceWrap = document.getElementById("source-wrap");
 const sourceEl = document.getElementById('source');
 const modeEl = document.getElementById('mode-buttons');
-// const resultEl = document.getElementById('result');
+const submitBtn = document.getElementById('submit-button');
 const canvasContainerEl = document.getElementById('canvas-container');
+const toggleBtns = document.querySelectorAll(".toggle-button");
+let toggleMode = "";
+let currentMode = "";
 
 
 if (sourceWrap) {
@@ -92,139 +95,176 @@ if (sourceWrap) {
   });
 }
 
-if (form && sourceEl && modeEl) {
-  modeButtons.forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const mode = btn.getAttribute("data-mode");
-      modeEl.value = mode;
-      modeButtons.forEach((btn) => {
-        btn.removeAttribute("aria-pressed");
-      });
-      btn.setAttribute("aria-pressed", "true");
 
+    toggleBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const toggle = btn.getAttribute("toggle-mode");
+        toggleMode = toggle;
+        toggleBtns.forEach((btn) => {
+          btn.removeAttribute("aria-pressed");
+        });
+        btn.setAttribute("aria-pressed", "true");
+
+      });
+    });
+
+    modeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mode = btn.getAttribute("data-mode");
+        currentMode = mode;
+        modeButtons.forEach((btn) => {
+          btn.removeAttribute("aria-pressed");
+        });
+        btn.setAttribute("aria-pressed", "true");
+
+      });
+    });
+
+    submitBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       const text = sourceEl.value || "";
 
-      if (!text.trim()) {
-        // resultEl.textContent = '—';
+      if (toggleMode === "text") {
+        if (!text.trim()) {
+          // resultEl.textContent = '—';
+          if (window.VisualMono) window.VisualMono.clear();
+          if (window.VisualColor1) window.VisualColor1.clear();
+          if (window.VisualColor2) window.VisualColor2.clear();
+          if (window.SquareGridR) window.SquareGridR.clear();
+          if (window.VisualColor3) window.VisualColor3.clear();
+          if (window.ColorLine2) window.ColorLine2.clear();
+          if (window.ColorLine3) window.ColorLine3.clear();
+          if (window.VisualText) window.VisualText.clear();
+          if (window.ConcretePoem) window.ConcretePoem.clear();
+          if (window.Neuron) window.Neuron.clear();
+          if (window.Neuron2) window.Neuron2.clear();
+          if (window.Neuron3) window.Neuron3.clear();
+          if (window.Neuron4) window.Neuron4.clear();
+          return;
+        }
+
+        // visual modes draw to p5 canvases
+        if (currentMode === "visual") {
+          // resultEl.textContent = '';
+          if (window.VisualMono) window.VisualMono.render(text);
+          return;
+        }
+
+        if (currentMode === "visualColor1") {
+          // resultEl.textContent = '';
+          if (window.VisualColor1) window.VisualColor1.render(text);
+          return;
+        }
+
+        if (currentMode === "visualColor2") {
+          // resultEl.textContent = "";
+          if (window.VisualColor2) window.VisualColor2.render(text);
+          return;
+        }
+
+        if (currentMode === "gridRadius") {
+          // resultEl.textContent = "";
+          if (window.SquareGridR) window.SquareGridR.render(text);
+          return;
+        }
+
+        if (currentMode === "visualColor3") {
+          // resultEl.textContent = "";
+          if (window.VisualColor3) window.VisualColor3.render(text);
+          return;
+        }
+
+        if (currentMode === "colorLine2") {
+          // resultEl.textContent = "";
+          if (window.ColorLine2) window.ColorLine2.render(text);
+          return;
+        }
+
+        if (currentMode === "colorLine3") {
+          // resultEl.textContent = "";
+          if (window.ColorLine3) window.ColorLine3.render(text);
+          return;
+        }
+
+        if (currentMode === "concretePoem") {
+          // resultEl.textContent = "";
+          if (window.ConcretePoem) window.ConcretePoem.render(text);
+          return;
+        }
+
+        if (currentMode === "neuron") {
+          // resultEl.textContent = "";
+          if (window.Neuron) window.Neuron.render(text);
+          return;
+        }
+
+        if (currentMode === "neuron2") {
+          // resultEl.textContent = "";
+          if (window.Neuron2) window.Neuron2.render(text);
+          return;
+        }
+
+        if (currentMode === "neuron3") {
+          // resultEl.textContent = "";
+          if (window.Neuron3) window.Neuron3.render(text);
+          return;
+        }
+
+        if (currentMode === "neuron4") {
+          // resultEl.textContent = "";
+          if (window.Neuron4) window.Neuron4.render(text);
+          return;
+        }
+
         if (window.VisualMono) window.VisualMono.clear();
         if (window.VisualColor1) window.VisualColor1.clear();
         if (window.VisualColor2) window.VisualColor2.clear();
         if (window.SquareGridR) window.SquareGridR.clear();
         if (window.VisualColor3) window.VisualColor3.clear();
         if (window.ColorLine2) window.ColorLine2.clear();
+        if (window.ColorLine3) window.ColorLine3.clear();
         if (window.VisualText) window.VisualText.clear();
         if (window.ConcretePoem) window.ConcretePoem.clear();
         if (window.Neuron) window.Neuron.clear();
         if (window.Neuron2) window.Neuron2.clear();
         if (window.Neuron3) window.Neuron3.clear();
-        return;
-      }
+        if (window.Neuron4) window.Neuron4.clear();
 
-      // visual modes draw to p5 canvases
-      if (mode === "visual") {
-        // resultEl.textContent = '';
-        if (window.VisualMono) window.VisualMono.render(text);
-        return;
-      }
+        // else {
+        //   const out = translateSync(text, mode);
+        //   // resultEl.textContent = out || '—';
+        // }
 
-      if (mode === "visualColor1") {
-        // resultEl.textContent = '';
-        if (window.VisualColor1) window.VisualColor1.render(text);
-        return;
-      }
-
-      if (mode === "visualColor2") {
-        // resultEl.textContent = "";
-        if (window.VisualColor2) window.VisualColor2.render(text);
-        return;
-      }
-
-      if (mode === "gridRadius") {
-        // resultEl.textContent = "";
-        if (window.SquareGridR) window.SquareGridR.render(text);
-        return;
-      }
-
-      if (mode === "visualColor3") {
-        // resultEl.textContent = "";
-        if (window.VisualColor3) window.VisualColor3.render(text);
-        return;
-      }
-
-      if (mode === "colorLine2") {
-        // resultEl.textContent = "";
-        if (window.ColorLine2) window.ColorLine2.render(text);
-        return;
-      }
-
-      if (mode === "concretePoem") {
-        // resultEl.textContent = "";
-        if (window.ConcretePoem) window.ConcretePoem.render(text);
-        return;
-      }
-
-      if (mode === "neuron") {
-        // resultEl.textContent = "";
-        if (window.Neuron) window.Neuron.render(text);
-        return;
-      }
-
-      if (mode === "neuron2") {
-        // resultEl.textContent = "";
-        if (window.Neuron2) window.Neuron2.render(text);
-        return;
-      }
-
-      if (mode === "neuron3") {
-        // resultEl.textContent = "";
-        if (window.Neuron3) window.Neuron3.render(text);
-        return;
-      }
-
-      if (window.VisualMono) window.VisualMono.clear();
-      if (window.VisualColor1) window.VisualColor1.clear();
-      if (window.VisualColor2) window.VisualColor2.clear();
-      if (window.SquareGridR) window.SquareGridR.clear();
-      if (window.VisualColor3) window.VisualColor3.clear();
-      if (window.ColorLine2) window.ColorLine2.clear();
-      if (window.VisualText) window.VisualText.clear();
-      if (window.ConcretePoem) window.ConcretePoem.clear();
-      if (window.Neuron) window.Neuron.clear();
-      if (window.Neuron2) window.Neuron2.clear();
-      if (window.Neuron3) window.Neuron3.clear();
-
-      // else {
-      //   const out = translateSync(text, mode);
-      //   // resultEl.textContent = out || '—';
-      // }
-
-      if (mode === "french") {
-        try {
-          const out = await translateToFrench(text);
-          if (window.VisualText) window.VisualText.render(out || "—");
-        } catch (err) {
-          if (window.VisualText)
-            window.VisualText.render(
-              err && err.message ? err.message : "Translation failed"
-            );
+        if (currentMode === "french") {
+          try {
+            const out = await translateToFrench(text);
+            if (window.VisualText) window.VisualText.render(out || "—");
+          } catch (err) {
+            if (window.VisualText)
+              window.VisualText.render(
+                err && err.message ? err.message : "Translation failed"
+              );
+          }
+          return;
         }
-        return;
-      }
 
-      if (mode === "binary") {
-        const out = translateSync(text, "binary");
-        if (window.VisualText) window.VisualText.render(out || "—");
-        return;
+        if (currentMode === "binary") {
+          const out = translateSync(text, "binary");
+          if (window.VisualText) window.VisualText.render(out || "—");
+          return;
+        }
       }
+    });
+    
+      
       // if (mode === "poem") {
       //   const out = renderPoemSvg(text);
       //   if (window.VisualText) window.VisualText.render(out || "—");
       //   return;
       // }
-    });
-  })
+
+  
   
 
-}
+
 
