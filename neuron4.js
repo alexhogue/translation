@@ -24,7 +24,6 @@
       .filter(Boolean);
   }
 
-
   function layoutSentences(text, w, h) {
     const sentences = splitIntoSentences(text);
     const sentenceDots = [];
@@ -49,7 +48,7 @@
       const centerCy = marginY + (row + 0.5) * cellH;
 
       const jitter = 130;
-      const baseRadius = 60;
+      const baseRadius = 80;
       const angleStep = (2 * Math.PI) / Math.max(words.length, 1);
 
       words.forEach((word, i) => {

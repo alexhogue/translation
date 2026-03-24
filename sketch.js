@@ -52,8 +52,6 @@ function translateSync(input, mode) {
 }
 
 
-// Wire up the simple form UI
-
 const panel = document.getElementById('translation-panel');
 const sourceWrap = document.getElementById("source-wrap");
 const sourceEl = document.getElementById('source');
@@ -61,39 +59,85 @@ const modeEl = document.getElementById('mode-buttons');
 const submitBtn = document.getElementById('submit-button');
 const canvasContainerEl = document.getElementById('canvas-container');
 const toggleBtns = document.querySelectorAll(".toggle-button");
-let toggleMode = "";
+const textControls = document.getElementById("text-controls");
+const imageControls = document.getElementById("image-controls");
+const generateBtns = document.querySelectorAll(".generate-btn")
+const generateSentBtn = document.getElementById("generate-sentences-btn");
+const generatePanBtn = document.getElementById("generate-pangram-btn")
+const canvasArea = document.getElementById("canvas-area");
+
+let toggleMode = "text";
 let currentMode = "";
 
 
-if (sourceWrap) {
-  sourceWrap.addEventListener("dragover", (e) => {
+generateBtns.forEach((btn) => {
+  btn.addEventListener("click", async (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    sourceWrap.classList.add("drag-over");
+
+    const current = sourceEl.value || "";
+    sourceEl.value = "Generating...";
+
+    if (btn.getAttribute("text-type") == "sentences") {
+      try {
+        // Font Gauntlet internal API pattern (from their code)
+        const res = await fetch("https://fontgauntlet.com/api/text/paragraph", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            exclude: current ? [current] : [],
+            language: "Default", // or "English" (pick what you prefer)
+            languageWikipedia: "en", // for English
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || data?.err) {
+          throw new Error(data?.err || `Request failed (${res.status})`);
+        }
+
+        // Font Gauntlet code uses `a.text` for the generated paragraph
+        const paragraph = data.text.match(/[^.!?]+[.!?]+/g).slice(0, 3).join(" ").trim();
+
+        if (!paragraph) throw new Error("No paragraph text in response");
+
+        // This is the key: keep manual typing AND make Generate fill the textarea
+        sourceEl.value = paragraph;
+      } catch (err) {
+        alert(err?.message || "Failed to generate text");
+      }
+    } else if (btn.getAttribute("text-type") == "pangram") {
+      try {
+        // Font Gauntlet internal API pattern (from their code)
+        const res = await fetch("https://fontgauntlet.com/api/text/pangram", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            exclude: current ? [current] : [],
+            language: "Default", // or "English" (pick what you prefer)
+            languageWikipedia: "en", // for English
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || data?.err) {
+          throw new Error(data?.err || `Request failed (${res.status})`);
+        }
+
+        // Font Gauntlet code uses `a.text` for the generated paragraph
+        const paragraph = data.text
+          .concat(".")
+
+        if (!paragraph) throw new Error("No paragraph text in response");
+
+        // This is the key: keep manual typing AND make Generate fill the textarea
+        sourceEl.value = paragraph;
+      } catch (err) {
+        alert(err?.message || "Failed to generate text");
+      }
+
+    }
   });
-
-  sourceWrap.addEventListener("dragleave", (e) => {
-    e.preventDefault();
-    sourceWrap.classList.remove("drag-over");
-  });
-
-  sourceWrap.addEventListener("drop", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    sourceWrap.classList.remove("drag-over");
-
-    const file = e.dataTransfer.files[0];
-    if (!file || !file.type.startsWith("image/")) return;
-
-    const url = URL.createObjectURL(file);
-    // Here: load image and run your text-picture logic, then draw on canvas
-    
-
-    window.handleImageForText(url);
-    window.handleImageForTextPicture(url);
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
-  });
-}
+})
 
 
     toggleBtns.forEach((btn) => {
@@ -104,6 +148,14 @@ if (sourceWrap) {
           btn.removeAttribute("aria-pressed");
         });
         btn.setAttribute("aria-pressed", "true");
+        if (toggleMode === "text") {
+          textControls.setAttribute("aria-visible", "true");
+          imageControls.setAttribute("aria-visible", "false");
+
+        } else if (toggleMode === "visual") {
+          textControls.setAttribute("aria-visible", "false");
+          imageControls.setAttribute("aria-visible", "true");
+        }
 
       });
     });
@@ -146,12 +198,14 @@ if (sourceWrap) {
         // visual modes draw to p5 canvases
         if (currentMode === "visual") {
           // resultEl.textContent = '';
+          canvasArea.scrollTop = 0;
           if (window.VisualMono) window.VisualMono.render(text);
           return;
         }
 
         if (currentMode === "visualColor1") {
           // resultEl.textContent = '';
+          canvasArea.scrollTop = 0;
           if (window.VisualColor1) window.VisualColor1.render(text);
           return;
         }

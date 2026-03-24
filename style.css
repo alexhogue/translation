@@ -1,6 +1,13 @@
 @font-face {
    font-family: "Datatype";
-   src: url("./files/Datatype-VariableFont_wdth\,wght.ttf");
+   src: url("./files/Datatype-VariableFont_wdth\,wght.ttf") format('truetype');
+   
+}
+
+:root {
+   --lightmode-background: #f2f2ef;
+   --lightmode-text: #161616;
+   --greyed-text: #5f5f5f;
 }
 
 html, body {
@@ -9,22 +16,28 @@ html, body {
   justify-content: space-between;
   overflow: hidden;
   width: 100%;
-  background-color: #f2f2ef;
+
+  background-color: var(--lightmode-background);
 }
-h1 {
+h1, h2, p {
    font-family: "Datatype";
    font-size: 18px;
    margin: 0;
    padding:0;
 }
+h2 {
+   text-transform: uppercase;
+   font-weight: 900;
+   font-variation-settings: "wght" 900;
+}
 #all-content {
    display: flex;
    flex-wrap: wrap-reverse;
    justify-content: space-between;
-   padding: 10px;
-   height: 100vh;
+   padding: 4px 10px;
    box-sizing: border-box;
    width: 100%;
+   height: 100vh;
    gap: 12px;
 }
 #translation-panel{
@@ -34,50 +47,49 @@ h1 {
    /* justify-content: space-between; */
    min-width: 300px;
    height: 100%; 
-   top: 12px;
    gap: 24px;
    width: 25vw;
    flex: 0 0 auto; 
 }
 textarea {
-   min-width: 300px;
    min-height: 150px;
    width: 23.5vw;
+   resize: vertical;
    background-color: transparent;
 }
 #source {
    padding: 10px 12px; 
    font-family: "Datatype";
-   border-radius: 4px;
+   /* border-radius: 4px; */
 }
 .drop-zone.drag-over {
-  outline: 2px dashed #333;
+  outline: 2px dashed var(--lightmode-text);
   outline-offset: 2px;
 }
 button {
    background-color: transparent;
    border-width: 1px;
-   border-radius: 4px;
+   /* border-radius: 4px; */
    transition: background-color 0.2s ease;
    font-family: "Datatype";
    
 }
 button:hover {
-   background-color: #161616;
-   color: #f9f9f9;
+   background-color: var(--lightmode-text);
+   color: var(--lightmode-background);
    transition: background-color 0.2s ease;
 }
 button:hover {
-   background-color: #161616;
-   color: #f9f9f9;
+   background-color: var(--lightmode-text);
+   color: var(--lightmode-background);
    transition: background-color 0.2s ease;
 }
 .mode-btn {
    padding: 4px 8px;
 }
 .mode-btn[aria-pressed="true"], .toggle-button[aria-pressed="true"] {
-   background-color: #161616;
-   color: #f9f9f9;
+   background-color: var(--lightmode-text);
+   color: var(--lightmode-background);
 }
 #mode-buttons{
    display: flex;
@@ -88,7 +100,7 @@ button:hover {
 #submit-button {
    height: 36px;
 }
-#mode-switch-area {
+#mode-switch-cont {
    display: flex;
    gap: 12px;
 }
@@ -96,21 +108,77 @@ button:hover {
    padding: 4px 8px;
    width: 100%;
 }
+.toggle-type-controls {
+   display: flex;
+   flex-direction: column;
+   gap: 12px;
+}
+.toggle-type-controls[aria-visible="false"] {
+   display: none;
+}
+.generate-btn-cont {
+   display: flex;
+   justify-content: flex-end;
+   gap: 8px;
+}
+#drop-cont {
+   min-height: 100px;
+   border: 1px solid var(--lightmode-text);
+   display: flex;
+   padding: 12px;
+   gap: 12px;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+}
+#drop-area {
+   display: flex;
+   gap: 12px;
+   justify-content: center;
+   align-items: center;
+}
+#file-input {
+   display: none;
+}
+#image-drop-area.drag-over {
+   color: var(--greyed-text);
+}
+#image-icon {
+   color: var(--lightmode-text)
+}
+#image-drop-area.drag-over #image-icon {
+   color: var(--greyed-text);
+}
+#preview-img {
+   width: 80%;
+   height: auto;
+}
+
+
 #canvas-area {
    flex: 1;
    min-width: 400px;
+   height: 100%;
    /* margin-left: 10vw; */
-   overflow-y: auto;
+   overflow-y: hidden;
+   padding-top: 24px;
 }
 #canvas-container {
-   max-height: 100vh;
-   height: 100%;
+   display: block;
    min-width: 250px;
+   padding: 12px;
+   max-height: 100vh;
+   height: 100%;  
+   
+   overflow-y: auto;
    background-color: transparent;
+   border-top: 2px solid var(--lightmode-text);
+   border-left: 1px solid var(--lightmode-text);
 }
 canvas {
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
+  overflow: visible;
   background-color: transparent;
 }
