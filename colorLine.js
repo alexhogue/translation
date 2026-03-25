@@ -59,7 +59,7 @@
     return segments;
   }
 
-  function buildVisualBlobs(text, canvasW) {
+  function buildVisualBlobs(text, canvasW, canvasH) {
     const trimmed = (text || "").trim();
     if (!trimmed) return { blobs: [], centers: [] };
 
@@ -87,8 +87,8 @@
 
       // Map alphabet position (a..z) to left→right, and word index to top→bottom,
       // inside a safe inner box so nothing is cut off.
-      const marginX = 80;
-      const marginY = 80;
+      const marginX = 40;
+      const marginY = 20;
 
       const rowNorm = words.length === 1 ? 0.5 : wIndex / (words.length - 1); // 0..1
 
@@ -110,7 +110,7 @@
        const angle = Math.random() * 2 * Math.PI; 
 
 
-      const centerY = VIS_H / 2;
+      const centerY = canvasH / 2;
       const radialY = centerY + Math.sin(angle) * radius;
 
       const innerW = canvasW - 2 * marginX;
@@ -121,8 +121,8 @@
       // Gentle jitter, but keep centers within margins.
       const jitterX = (wordHash % 40) - 20;
       const jitterY = ((wordHash * 7) % 40) - 20;
-      wordCx = Math.max(marginX, Math.min(canvasW - marginX, wordCx));
-      wordCy = Math.max(marginY, Math.min(VIS_H - marginY, wordCy));
+      wordCx = Math.max(marginX, Math.min(canvasW - 2 * marginX, wordCx));
+      wordCy = Math.max(marginY, Math.min(canvasH - 2 * marginY, wordCy));
 
       const endsWithPunctuation = /[.!?]$/.test(word);
       const startsSentence = nextStartsSentence;  
@@ -198,7 +198,7 @@
     instance = new p5((p) => {
       p.setup = () => {
         const w = containerEl.clientWidth;
-        p.createCanvas(w, VIS_H);
+        p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
         p.noLoop();
         p.background(255, 255, 255, 0);
@@ -208,11 +208,11 @@
         p.background(255, 255, 255, 0);
         const availableWidth = containerEl.clientWidth;
 
-        const { blobs, centers } = buildVisualBlobs(currentText, p.width);
+        const { blobs, centers } = buildVisualBlobs(currentText, p.width, p.height);
         if (!blobs.length && !centers.length) return;
-        p.resizeCanvas(availableWidth, VIS_H);
+        p.resizeCanvas(availableWidth, containerEl.clientHeight);
 
-        if (buildLineSegments(centers).length > 1) {
+        if (buildLineSegments(centers).length >= 1) {
           p.noFill();
           p.stroke(0, 0, 0, 90);
           p.strokeWeight(1);
@@ -243,7 +243,7 @@
 
     window.addEventListener("resize", () => {
       if (!instance || !containerEl) return;
-      instance.resizeCanvas(containerWidth(containerEl), VIS_H);
+      instance.resizeCanvas(containerWidth(containerEl), containerEl.clientHeight);
       instance.redraw();
     });
 

@@ -2,7 +2,7 @@
   const VIS_H = 800;
   const MARGIN = 40;
   const COLS = 80;
-  const density = "MWNX@#Gy%Ot?l!abovci;:,.  ";
+  const density = "MWNX@#Gy%Ot?l!abovci-;:,.`  ";
 
   function brightnessToChar(brightness) {
     const index = Math.floor((brightness / 255) * (density.length - 1));

@@ -18,7 +18,7 @@
       .filter(Boolean);
   }
 
-  function buildVisualBlobs(text, canvasW) {
+  function buildVisualBlobs(text, canvasW, canvasH) {
     const trimmed = (text || "").trim();
     if (!trimmed) return { blobs: [], centers: [] };
 
@@ -45,10 +45,10 @@
 
       // Map alphabet position (a..z) to left→right, and word index to top→bottom,
       // inside a safe inner box so nothing is cut off.
-      const marginX = 80;
-      const marginY = 80;
+      const marginX = 40;
+      const marginY = 40;
       const innerW = Math.max(0, canvasW - 2 * marginX);
-      const innerH = Math.max(0, VIS_H - 2 * marginY);
+      const innerH = Math.max(0, canvasH - 2 * marginY);
 
       const alphaNorm = avgAlpha / 25; // 0..1
       const rowNorm =
@@ -60,8 +60,8 @@
       // Gentle jitter, but keep centers within margins.
       const jitterX = ((wordHash % 40) - 20);
       const jitterY = (((wordHash * 7) % 40) - 20);
-      wordCx = Math.max(marginX, Math.min(canvasW - marginX, wordCx + jitterX));
-      wordCy = Math.max(marginY, Math.min(VIS_H - marginY, wordCy + jitterY));
+      wordCx = Math.max(marginX, Math.min(canvasW - 2 * marginX, wordCx + jitterX));
+      wordCy = Math.max(marginY, Math.min(canvasH - 2 * marginY, wordCy + jitterY));
 
       centers.push({
         cx: wordCx,
@@ -88,7 +88,7 @@
         const cx = wordCx + Math.cos(a) * dist;
         const cy = wordCy + Math.sin(a) * dist * 0.8;
 
-        const r = 8 + (aIdx / 25) * 50;
+        const r = 8 + (aIdx / 25) * 45;
         const fillOpacity = 0.1 + (aIdx / 25) * 0.05;
 
         blobs.push({
@@ -129,7 +129,7 @@
     instance = new p5((p) => {
       p.setup = () => {
         const w = containerEl.clientWidth;
-        p.createCanvas(w, VIS_H);
+        p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
         p.noLoop();
         p.background(255, 255, 255, 0);
@@ -137,7 +137,7 @@
 
       p.draw = () => {
         p.background(255, 255, 255, 0);
-        const { blobs, centers } = buildVisualBlobs(currentText, p.width);
+        const { blobs, centers } = buildVisualBlobs(currentText, p.width, p.height);
         if (!blobs.length && !centers.length) return;
 
         // connecting line
@@ -161,7 +161,7 @@
 
     window.addEventListener("resize", () => {
       if (!instance || !containerEl) return;
-      instance.resizeCanvas(containerWidth(containerEl), VIS_H);
+      instance.resizeCanvas(containerWidth(containerEl), containerEl.clientHeight);
       instance.redraw();
     });
 

@@ -3,7 +3,8 @@
   const MARGIN = 40;
   const COLS = 80;
   // const density = " .:-=+*#%@";
-  const density = "MWNX@#Gy%Ot?l!abovci;:,.  ";
+  // const density = "@MWN#XGy%Ot?l!abovci-;:,.`  ";
+  const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
 
   function brightnessToChar(brightness) {
     const index = Math.floor((brightness / 255) * (density.length - 1));

@@ -31,11 +31,11 @@
     const cols = Math.ceil(Math.sqrt(sentences.length));
     const rows = Math.ceil(sentences.length / cols);
 
-    const marginX = 40;
-    const marginY = 40;
+    const marginX = 25;
+    const marginY = 25;
     
-    const cellW = cols ? w / cols : w;
-    const cellH = rows ? h / rows : h;
+    const cellW = cols ? (w - 2 * marginX) / cols : (w - 2 * marginX);
+    const cellH = rows ? (h - 2 * marginY) / rows : (h - 2 * marginY);
 
     sentences.forEach((sentence, i) => {
       const words = splitIntoWords(sentence);
@@ -44,7 +44,7 @@
       const col = i % cols;
       const row = Math.floor(i / cols);
 
-      const centerCx = marginX + (col + 0.25) * cellW;
+      const centerCx = marginX + (col + 0.5) * cellW;
       const centerCy = marginY + (row + 0.5) * cellH;
 
       const jitter = 130;
@@ -58,8 +58,8 @@
         let wordCx = centerCx + Math.cos(angle) * radius;
         let wordCy = centerCy + Math.sin(angle) * radius;
         
-        wordCx = Math.max(MARGIN, Math.min(w - MARGIN, wordCx));
-        wordCy = Math.max(MARGIN, Math.min(h - MARGIN, wordCy));
+        wordCx = Math.max(marginX, Math.min(w - 2 * marginX, wordCx));
+        wordCy = Math.max(marginY, Math.min(h - 2 * marginY, wordCy));
 
         wordDots.push({
           cx: wordCx,
@@ -138,7 +138,7 @@
     instance = new p5((p) => {
       p.setup = () => {
         const w = containerEl.clientWidth;
-        p.createCanvas(w, VIS_H);
+        p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
         p.background(255, 255, 255, 0);
         p.mouseMoved = () => {
@@ -150,7 +150,7 @@
         p.background(255, 255, 255, 0);
         const availableWidth = containerEl.clientWidth;
 
-        p.resizeCanvas(availableWidth, VIS_H);
+        p.resizeCanvas(availableWidth, containerEl.clientHeight);
         const { sentenceDots } = layoutSentences(currentText, availableWidth, p.height);
 
         for (const s of sentenceDots) {
@@ -184,7 +184,7 @@
 
     window.addEventListener("resize", () => {
       if (!instance || !containerEl) return;
-      instance.resizeCanvas(containerWidth(containerEl), VIS_H);
+      instance.resizeCanvas(containerWidth(containerEl), containerEl.clientHeight);
       instance.redraw();
     });
 

@@ -87,5 +87,4 @@
 
     window.VisualText = { ensure, render, clear };
     
-
 })();

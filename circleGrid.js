@@ -3,6 +3,7 @@
 
 (function () {
   const VIS_H = 800;
+  let button;
 
   function alphabetIndex(ch) {
     const c = (ch || "").toLowerCase();
@@ -18,7 +19,7 @@
       .filter(Boolean);
   }
 
-  function buildWordSpots(text, canvasW) {
+  function buildWordSpots(text, canvasW, canvasH) {
     const words = splitWords(text);
     if (!words.length) return [];
 
@@ -26,10 +27,10 @@
     const cols = Math.ceil(Math.sqrt(n));
     const rows = Math.ceil(n / cols);
 
-    const marginX = 40;
-    const marginY = 40;
+    const marginX = 20;
+    const marginY = 20;
     const innerW = Math.max(0, canvasW - 2 * marginX);
-    const innerH = Math.max(0, VIS_H - 2 * marginY);
+    const innerH = Math.max(0, canvasH - 2 * marginY);
 
     const cellW = cols ? innerW / cols : innerW;
     const cellH = rows ? innerH / rows : innerH;
@@ -80,21 +81,21 @@
 
       p.setup = () => {
         const w = containerEl.clientWidth;
-        p.createCanvas(w, VIS_H);
+        p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
-        p.noLoop();
+        p.noLoop();    
         p.background(255, 255, 255, 0);
       };
 
       p.draw = () => {
         p.background(255, 255, 255, 0);
-        const spots = buildWordSpots(currentText, p.width);
+        const spots = buildWordSpots(currentText, p.width, p.height);
         if (!spots.length) return;
 
         p.colorMode(p.HSL, 360, 100, 100, 1);
 
         const minR = 6;
-        const maxR = 32;
+        const maxR = 36;
 
         for (const spot of spots) {
           const { cx, cy, letters } = spot;
@@ -109,8 +110,8 @@
             const radius = minR + t * (maxR - minR);
 
             p.noStroke();
-            p.fill(hue, 75, 50, 0.6); // 0.3 opacity
-            p.circle(cx, cy, radius * 3);
+            p.fill(hue, 75, 50, 0.5); // 0.3 opacity
+            p.circle(cx, cy, radius * 2);
           }
         }
       };
@@ -118,7 +119,7 @@
 
     window.addEventListener("resize", () => {
       if (!instance || !containerEl) return;
-      instance.resizeCanvas(containerWidth(containerEl), VIS_H);
+      instance.resizeCanvas(containerWidth(containerEl), containerEl.clientHeight);
       instance.redraw();
     });
 

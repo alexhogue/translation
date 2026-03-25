@@ -65,9 +65,37 @@ const generateBtns = document.querySelectorAll(".generate-btn")
 const generateSentBtn = document.getElementById("generate-sentences-btn");
 const generatePanBtn = document.getElementById("generate-pangram-btn")
 const canvasArea = document.getElementById("canvas-area");
+const saveButton = document.getElementById("download-canvas-btn");
+const compressBtn = document.getElementById("compress-carat")
 
 let toggleMode = "text";
 let currentMode = "";
+
+saveButton.addEventListener("click", () => {
+  const canvas = document.querySelector("#canvas-container canvas");
+  if (!canvas) return;
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = "canvas.png";
+  a.click();
+})
+
+compressBtn.addEventListener("click", () => {
+  const panelBody = document.getElementById("translation-body");
+  if (compressBtn.getAttribute("aria-expanded") == "true") {
+    panelBody.style.display = "none";
+    compressBtn.style.transform = "rotate(180deg)"
+    compressBtn.setAttribute("aria-expanded", "false");
+  } else {
+    panelBody.style.display = "flex";
+    compressBtn.style.transform = "rotate(0deg)";
+    compressBtn.setAttribute("aria-expanded", "true");
+  }
+
+  requestAnimationFrame(() => {
+    window.dispatchEvent(new Event("resize"));
+  });
+})
 
 
 generateBtns.forEach((btn) => {
@@ -138,7 +166,6 @@ generateBtns.forEach((btn) => {
     }
   });
 })
-
 
     toggleBtns.forEach((btn) => {
       btn.addEventListener("click", () => {

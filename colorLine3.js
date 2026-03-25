@@ -188,7 +188,7 @@
         if (!centers.length) return;
         p.resizeCanvas(availableWidth, availableHeight);
 
-        if (buildLineSegments(centers).length > 1) {
+        if (buildLineSegments(centers).length >= 1) {
           p.noFill();
           p.stroke(0, 0, 0, 90);
           p.strokeWeight(1);

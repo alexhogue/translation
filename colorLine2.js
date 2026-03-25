@@ -219,9 +219,9 @@
 
         const { blobs, centers } = buildVisualBlobs(currentText, p.width);
         if (!blobs.length && !centers.length) return;
-        p.resizeCanvas(availableWidth, VIS_H);
+        p.resizeCanvas(availableWidth, containerEl.clientHeight);
 
-        if (buildLineSegments(centers).length > 1) {
+        if (buildLineSegments(centers).length >= 1) {
           p.noFill();
           p.stroke(0, 0, 0, 90);
           p.strokeWeight(1);

@@ -10,90 +10,102 @@
   <!-- <h1>Text Translation Playground</h1> -->
 
   <!-- <h2>Result</h2> -->
+  <h1 id="page-title">Translator</h1>
   <div id="all-content">
     <form id="translation-panel">
-      <h1>Translator</h1>
-        
-        <div id="mode-switch-area">
-          <h2>Translation Mode</h2>
-          <div id="mode-switch-cont">
-            <button type="button" class="toggle-button" toggle-mode="text" aria-pressed="true">Text Mode</button>
-            <button type="button" class="toggle-button" toggle-mode="visual">Image Mode</button>
-          </div>
+        <div id="panel-compress-cont">
+          <button type="button" id="compress-carat" aria-expanded="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M15.7957 3.70406C15.9006 3.80858 15.9838 3.93277 16.0406 4.06951C16.0974 4.20626 16.1266 4.35287 16.1266 4.50093C16.1266 4.649 16.0974 4.79561 16.0406 4.93235C15.9838 5.0691 15.9006 5.19329 15.7957 5.29781L9.09354 12L15.7957 18.7041C16.0071 18.9154 16.1258 19.202 16.1258 19.5009C16.1258 19.7998 16.0071 20.0865 15.7957 20.2978C15.5844 20.5092 15.2977 20.6279 14.9989 20.6279C14.7 20.6279 14.4133 20.5092 14.202 20.2978L6.70198 12.7978C6.5971 12.6933 6.51389 12.5691 6.4571 12.4324C6.40032 12.2956 6.37109 12.149 6.37109 12.0009C6.37109 11.8529 6.40032 11.7063 6.4571 11.5695C6.51388 11.4328 6.5971 11.3086 6.70198 11.2041L14.202 3.70406C14.3065 3.59918 14.4307 3.51596 14.5674 3.45918C14.7042 3.4024 14.8508 3.37317 14.9989 3.37317C15.1469 3.37317 15.2935 3.4024 15.4303 3.45918C15.567 3.51596 15.6912 3.59918 15.7957 3.70406Z" fill="#282828"/>
+            </svg>
+          </button>
         </div>
+        <div id="translation-body">
+          <div id="mode-switch-area">
+            <h2>Translation Mode</h2>
+            <div id="mode-switch-cont">
+              <button type="button" class="toggle-button" toggle-mode="text" aria-pressed="true">Text Mode</button>
+              <button type="button" class="toggle-button" toggle-mode="visual">Image Mode</button>
+            </div>
+          </div>
 
-        <div class="toggle-type-controls" id="text-controls" aria-visible="true">
-          
-          <div>
-            <!-- <label for="source">Source text</label><br /> -->
-            <div id="source-wrap" class="drop-area">
+          <div class="toggle-type-controls" id="text-controls" aria-visible="true">
+            
+            <div class="image-drop-cont">
+              <!-- <label for="source">Source text</label><br /> -->
               <h2>Input Source Text</h2>
-              <textarea id="source" placeholder="Add any text here..."></textarea>
-            </div>
-            <div class="generate-btn-cont">
-              <button type="button" class="generate-text-btn" id="generate-sentences-btn" text-type="sentences">Generate sentences</button>
-              <button type="button" class="generate-btn" id="generate-pangram-btn" text-type="pangram">Generate pangram</button>
-            </div>
-          </div>
-
-          <!-- <label for="mode">Translate into</label><br /> -->
-          <div id="button-area">
-            <h2>Translate Into</h2>
-            <div id="mode-buttons" aria-label="Translation mode">
-              <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
-              <button type="button" class="mode-btn" data-mode="visualColor1">Color grid</button>
-              <button type="button" class="mode-btn" data-mode="visualColor2">Square grid</button>
-              <button type="button" class="mode-btn" data-mode="gridRadius">Grid Radius</button>
-              <button type="button" class="mode-btn" data-mode="concretePoem">Blackout Poem</button>
-              <button type="button" class="mode-btn" data-mode="visualColor3">Color Line</button>
-              <button type="button" class="mode-btn" data-mode="colorLine2">Color Line 2</button>
-              <button type="button" class="mode-btn" data-mode="colorLine3">Color Line 3</button>
-              <button type="button" class="mode-btn" data-mode="neuron">Neuron</button>
-              <button type="button" class="mode-btn" data-mode="neuron2">Neuron 2</button>
-              <button type="button" class="mode-btn" data-mode="neuron3">Neuron 3</button>
-              <button type="button" class="mode-btn" data-mode="neuron4">Neuron 4</button>
-              <button type="button" class="mode-btn" data-mode="binary">Binary</button>
-              <button type="button" class="mode-btn" data-mode="french">French</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="toggle-type-controls" id="image-controls" aria-visible="false">
-
-          <div>
-            <h2>Input source image</h2>
-            <div id="drop-cont" class="drop-area">
-              <!-- <img id="image-icon" src="assets/image-icon.svg"/> -->
-              <div id="drop-area">
-                <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38" fill="none">
-                  <path d="M6 0H32C33.5913 0 35.1174 0.632141 36.2426 1.75736C37.3679 2.88258 38 4.4087 38 6V32C38 33.5913 37.3679 35.1174 36.2426 36.2426C35.1174 37.3679 33.5913 38 32 38H6C4.4087 38 2.88258 37.3679 1.75736 36.2426C0.632141 35.1174 0 33.5913 0 32V6C0 4.4087 0.632141 2.88258 1.75736 1.75736C2.88258 0.632141 4.4087 0 6 0ZM6 2C4.93913 2 3.92172 2.42143 3.17157 3.17157C2.42143 3.92172 2 4.93913 2 6V29.18L10.58 20.58L15.58 25.58L25.58 15.58L36 26V6C36 4.93913 35.5786 3.92172 34.8284 3.17157C34.0783 2.42143 33.0609 2 32 2H6ZM15.58 28.42L10.58 23.42L2 32C2 33.0609 2.42143 34.0783 3.17157 34.8284C3.92172 35.5786 4.93913 36 6 36H32C33.0609 36 34.0783 35.5786 34.8284 34.8284C35.5786 34.0783 36 33.0609 36 32V28.82L25.58 18.42L15.58 28.42ZM11 6C12.3261 6 13.5979 6.52678 14.5355 7.46447C15.4732 8.40215 16 9.67392 16 11C16 12.3261 15.4732 13.5979 14.5355 14.5355C13.5979 15.4732 12.3261 16 11 16C9.67392 16 8.40215 15.4732 7.46447 14.5355C6.52678 13.5979 6 12.3261 6 11C6 9.67392 6.52678 8.40215 7.46447 7.46447C8.40215 6.52678 9.67392 6 11 6ZM11 8C10.2044 8 9.44129 8.31607 8.87868 8.87868C8.31607 9.44129 8 10.2044 8 11C8 11.7956 8.31607 12.5587 8.87868 13.1213C9.44129 13.6839 10.2044 14 11 14C11.7956 14 12.5587 13.6839 13.1213 13.1213C13.6839 12.5587 14 11.7956 14 11C14 10.2044 13.6839 9.44129 13.1213 8.87868C12.5587 8.31607 11.7956 8 11 8Z" fill="currentColor"/>
-                </svg>
-                <p id="instruction-text">Upload image here</p>
-                <input type="file" id="file-input" accept="image/*" >
+              <div id="source-wrap" class="drop-area">
+                <textarea id="source" placeholder="Add any text here..."></textarea>
               </div>
-              <img id="preview-img" src="#" alt="image preview" style="display: none">
+              <div class="generate-btn-cont">
+                <button type="button" class="generate-text-btn" id="generate-sentences-btn" text-type="sentences">Generate sentences</button>
+                <button type="button" class="generate-btn" id="generate-pangram-btn" text-type="pangram">Generate pangram</button>
+              </div>
             </div>
-            <div class="generate-btn-cont">
-              <button type="button" class="generate-btn" id="generate-image-btn" text-type="image">Generate image</button>
+
+            <!-- <label for="mode">Translate into</label><br /> -->
+            <div id="button-area">
+              <h2>Translate Into</h2>
+              <div id="mode-buttons" aria-label="Translation mode">
+                <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
+                <button type="button" class="mode-btn" data-mode="visualColor1">Color grid</button>
+                <button type="button" class="mode-btn" data-mode="visualColor2">Square grid</button>
+                <button type="button" class="mode-btn" data-mode="gridRadius">Punctuation Grid</button>
+                <button type="button" class="mode-btn" data-mode="concretePoem">Blackout Poem</button>
+                <button type="button" class="mode-btn" data-mode="visualColor3">Color Line</button>
+                <button type="button" class="mode-btn" data-mode="colorLine2">Syllables Line</button>
+                <button type="button" class="mode-btn" data-mode="colorLine3">Alphabet Line</button>
+                <button type="button" class="mode-btn" data-mode="neuron">Neuron Random</button>
+                <button type="button" class="mode-btn" data-mode="neuron2">Neuron Color</button>
+                <button type="button" class="mode-btn" data-mode="neuron3">Neuron Grid</button>
+                <button type="button" class="mode-btn" data-mode="neuron4">Neuron Words</button>
+                <button type="button" class="mode-btn" data-mode="binary">Binary</button>
+                <button type="button" class="mode-btn" data-mode="french">French</button>
+              </div>
             </div>
           </div>
 
-          <div id="button-area">
-            <h2>Translate Into</h2>
-            <div id="mode-buttons" aria-label="Translation mode">
-              <button type="button" class="mode-btn" data-mode="typeArt">Type Art</button>
-              <button type="button" class="mode-btn" data-mode="rgb">RGB</button>
+          <div class="toggle-type-controls" id="image-controls" aria-visible="false">
+
+            <div class="image-drop-cont">
+              <h2>Input source image</h2>
+              <div id="drop-cont" class="drop-area">
+                <!-- <img id="image-icon" src="assets/image-icon.svg"/> -->
+                <div id="drop-area">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 38 38" fill="none">
+                    <path d="M6 0H32C33.5913 0 35.1174 0.632141 36.2426 1.75736C37.3679 2.88258 38 4.4087 38 6V32C38 33.5913 37.3679 35.1174 36.2426 36.2426C35.1174 37.3679 33.5913 38 32 38H6C4.4087 38 2.88258 37.3679 1.75736 36.2426C0.632141 35.1174 0 33.5913 0 32V6C0 4.4087 0.632141 2.88258 1.75736 1.75736C2.88258 0.632141 4.4087 0 6 0ZM6 2C4.93913 2 3.92172 2.42143 3.17157 3.17157C2.42143 3.92172 2 4.93913 2 6V29.18L10.58 20.58L15.58 25.58L25.58 15.58L36 26V6C36 4.93913 35.5786 3.92172 34.8284 3.17157C34.0783 2.42143 33.0609 2 32 2H6ZM15.58 28.42L10.58 23.42L2 32C2 33.0609 2.42143 34.0783 3.17157 34.8284C3.92172 35.5786 4.93913 36 6 36H32C33.0609 36 34.0783 35.5786 34.8284 34.8284C35.5786 34.0783 36 33.0609 36 32V28.82L25.58 18.42L15.58 28.42ZM11 6C12.3261 6 13.5979 6.52678 14.5355 7.46447C15.4732 8.40215 16 9.67392 16 11C16 12.3261 15.4732 13.5979 14.5355 14.5355C13.5979 15.4732 12.3261 16 11 16C9.67392 16 8.40215 15.4732 7.46447 14.5355C6.52678 13.5979 6 12.3261 6 11C6 9.67392 6.52678 8.40215 7.46447 7.46447C8.40215 6.52678 9.67392 6 11 6ZM11 8C10.2044 8 9.44129 8.31607 8.87868 8.87868C8.31607 9.44129 8 10.2044 8 11C8 11.7956 8.31607 12.5587 8.87868 13.1213C9.44129 13.6839 10.2044 14 11 14C11.7956 14 12.5587 13.6839 13.1213 13.1213C13.6839 12.5587 14 11.7956 14 11C14 10.2044 13.6839 9.44129 13.1213 8.87868C12.5587 8.31607 11.7956 8 11 8Z" fill="currentColor"/>
+                  </svg>
+                  <p id="instruction-text">Upload image here</p>
+                  <input type="file" id="file-input" accept="image/*" >
+                </div>
+                <img id="preview-img" src="#" alt="image preview" style="display: none">
+              </div>
+              <div class="generate-btn-cont">
+                <button type="button" id="generate-image-btn" text-type="image">Generate image</button>
+              </div>
+            </div>
+
+            <div id="button-area">
+              <h2>Translate Into</h2>
+              <div id="mode-buttons" aria-label="Translation mode">
+                <button type="button" class="mode-btn" data-mode="typeArt">Type Art</button>
+                <button type="button" class="mode-btn" data-mode="rgb">RGB Grid</button>
+                <button type="button" class="mode-btn" data-mode="description">Image Description</button>
+              </div>
             </div>
           </div>
+
+          <button id="submit-button" type="submit">Translate</button>
         </div>
-
-        <button id="submit-button" type="submit">Translate</button>
 
     </form>
 
     <div id="canvas-area">
       <!-- <pre id="result">—</pre> -->
       <div id="canvas-container"></div>
+      <div id="download-canvas-btn-cont">
+        <button type="button" id="download-canvas-btn">Save Translation</button>
+      </div>
     </div>
   </div>
 
@@ -149,6 +161,6 @@
 
   <!-- App logic using translation functions -->
    <script src="sketch.js"></script>
-  <script src="image-function.js"></script>
+  <script type="module" src="image-function.js"></script>
 </body>
 </html>
