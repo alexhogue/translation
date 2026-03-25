@@ -57,7 +57,7 @@ h2 {
     /* flex-direction: column; */
     overflow-y: auto;
     height: auto;
-    padding-right: 24px;
+    padding: 24px;
   }
 }
 #translation-panel{
@@ -125,16 +125,12 @@ textarea {
 }
 button {
    background-color: transparent;
-   border-width: 1px;
+   border: 1px solid var(--lightmode-text);
    /* border-radius: 4px; */
+   color: var(--lightmode-text);
    transition: background-color 0.2s ease;
    font-family: "Datatype";
    
-}
-button:hover {
-   background-color: var(--lightmode-text);
-   color: var(--lightmode-background);
-   transition: background-color 0.2s ease;
 }
 button:hover {
    background-color: var(--lightmode-text);
