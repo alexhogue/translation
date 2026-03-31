@@ -84,11 +84,11 @@
         p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
         p.noLoop();    
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
       };
 
       p.draw = () => {
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
         const spots = buildWordSpots(currentText, p.width, p.height);
         if (!spots.length) return;
 
@@ -137,7 +137,7 @@
     currentText = "";
     const p = ensure();
     if (!p) return;
-    p.background(255, 255, 255, 0);
+    p.background(backgroundColor);
   }
 
   window.VisualColor1 = { ensure, render, clear };

@@ -61,12 +61,17 @@ const canvasContainerEl = document.getElementById('canvas-container');
 const toggleBtns = document.querySelectorAll(".toggle-button");
 const textControls = document.getElementById("text-controls");
 const imageControls = document.getElementById("image-controls");
-const generateBtns = document.querySelectorAll(".generate-btn")
+const generateBtns = document.querySelectorAll(".generate-text-btn")
 const generateSentBtn = document.getElementById("generate-sentences-btn");
 const generatePanBtn = document.getElementById("generate-pangram-btn")
 const canvasArea = document.getElementById("canvas-area");
 const saveButton = document.getElementById("download-canvas-btn");
 const compressBtn = document.getElementById("compress-carat")
+
+const backgroundColor = getComputedStyle(
+  document.documentElement
+).getPropertyValue("--lightmode-background");
+
 
 let toggleMode = "text";
 let currentMode = "";

@@ -140,14 +140,14 @@
         const w = containerEl.clientWidth;
         p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
         p.mouseMoved = () => {
           p.redraw();
         };
       };
 
       p.draw = () => {
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
         const availableWidth = containerEl.clientWidth;
 
         p.resizeCanvas(availableWidth, containerEl.clientHeight);
@@ -202,7 +202,7 @@
     currentText = "";
     const p = ensure();
     if (!p) return;
-    p.background(255, 255, 255, 0);
+    p.background(backgroundColor);
   }
 
 

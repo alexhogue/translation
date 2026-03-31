@@ -58,12 +58,12 @@
         p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
         p.noLoop();
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
       };
 
       p.draw = () => {
         p.clear();
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
         const availableWidth = containerEl.clientWidth;
         if (!currentGrid) return; 
         const { grid, COLS, rows } = currentGrid;

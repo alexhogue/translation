@@ -29,9 +29,10 @@
       // very long: red
       return "rgba(176, 189, 112, 1)";
     } else if (len <= 5) {
-      // very long: red
       return "rgba(82, 127, 93, 1)";
     } else if (len <= 6) {
+      return "rgb(17, 89, 78)";
+    } else if (len <= 7) {
       return "rgba(169, 195, 191, 1)";
     } else {
       return "rgba(70, 152, 203, 1)";
@@ -176,11 +177,11 @@
         p.createCanvas(w, VIS_H);
         p.pixelDensity(2);
         p.noLoop();
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
       };
 
       p.draw = () => {
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
         const availableWidth = containerEl.clientWidth;
         const availableHeight = containerEl.clientHeight;
 
@@ -238,7 +239,7 @@
     currentText = "";
     const p = ensure();
     if (!p) return;
-    p.background(255, 255, 255, 0);
+    p.background(backgroundColor);
   }
 
   window.ColorLine3 = { ensure, render, clear };

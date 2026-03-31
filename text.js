@@ -30,11 +30,11 @@
             p.createCanvas(w, VIS_H);
             p.pixelDensity(2);
             p.noLoop();
-            p.background(255, 255, 255, 0);
+            p.background(backgroundColor);
           };
 
           p.draw = () => {
-            p.background(255, 255, 255, 0);
+            p.background(backgroundColor);
             const words = currentText.split(/\s+/);
             const margin = 24;
             const lineHeight = 22;
@@ -82,7 +82,7 @@
       currentText = "";
       const p = ensure();
       if (!p) return;
-      p.background(255, 255, 255, 0);
+      p.background(backgroundColor);
     }
 
     window.VisualText = { ensure, render, clear };

@@ -201,11 +201,11 @@
         p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
         p.noLoop();
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
       };
 
       p.draw = () => {
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
         const availableWidth = containerEl.clientWidth;
 
         const { blobs, centers } = buildVisualBlobs(currentText, p.width, p.height);
@@ -261,7 +261,7 @@
     currentText = "";
     const p = ensure();
     if (!p) return;
-    p.background(255, 255, 255, 0);
+    p.background(backgroundColor);
   }
 
   window.VisualColor3 = { ensure, render, clear };

@@ -217,7 +217,7 @@
         p.createCanvas(w, VIS_H);
         p.pixelDensity(5);
         p.noLoop();
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
         // p.mouseMoved = () => {
         //   p.redraw();
         // };
@@ -235,7 +235,7 @@
 
         if (!pageElements.length) return;
         p.resizeCanvas(canvasW, canvasH);
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
         p.scale(scale);
         const fontSize = 16;
 
@@ -349,7 +349,7 @@
     currentText = "";
     const p = ensure();
     if (!p) return;
-    p.background(255, 255, 255, 0);
+    p.background(backgroundColor);
   }
 
   window.ConcretePoem = { ensure, render, clear };

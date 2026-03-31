@@ -112,11 +112,11 @@
         p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
         p.noLoop();
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
       };
 
       p.draw = () => {
-        p.background(255, 255, 255, 0);
+        p.background(backgroundColor);
         const availableWidth = containerEl.clientWidth;
 
         p.resizeCanvas(availableWidth, containerEl.clientHeight);
@@ -168,7 +168,7 @@
     currentText = "";
     const p = ensure();
     if (!p) return;
-    p.background(255, 255, 255, 0);
+    p.background(backgroundColor);
   }
 
   window.Neuron3 = { ensure, render, clear };
