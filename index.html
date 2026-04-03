@@ -24,8 +24,8 @@
           <div id="mode-switch-area">
             <h2>Translation Mode</h2>
             <div id="mode-switch-cont">
-              <button type="button" class="toggle-button" toggle-mode="text" aria-pressed="true">Text Mode</button>
-              <button type="button" class="toggle-button" toggle-mode="visual">Image Mode</button>
+              <button type="button" class="toggle-button" toggle-mode="text" aria-pressed="true">Text mode</button>
+              <button type="button" class="toggle-button" toggle-mode="visual">Image mode</button>
             </div>
           </div>
 
@@ -50,15 +50,15 @@
                 <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
                 <button type="button" class="mode-btn" data-mode="visualColor1">Color grid</button>
                 <button type="button" class="mode-btn" data-mode="visualColor2">Square grid</button>
-                <button type="button" class="mode-btn" data-mode="gridRadius">Punctuation Grid</button>
-                <button type="button" class="mode-btn" data-mode="concretePoem">Blackout Poem</button>
-                <button type="button" class="mode-btn" data-mode="visualColor3">Color Line</button>
-                <button type="button" class="mode-btn" data-mode="colorLine2">Syllables Line</button>
-                <button type="button" class="mode-btn" data-mode="colorLine3">Alphabet Line</button>
-                <button type="button" class="mode-btn" data-mode="neuron">Neuron Random</button>
-                <button type="button" class="mode-btn" data-mode="neuron2">Neuron Color</button>
-                <button type="button" class="mode-btn" data-mode="neuron3">Neuron Grid</button>
-                <button type="button" class="mode-btn" data-mode="neuron4">Neuron Words</button>
+                <button type="button" class="mode-btn" data-mode="gridRadius">Punctuation grid</button>
+                <button type="button" class="mode-btn" data-mode="concretePoem">Blackout poem</button>
+                <!-- <button type="button" class="mode-btn" data-mode="visualColor3">Color line</button> -->
+                <button type="button" class="mode-btn" data-mode="colorLine2">Syllables line</button>
+                <button type="button" class="mode-btn" data-mode="colorLine3">Alphabet line</button>
+                <!-- <button type="button" class="mode-btn" data-mode="neuron">Neuron random</button> -->
+                <!-- <button type="button" class="mode-btn" data-mode="neuron2">Neuron color</button> -->
+                <button type="button" class="mode-btn" data-mode="neuron3">Neuron grid</button>
+                <button type="button" class="mode-btn" data-mode="neuron4">Neuron words</button>
                 <button type="button" class="mode-btn" data-mode="binary">Binary</button>
                 <button type="button" class="mode-btn" data-mode="french">French</button>
               </div>
@@ -88,14 +88,18 @@
             <div id="button-area">
               <h2>Translate Into</h2>
               <div id="mode-buttons" aria-label="Translation mode">
-                <button type="button" class="mode-btn" data-mode="typeArt">Type Art</button>
-                <button type="button" class="mode-btn" data-mode="rgb">RGB Grid</button>
-                <button type="button" class="mode-btn" data-mode="description">Image Description</button>
+                <button type="button" class="mode-btn" data-mode="typeArt">Type art (brightness)</button>
+                <button type="button" class="mode-btn" data-mode="typeArtColor">Type art (color)</button>
+                <button type="button" class="mode-btn" data-mode="rgb">RGB grid</button>
+                <button type="button" class="mode-btn" data-mode="description">Image description</button>
               </div>
             </div>
           </div>
 
           <button id="submit-button" type="submit">Translate</button>
+        </div>
+        <div id="download-canvas-btn-cont">
+          <button type="button" id="download-canvas-btn">Download output</button>
         </div>
 
     </form>
@@ -103,9 +107,6 @@
     <div id="canvas-area">
       <!-- <pre id="result">—</pre> -->
       <div id="canvas-container"></div>
-      <div id="download-canvas-btn-cont">
-        <button type="button" id="download-canvas-btn">Save Translation</button>
-      </div>
     </div>
   </div>
 

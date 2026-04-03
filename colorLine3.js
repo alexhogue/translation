@@ -89,7 +89,7 @@
       // Map alphabet position (a..z) to left→right, and word index to top→bottom,
       // inside a safe inner box so nothing is cut off.
       const marginX = 40;
-      const marginY = 40;
+      const marginY = 80;
 
       const rowNorm = words.length === 1 ? 0.5 : wIndex / (words.length - 1); // 0..1
 

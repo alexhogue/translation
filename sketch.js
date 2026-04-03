@@ -75,13 +75,15 @@ const backgroundColor = getComputedStyle(
 
 let toggleMode = "text";
 let currentMode = "";
+let downloadCount = 0;
 
 saveButton.addEventListener("click", () => {
   const canvas = document.querySelector("#canvas-container canvas");
   if (!canvas) return;
+  downloadCount += 1;
   const a = document.createElement("a");
   a.href = canvas.toDataURL("image/png");
-  a.download = "canvas.png";
+  a.download = "translation_" + downloadCount + ".png";
   a.click();
 })
 

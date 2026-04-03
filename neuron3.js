@@ -1,6 +1,6 @@
 (function () {
   const VIS_H = 800;
-  const MARGIN = 30;
+  const MARGIN = 20;
 
   function alphabetIndex(ch) {
     const c = (ch || "").toLowerCase();
@@ -35,8 +35,8 @@
     const cols = Math.ceil(Math.sqrt(sentences.length));
     const rows = Math.ceil(sentences.length / cols);
 
-    const marginX = 40;
-    const marginY = 40;
+    const marginX = 25;
+    const marginY = 25;
     
     const cellW = cols ? w / cols : w;
     const cellH = rows ? h / rows : h;
@@ -49,16 +49,18 @@
       const row = Math.floor(i / cols);
 
 
-      const centerCx = marginX + (col + 0.25) * cellW;
+      const centerCx = marginX + (col + 0.5) * cellW;
       const centerCy = marginY + (row + 0.5) * cellH;
 
-      const jitter = 130;
-      const baseRadius = 45;
+      const jitter = 140;
+      const baseRadius = 20;
       const angleStep = (2 * Math.PI) / Math.max(words.length, 1);
 
       words.forEach((word, i) => {
         const angle = i * angleStep;
-        const radius = baseRadius + Math.random() * jitter;
+        const maxExpected = 10; // tune
+        const t = Math.min(1, word.length / maxExpected);
+        const radius = baseRadius + (t) * jitter;
 
         let wordCx = centerCx + Math.cos(angle) * radius;
         let wordCy = centerCy + Math.sin(angle) * radius;

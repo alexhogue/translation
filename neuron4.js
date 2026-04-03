@@ -48,7 +48,7 @@
       const centerCy = marginY + (row + 0.5) * cellH;
 
       const jitter = 130;
-      const baseRadius = 80;
+      const baseRadius = 100;
       const angleStep = (2 * Math.PI) / Math.max(words.length, 1);
 
       words.forEach((word, i) => {
@@ -166,7 +166,7 @@
         for (const s of sentenceDots) {
           p.noStroke();
           p.fill(175, 175, 175);
-          p.circle(s.cx, s.cy, 24);
+          p.circle(s.cx, s.cy, 28);
 
           if (s.words) {
             for (const w of s.words) {
