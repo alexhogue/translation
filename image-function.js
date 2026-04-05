@@ -34,6 +34,10 @@ generateImgBtn.addEventListener("click", (e) => {
   instructionText.textContent = "Upload new image here";
 
   currentImage = url;
+  
+  document.getElementById("to-text-buttons").style.display = currentImage
+    ? "block"
+    : "none";
 });
 
 imageDrop.addEventListener("click", () => {
@@ -45,6 +49,9 @@ fileInput.addEventListener("change", () => {
   if (!file || !file.type.startsWith("image/")) return;
   previewImage(file);
   currentImage = URL.createObjectURL(file);
+  document.getElementById("to-text-buttons").style.display = currentImage
+    ? "block"
+    : "none";
 });
 
 imageDrop.addEventListener("dragover", (e) => {
@@ -68,6 +75,9 @@ imageDrop.addEventListener("drop", (e) => {
   previewImage(file);
 
   currentImage = URL.createObjectURL(file);
+  document.getElementById("to-text-buttons").style.display = currentImage
+    ? "block"
+    : "none";
 });
 
 function previewImage(file) {

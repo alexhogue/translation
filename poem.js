@@ -22,26 +22,40 @@
     return (h + i * 17) >>> 0;
   }
 
+  function getSeed(string) {
+    let h = 2166136261;
+    for (let i = 0; i < string.length; i++) {
+        h ^= string.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
   const POEM_TYPES = ["text", "square", "repeat", "line", "symbol"];
   const WEIGHTS = [3, 2, 1, 1, 3];
 
-  function pickWeightedType() {
+
+  function pickWeightedType(word, index) {
     const weighted = [];
+    const key = word + "\0" + index;
+    const h = getSeed(key);
+
     for (let i = 0; i < POEM_TYPES.length; i++) {
       for (let j = 0; j < WEIGHTS[i]; j++) {
         weighted.push(POEM_TYPES[i]);
       }
     }
-    return weighted[Math.floor(Math.random() * weighted.length)];
+    const idx = h % weighted.length;
+    return weighted[idx];
   }
 
   function classifyPoem(tokens) {
     const classifiedResults = [];
     for (let i = 0; i < tokens.length; i++) {
-      const t = tokens[i];
-      if (t.isLineBreak) {
+      const token = tokens[i];
+      if (token.isLineBreak) {
         classifiedResults.push({
-          raw: t.raw,
+          raw: token.raw,
           isLineBreak: true,
           type: "lineBreak",
         });
@@ -51,10 +65,10 @@
     //   const index = (Math.floor(Math.random() * POEM_TYPES.length));
     //   const type = POEM_TYPES[index];
 
-      const type = pickWeightedType();
+      const type = pickWeightedType(token, i);
       classifiedResults.push({
-        raw: t.raw,
-        isLineBreak: t.isLineBreak,
+        raw: token.raw,
+        isLineBreak: token.isLineBreak,
         type,
       });
     }

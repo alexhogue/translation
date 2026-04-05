@@ -64,7 +64,6 @@
         };
 
         p.draw = () => {
-            p.background(backgroundColor);
             const indices = lettersToIndices(currentText);
             const availableWidth = containerEl.clientWidth;
             
@@ -76,6 +75,7 @@
             const width = cols * (SQUARE_SIZE + GAP) - GAP;
             const height = rows * (SQUARE_SIZE + GAP) - GAP;
             p.resizeCanvas(width, height);
+            p.background(backgroundColor);
 
             p.colorMode(p.HSL, 360, 100, 100, 1);
 

@@ -65,6 +65,7 @@ const generateBtns = document.querySelectorAll(".generate-text-btn")
 const generateSentBtn = document.getElementById("generate-sentences-btn");
 const generatePanBtn = document.getElementById("generate-pangram-btn")
 const canvasArea = document.getElementById("canvas-area");
+const canvas = document.querySelector("canvas");
 const saveButton = document.getElementById("download-canvas-btn");
 const compressBtn = document.getElementById("compress-carat")
 
@@ -73,7 +74,7 @@ const backgroundColor = getComputedStyle(
 ).getPropertyValue("--lightmode-background");
 
 
-let toggleMode = "text";
+let toggleMode = "";
 let currentMode = "";
 let downloadCount = 0;
 
@@ -137,6 +138,7 @@ generateBtns.forEach((btn) => {
 
         // This is the key: keep manual typing AND make Generate fill the textarea
         sourceEl.value = paragraph;
+        updateIfText();
       } catch (err) {
         alert(err?.message || "Failed to generate text");
       }
@@ -166,6 +168,7 @@ generateBtns.forEach((btn) => {
 
         // This is the key: keep manual typing AND make Generate fill the textarea
         sourceEl.value = paragraph;
+        updateIfText();
       } catch (err) {
         alert(err?.message || "Failed to generate text");
       }
@@ -174,41 +177,54 @@ generateBtns.forEach((btn) => {
   });
 })
 
+toggleBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const toggle = btn.getAttribute("toggle-mode");
+    toggleMode = toggle;
     toggleBtns.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const toggle = btn.getAttribute("toggle-mode");
-        toggleMode = toggle;
-        toggleBtns.forEach((btn) => {
-          btn.removeAttribute("aria-pressed");
-        });
-        btn.setAttribute("aria-pressed", "true");
-        if (toggleMode === "text") {
-          textControls.setAttribute("aria-visible", "true");
-          imageControls.setAttribute("aria-visible", "false");
-
-        } else if (toggleMode === "visual") {
-          textControls.setAttribute("aria-visible", "false");
-          imageControls.setAttribute("aria-visible", "true");
-        }
-
-      });
+      btn.removeAttribute("aria-pressed");
     });
+    btn.setAttribute("aria-pressed", "true");
 
+    if (toggleMode === "text") {
+      textControls.style.display = "block";
+      imageControls.style.display = "none";
+      submitBtn.style.display = "block";
+
+    } else if (toggleMode === "visual") {
+      imageControls.style.display = "block";
+      textControls.style.display = "none";
+      submitBtn.style.display = "block";
+    }
+
+  });
+});
+
+function updateIfText() {
+  const hasText = (sourceEl.value || "").trim().length > 0;
+  document.getElementById("to-image-buttons").style.display = hasText ? "block" : "none";
+}
+
+sourceEl.addEventListener("input", updateIfText);
+
+
+modeButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const mode = btn.getAttribute("data-mode");
+    currentMode = mode;
     modeButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const mode = btn.getAttribute("data-mode");
-        currentMode = mode;
-        modeButtons.forEach((btn) => {
-          btn.removeAttribute("aria-pressed");
-        });
-        btn.setAttribute("aria-pressed", "true");
-
-      });
+      btn.removeAttribute("aria-pressed");
     });
+    btn.setAttribute("aria-pressed", "true");
+
+  });
+});
 
     submitBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       const text = sourceEl.value || "";
+
+      saveButton.style.display = "block";
 
       if (toggleMode === "text") {
         if (!text.trim()) {

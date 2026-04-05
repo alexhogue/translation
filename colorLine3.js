@@ -181,13 +181,13 @@
       };
 
       p.draw = () => {
-        p.background(backgroundColor);
         const availableWidth = containerEl.clientWidth;
         const availableHeight = containerEl.clientHeight;
 
         const { centers } = buildVisualBlobs(currentText, p.width, availableHeight);
         if (!centers.length) return;
         p.resizeCanvas(availableWidth, availableHeight);
+        p.background(backgroundColor);
 
         if (buildLineSegments(centers).length >= 1) {
           p.noFill();

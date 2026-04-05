@@ -92,7 +92,7 @@ h2 {
    flex: 1;
    padding-bottom: 24px;
    gap: 24px;
-   width: 25vw;
+   width: 22vw;
    /* flex: 0 0 auto;  */
 }
 @media screen and (max-width: 768px) {
@@ -183,9 +183,10 @@ button:hover {
    flex-direction: column;
    gap: 12px;
 }
-.toggle-type-controls[aria-visible="false"] {
-   display: none;
+.button-area {
+   margin-top: 12px;
 }
+
 .generate-btn-cont {
    display: flex;
    justify-content: flex-end;
