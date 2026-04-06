@@ -44,8 +44,20 @@ h2 {
    font-variation-settings: "wght" 900;
 }
 #page-title{
-   padding: 0px 0px 2px 10px;
+   padding: 0px 0px 2px 0px;
    text-transform: uppercase;
+}
+#wrapper {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  flex-direction: column;
+  overflow: hidden;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  margin: 0;
+  padding: 0;
 }
 #all-content {
    display: flex;
@@ -55,8 +67,10 @@ h2 {
    box-sizing: border-box;
    width: 100%;
    height: 100vh;
-   gap: 12px;
+   gap: 6px;
    overflow-y: hidden;
+   flex-shrink: 0;
+   position: relative;
 }
 @media screen and (max-width: 768px) {
   #all-content {
@@ -72,6 +86,9 @@ h2 {
    height: 100%;
    display: flex;
    flex-direction: column;
+   min-width: 0;
+   box-sizing: border-box;
+   position: relative;
 }
 @media screen and (max-width: 768px) {
   #translation-panel {
@@ -80,7 +97,18 @@ h2 {
     overflow-y: visible;
   }
 }
-#translation-body{
+#resizer {
+   position: relative;
+   flex-basis: 18px;
+   z-index: 2;
+   cursor: col-resize;
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+   border-left: 1px solid rgba(255, 255, 255, 0.05);
+   border-right: 1px solid rgb(0, 0, 0);
+}
+#translation-body {
    /* position: absolute; */
    display: flex;
    flex-direction: column;
@@ -89,10 +117,9 @@ h2 {
    /* justify-content: space-between; */
    min-width: 300px;
    /* height: 100%;  */
-   flex: 1;
    padding-bottom: 24px;
    gap: 24px;
-   width: 22vw;
+   /* width: 22vw; */
    /* flex: 0 0 auto;  */
 }
 @media screen and (max-width: 768px) {
@@ -102,9 +129,13 @@ h2 {
     height: auto;
   }
 }
+#translation-body > * {
+   flex-grow: 1;
+}
 #panel-compress-cont {
    display: flex;
    justify-content: flex-end;
+   width: 100%;
 }
 #compress-carat {
    border: 0;
@@ -116,7 +147,7 @@ h2 {
   }
 }
 
-#source-wrap {
+.text-input-area {
    display: grid;
 }
 textarea {
@@ -126,7 +157,7 @@ textarea {
    resize: vertical;
    background-color: transparent;
 }
-#source {
+textarea[data-role="input-text"] {
    padding: 10px 12px; 
    font-family: "Datatype";
    /* border-radius: 4px; */
@@ -161,7 +192,7 @@ button:hover {
    background-color: var(--lightmode-text);
    color: var(--lightmode-background);
 }
-#mode-buttons{
+.mode-buttons {
    display: flex;
    flex-wrap: wrap;
    justify-content: space-between;
@@ -178,6 +209,15 @@ button:hover {
    padding: 4px 8px;
    width: 100%;
 }
+.toggle-locked button {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+#restart-cont {
+   display: flex;
+   justify-content: flex-end;
+}
 .toggle-type-controls {
    display: flex;
    flex-direction: column;
@@ -193,7 +233,7 @@ button:hover {
    gap: 6px;
    padding-top: 4px;
 }
-#drop-cont {
+[data-role="drop-file"] {
    min-height: 100px;
    border: 1px solid var(--lightmode-text);
    display: flex;
@@ -203,13 +243,13 @@ button:hover {
    justify-content: center;
    align-items: center;
 }
-#drop-area {
+.drop-instructions {
    display: flex;
    gap: 12px;
    justify-content: center;
    align-items: center;
 }
-#file-input {
+[data-role="input-file"] {
    display: none;
 }
 .image-drop-cont{
@@ -225,18 +265,27 @@ button:hover {
 #image-drop-area.drag-over #image-icon {
    color: var(--greyed-text);
 }
-#preview-img {
+[data-role="preview-img"] {
    width: 80%;
    height: auto;
 }
-
+#chain-stages {
+   display: flex;
+   flex-direction: column;
+   gap: 24px;
+   margin-top: 24px;
+}
 
 #canvas-area {
+   position: relative;
    display: flex;
    flex-direction: column;
    height: 100%;
    min-height: 400px;
-   flex: 1;
+   /* flex: 1; */
+   flex-basis: 0;
+   flex-grow: 1;
+   min-width: 0;
    /* margin-left: 10vw; */
    overflow-y: hidden;
    /* padding-top: 24px; */
@@ -250,12 +299,13 @@ button:hover {
 
    overflow-y: auto;
    background-color: transparent;
-   border-top: 2px solid var(--lightmode-text);
-   border-left: 1px solid var(--lightmode-text);
+   /* border-top: 1px solid var(--lightmode-text);
+   border-left: 1px solid var(--lightmode-text); */
 }
 canvas {
   display: block;
   width: 100%;
+  flex: 1;
   height: auto;
   overflow: visible;
   background-color: transparent;
@@ -263,7 +313,7 @@ canvas {
 #download-canvas-btn-cont {
    display: flex;
    justify-content: flex-end;
-   padding: 6px 0px;
+   padding: 18px 0px;
    margin-top: auto; 
    flex-shrink: 0;
 }

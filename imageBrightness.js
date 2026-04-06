@@ -35,6 +35,30 @@
     return { grid, COLS, rows };
   }
 
+  function buildTextFromImage(img) {
+    const rows = Math.floor(COLS * (img.height / img.width) * 0.5);
+    const cellW = img.width / COLS;
+    const cellH = img.height / rows;
+    img.loadPixels();
+
+    const textLines = [];
+    for (let j = 0; j < rows; j++) {
+      let line = "";
+      for (let i = 0; i < COLS; i++) {
+        const px = Math.floor((i + 0.5) * cellW);
+        const py = Math.floor((j + 0.5) * cellH);
+        const idx = (py * img.width + px) * 4;
+        const r = img.pixels[idx];
+        const g = img.pixels[idx + 1];
+        const b = img.pixels[idx + 2];
+        const brightness = (r + g + b) / 3;
+        line += brightnessToChar(brightness);
+      }
+      textLines.push(line);
+    }
+    return textLines.join("\n");
+  }
+
   function containerWidth(container) {
     const w = container && container.clientWidth ? container.clientWidth : 900;
     return Math.max(320, Math.min(1200, w));
@@ -111,5 +135,16 @@
     });
   }
 
+  function getText(url, activeTextArea) {
+    const p = ensure();
+    const ta = activeTextArea ?? window.activeInputTextarea;
+    if (!p) return;
+    p.loadImage(url, (img) => {
+      ta.value = buildTextFromImage(img);
+      p.redraw();
+    });
+  }
+
+  window.getBrightnessText = getText;
   window.handleImageForTextPicture = renderFromImage;
 })();

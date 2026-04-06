@@ -1,10 +1,17 @@
 (function () {
   const VIS_H = 800;
-  const MARGIN = 40;
-  const COLS = 12;
+  const COLS = 80;
+  // const density = " .:-=+*#%@";
+  // const density = "@MWN#XGy%Ot?l!abovci-;:,.`  ";
+  const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
 
-  function getRGBValues(img) {
-    const rows = Math.floor(2*COLS * (img.height / img.width) * 0.75);
+  function brightnessToChar(brightness) {
+    const index = Math.floor((brightness / 255) * (density.length - 1));
+    return density[Math.min(index, density.length - 1)];
+  }
+
+  function buildGridFromImage(img) {
+    const rows = Math.floor(COLS * (img.height / img.width) * 0.5);
     const cellW = img.width / COLS;
     const cellH = img.height / rows;
     const grid = [];
@@ -19,11 +26,12 @@
         const r = img.pixels[idx];
         const g = img.pixels[idx + 1];
         const b = img.pixels[idx + 2];
-        row.push("[" + [r, g, b].toString() + "]");
+        const brightness = (r + g + b) / 3;
+        row.push(brightnessToChar(brightness));
       }
       grid.push(row);
     }
-    return { grid, COLS, rows};
+    return { grid, COLS, rows };
   }
 
   function containerWidth(container) {
@@ -55,7 +63,7 @@
         p.redraw();
         p.clear();
         const w = containerEl.clientWidth;
-        p.createCanvas(w, containerEl.clientHeight);
+        p.createCanvas(w, VIS_H);
         p.pixelDensity(2);
         p.noLoop();
         p.background(backgroundColor);
@@ -67,16 +75,15 @@
         const availableWidth = containerEl.clientWidth;
         if (!currentGrid) return; 
         const { grid, COLS, rows } = currentGrid;
-        const w = containerEl.clientWidth - MARGIN;
-        const h = containerEl.clientHeight - MARGIN;
-        const cellW = (w) / COLS;
-        const cellH = (h) / rows;
+        const w = p.width;
+        const h = p.height;
+        const cellW = w / COLS;
+        const cellH = h / rows;
         p.fill(0);
         p.noStroke();
 
         for (let j = 0; j < rows; j++) {
           for (let i = 0; i < COLS; i++) {
-            p.textAlign(p.LEFT, p.TOP);
             p.text(grid[j][i], i * cellW, (j + 1) * cellH);
           }
         }
@@ -87,10 +94,7 @@
 
     window.addEventListener("resize", () => {
       if (!instance || !containerEl) return;
-      instance.resizeCanvas(
-        containerWidth(containerEl),
-        containerEl.clientHeight
-      );
+      instance.resizeCanvas(containerWidth(containerEl), VIS_H);
       instance.redraw();
     });
 
@@ -101,10 +105,10 @@
     const p = ensure();
     if (!p) return;
     p.loadImage(url, (img) => {
-      currentGrid = getRGBValues(img);
+      currentGrid = buildGridFromImage(img);
       p.redraw();
     });
   }
 
-  window.handleRGB = renderFromImage;
+  window.handleImageForTextPicture = renderFromImage;
 })();

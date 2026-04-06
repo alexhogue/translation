@@ -1,9 +1,11 @@
 import { pipeline } from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1";
-const imageDrop = document.getElementById("drop-cont");
-const fileInput = document.getElementById("file-input");
-const imagePreview = document.getElementById("preview-img");
-const instructionText = document.getElementById("instruction-text");
-const generateImgBtn = document.getElementById("generate-image-btn");
+const imageControls = document.querySelector('[data-role="convert-to-text"]');
+const imageDrop = imageControls.querySelector('[data-role="drop-file"]');
+const fileInput = imageControls.querySelector('[data-role="input-file"]');
+const imagePreview = imageControls.querySelector('[data-role="preview-img"]');
+const instructionText = imageControls.querySelector('[data-role="instructions-text"]');
+const generateImgBtn = imageControls.querySelector('[data-role="random-image"]');
+const toTextButtons = imageControls.querySelector('[data-role="to-text-buttons"]');
 
 let currentImage = "";
 
@@ -30,14 +32,14 @@ generateImgBtn.addEventListener("click", (e) => {
   const url = "./image_bank/" + randomImage;
 
   imagePreview.src = url;
+  
   imagePreview.style.display = "block";
   instructionText.textContent = "Upload new image here";
 
   currentImage = url;
+  window.currentImage = currentImage;  
   
-  document.getElementById("to-text-buttons").style.display = currentImage
-    ? "block"
-    : "none";
+  toTextButtons.style.display = currentImage ? "block" : "none";
 });
 
 imageDrop.addEventListener("click", () => {
@@ -49,9 +51,8 @@ fileInput.addEventListener("change", () => {
   if (!file || !file.type.startsWith("image/")) return;
   previewImage(file);
   currentImage = URL.createObjectURL(file);
-  document.getElementById("to-text-buttons").style.display = currentImage
-    ? "block"
-    : "none";
+  window.currentImage = currentImage;  
+  toTextButtons.style.display = currentImage ? "block" : "none";
 });
 
 imageDrop.addEventListener("dragover", (e) => {
@@ -75,9 +76,8 @@ imageDrop.addEventListener("drop", (e) => {
   previewImage(file);
 
   currentImage = URL.createObjectURL(file);
-  document.getElementById("to-text-buttons").style.display = currentImage
-    ? "block"
-    : "none";
+  window.currentImage = currentImage;  
+  toTextButtons.style.display = currentImage ? "block" : "none";
 });
 
 function previewImage(file) {
@@ -114,35 +114,21 @@ async function createDescription(imageURL) {
 }
 
 
-modeButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const mode = btn.getAttribute("data-mode");
-    currentMode = mode;
-    modeButtons.forEach((btn) => {
-      btn.removeAttribute("aria-pressed");
-    });
-    btn.setAttribute("aria-pressed", "true");
-  });
+document.getElementById("controls-section").addEventListener("click", (e) => {
+  const btn = e.target.closest(".mode-btn");
+  if (!btn) return;
+  const stage = btn.closest(
+    "[data-stage-id], [data-role='convert-to-text'], [data-role='convert-to-image']"
+  );
+  if (!stage) return;
+  // Only clear .mode-btn inside THIS stage (or same column type)
+  stage
+    .querySelectorAll(".mode-btn")
+    .forEach((b) => b.removeAttribute("aria-pressed"));
+  btn.setAttribute("aria-pressed", "true");
+  currentMode = btn.getAttribute("data-mode");
+  window.currentMode = currentMode;
+  // optional: stage.dataset.activeMode = currentMode for multi-stage
 });
 
-submitBtn.addEventListener("click", async (e) => {
-  e.preventDefault();
-  const image = currentImage;
 
-  if (currentMode === "typeArt") {
-    window.handleImageForTextPicture(currentImage);
-    return;
-  }
-  if (currentMode === "rgb") {
-    window.handleRGB(currentImage);
-    return;
-  }
-
-  if (currentMode === "description") {
-    const out = await createDescription(image);
-    window.VisualText.render(out || "—");
-    return;
-  }
-
-//   if (window.VisualText) window.VisualText.clear();
-});

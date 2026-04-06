@@ -111,6 +111,7 @@
   let instance = null;
   let containerEl = null;
   let currentText = "";
+  let resizeObs = null;
 
   function ensure() {
     containerEl = document.getElementById("canvas-container");
@@ -164,6 +165,17 @@
       instance.resizeCanvas(containerWidth(containerEl), containerEl.clientHeight);
       instance.redraw();
     });
+
+    if (!resizeObs) {
+      resizeObs = new ResizeObserver(() => {
+        const w = containerWidth(containerEl);
+        const h = containerEl.clientHeight || VIS_H;
+        instance.resizeCanvas(w, h);
+        instance.redraw();
+
+      });
+    }
+    resizeObs.observe(containerEl);
 
     return instance;
   }

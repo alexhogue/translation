@@ -51,32 +51,56 @@ function translateSync(input, mode) {
   }
 }
 
-
+const textControls = document.querySelector('[data-role="convert-to-image"]');
+const imageControls = document.querySelector('[data-role="convert-to-text"]');
 const panel = document.getElementById('translation-panel');
-const sourceWrap = document.getElementById("source-wrap");
-const sourceEl = document.getElementById('source');
-const modeEl = document.getElementById('mode-buttons');
+const resizer = document.getElementById("resizer");
+const sourceWrap = textControls.querySelector('[data-role="source-wrap"]');
+const sourceEl = textControls.querySelector('[data-role="input-text"]');
+const modeEl = document.querySelector('.mode-buttons');
 const submitBtn = document.getElementById('submit-button');
 const canvasContainerEl = document.getElementById('canvas-container');
 const toggleBtns = document.querySelectorAll(".toggle-button");
-const textControls = document.getElementById("text-controls");
-const imageControls = document.getElementById("image-controls");
+const restartBtnCont = document.getElementById("restart-cont");
 const generateBtns = document.querySelectorAll(".generate-text-btn")
-const generateSentBtn = document.getElementById("generate-sentences-btn");
-const generatePanBtn = document.getElementById("generate-pangram-btn")
+const generateSentBtn = textControls.querySelector('[data-role="generate-sentences"]');
+const generatePanBtn = textControls.querySelector('[data-role="generate-pangram"]');
 const canvasArea = document.getElementById("canvas-area");
 const canvas = document.querySelector("canvas");
 const saveButton = document.getElementById("download-canvas-btn");
-const compressBtn = document.getElementById("compress-carat")
+const compressBtn = document.getElementById("compress-carat");
+const pageTitle = document.getElementById("page-title");
+
+function field(root, role) {
+  return root?.querySelector(`[data-role="${role}"]`);
+}
+
+resizer.addEventListener("mousedown", (e) => {
+  document.addEventListener("mousemove", resize, false);
+  document.addEventListener(
+    "mouseup",
+    () => {
+      document.removeEventListener("mousemove", resize, false);
+    },
+    false
+  );
+
+})
+function resize(e) {
+  const clamped = Math.max(300, e.clientX);
+  panel.style.flexBasis = `${clamped}px`;
+
+}
 
 const backgroundColor = getComputedStyle(
   document.documentElement
 ).getPropertyValue("--lightmode-background");
 
-
+let toggleLocked = false;
 let toggleMode = "";
 let currentMode = "";
 let downloadCount = 0;
+
 
 saveButton.addEventListener("click", () => {
   const canvas = document.querySelector("#canvas-container canvas");
@@ -94,10 +118,16 @@ compressBtn.addEventListener("click", () => {
     panelBody.style.display = "none";
     compressBtn.style.transform = "rotate(180deg)"
     compressBtn.setAttribute("aria-expanded", "false");
+    saveButton.style.display = "none";
+    pageTitle.style.display = "none";
+    panel.style.flexBasis = `${25}px`;
   } else {
     panelBody.style.display = "flex";
     compressBtn.style.transform = "rotate(0deg)";
     compressBtn.setAttribute("aria-expanded", "true");
+    saveButton.style.display = "block";
+    pageTitle.style.display = "block";
+    panel.style.flexBasis = `${300}px`;
   }
 
   requestAnimationFrame(() => {
@@ -138,6 +168,7 @@ generateBtns.forEach((btn) => {
 
         // This is the key: keep manual typing AND make Generate fill the textarea
         sourceEl.value = paragraph;
+        panel.style.flexBasis = `${300}px`;
         updateIfText();
       } catch (err) {
         alert(err?.message || "Failed to generate text");
@@ -168,6 +199,7 @@ generateBtns.forEach((btn) => {
 
         // This is the key: keep manual typing AND make Generate fill the textarea
         sourceEl.value = paragraph;
+        panel.style.flexBasis = `${300}px`;
         updateIfText();
       } catch (err) {
         alert(err?.message || "Failed to generate text");
@@ -179,6 +211,8 @@ generateBtns.forEach((btn) => {
 
 toggleBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
+    if (toggleLocked) return;
+
     const toggle = btn.getAttribute("toggle-mode");
     toggleMode = toggle;
     toggleBtns.forEach((btn) => {
@@ -189,183 +223,338 @@ toggleBtns.forEach((btn) => {
     if (toggleMode === "text") {
       textControls.style.display = "block";
       imageControls.style.display = "none";
-      submitBtn.style.display = "block";
 
     } else if (toggleMode === "visual") {
       imageControls.style.display = "block";
       textControls.style.display = "none";
-      submitBtn.style.display = "block";
     }
 
+    restartBtnCont.style.display = "flex";
+
+    toggleLocked = true;
+    document.getElementById("mode-switch-cont").classList.add("toggle-locked");
+    toggleBtns.forEach((b) => {
+      b.setAttribute("aria-disabled", "true");
+      b.setAttribute("tabindex", "-1");
+    });
+    
   });
+});
+
+restartBtnCont.querySelector("button").addEventListener("click", () => {
+  const ok = window.confirm(
+    "Start over? This will clear your translation chain, canvas, and all inputs. This cannot be undone."
+  );
+
+  if (!ok) return;
+
+  toggleLocked = false;
+  toggleMode = "";
+  currentMode = "";
+  downloadCount = 0;
+  stages = [];
+  stageSeq = 0;
+  if (chainStagesEl) chainStagesEl.innerHTML = "";
+  canvasContainerEl.innerHTML = "";
+  sourceEl.value = "";
+  window.currentImage = "";
+  modeButtons.forEach((btn) => {
+    btn.removeAttribute("aria-pressed");
+  });
+  saveButton.style.display = "none";
+
+  document.getElementById("mode-switch-cont").classList.remove("toggle-locked");
+  toggleBtns.forEach((btn) => {
+    btn.removeAttribute("aria-pressed");
+    textControls.style.display = "none";
+    imageControls.style.display = "none";
+    btn.removeAttribute("aria-disabled", "true");
+    btn.removeAttribute("tabindex");
+  });
+
+  restartBtnCont.style.display = "none";
+
 });
 
 function updateIfText() {
   const hasText = (sourceEl.value || "").trim().length > 0;
-  document.getElementById("to-image-buttons").style.display = hasText ? "block" : "none";
+  textControls.querySelector('[data-role="to-image-buttons"]').style.display =
+    hasText ? "block" : "none";
 }
 
 sourceEl.addEventListener("input", updateIfText);
 
+let activeInputTextarea = sourceEl;
+let activeImageArea = null;
 
-modeButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const mode = btn.getAttribute("data-mode");
-    currentMode = mode;
-    modeButtons.forEach((btn) => {
-      btn.removeAttribute("aria-pressed");
-    });
-    btn.setAttribute("aria-pressed", "true");
 
-  });
+document.getElementById("controls-section").addEventListener("click", async (e) => {
+  const btn = e.target.closest(".mode-btn");
+  if (!btn) return;
+  const stage = btn.closest(
+    "[data-stage-id], [data-role='convert-to-text'], [data-role='convert-to-image']"
+  );
+  if (!stage) return;
+
+  stage
+    .querySelectorAll(".mode-btn")
+    .forEach((b) => b.removeAttribute("aria-pressed"));
+  btn.setAttribute("aria-pressed", "true");
+  currentMode = btn.getAttribute("data-mode");
+
+  e.preventDefault();
+  const text = sourceEl.value || "";
+
+  saveButton.style.display = "block";
+
+  if (toggleMode === "text") {
+    if (!text.trim()) {
+      if (window.VisualMono) window.VisualMono.clear();
+      if (window.VisualColor1) window.VisualColor1.clear();
+      if (window.VisualColor2) window.VisualColor2.clear();
+      if (window.SquareGridR) window.SquareGridR.clear();
+      if (window.VisualColor3) window.VisualColor3.clear();
+      if (window.ColorLine2) window.ColorLine2.clear();
+      if (window.ColorLine3) window.ColorLine3.clear();
+      if (window.VisualText) window.VisualText.clear();
+      if (window.ConcretePoem) window.ConcretePoem.clear();
+      if (window.Neuron) window.Neuron.clear();
+      if (window.Neuron2) window.Neuron2.clear();
+      if (window.Neuron3) window.Neuron3.clear();
+      if (window.Neuron4) window.Neuron4.clear();
+      return;
+    }
+
+    // visual modes draw to p5 canvases
+    if (currentMode === "visual") {
+      // resultEl.textContent = '';
+      canvasArea.scrollTop = 0;
+      if (window.VisualMono) window.VisualMono.render(text);
+
+      toggleMode = "visual";
+
+      const canvas = document.querySelector("#canvas-container canvas");
+      if (!canvas) return;
+      const dataUrl = canvas.toDataURL("image/png");
+      appendStage("image-to-text", { input: dataUrl });
+
+      return;
+    }
+
+    if (currentMode === "visualColor1") {
+      // resultEl.textContent = '';
+      canvasArea.scrollTop = 0;
+      if (window.VisualColor1) window.VisualColor1.render(text);
+
+       toggleMode = "visual";
+
+       const canvas = document.querySelector("#canvas-container canvas");
+       if (!canvas) return;
+       const dataUrl = canvas.toDataURL("image/png");
+       appendStage("image-to-text", { input: dataUrl });
+
+
+      return;
+    }
+
+    if (currentMode === "visualColor2") {
+      // resultEl.textContent = "";
+      if (window.VisualColor2) window.VisualColor2.render(text);
+      return;
+    }
+
+    if (currentMode === "gridRadius") {
+      // resultEl.textContent = "";
+      if (window.SquareGridR) window.SquareGridR.render(text);
+      return;
+    }
+
+    if (currentMode === "visualColor3") {
+      // resultEl.textContent = "";
+      if (window.VisualColor3) window.VisualColor3.render(text);
+      return;
+    }
+
+    if (currentMode === "colorLine2") {
+      // resultEl.textContent = "";
+      if (window.ColorLine2) window.ColorLine2.render(text);
+      return;
+    }
+
+    if (currentMode === "colorLine3") {
+      // resultEl.textContent = "";
+      if (window.ColorLine3) window.ColorLine3.render(text);
+      return;
+    }
+
+    if (currentMode === "concretePoem") {
+      // resultEl.textContent = "";
+      if (window.ConcretePoem) window.ConcretePoem.render(text);
+      return;
+    }
+
+    if (currentMode === "neuron") {
+      // resultEl.textContent = "";
+      if (window.Neuron) window.Neuron.render(text);
+      return;
+    }
+
+    if (currentMode === "neuron2") {
+      // resultEl.textContent = "";
+      if (window.Neuron2) window.Neuron2.render(text);
+      return;
+    }
+
+    if (currentMode === "neuron3") {
+      // resultEl.textContent = "";
+      if (window.Neuron3) window.Neuron3.render(text);
+      return;
+    }
+
+    if (currentMode === "neuron4") {
+      // resultEl.textContent = "";
+      if (window.Neuron4) window.Neuron4.render(text);
+      return;
+    }
+
+    if (window.VisualMono) window.VisualMono.clear();
+    if (window.VisualColor1) window.VisualColor1.clear();
+    if (window.VisualColor2) window.VisualColor2.clear();
+    if (window.SquareGridR) window.SquareGridR.clear();
+    if (window.VisualColor3) window.VisualColor3.clear();
+    if (window.ColorLine2) window.ColorLine2.clear();
+    if (window.ColorLine3) window.ColorLine3.clear();
+    if (window.VisualText) window.VisualText.clear();
+    if (window.ConcretePoem) window.ConcretePoem.clear();
+    if (window.Neuron) window.Neuron.clear();
+    if (window.Neuron2) window.Neuron2.clear();
+    if (window.Neuron3) window.Neuron3.clear();
+    if (window.Neuron4) window.Neuron4.clear();
+
+    // else {
+    //   const out = translateSync(text, mode);
+    //   // resultEl.textContent = out || '—';
+    // }
+
+    if (currentMode === "french") {
+      try {
+        const out = await translateToFrench(text);
+        if (window.VisualText) window.VisualText.render(out || "—");
+      } catch (err) {
+        if (window.VisualText)
+          window.VisualText.render(
+            err && err.message ? err.message : "Translation failed"
+          );
+      }
+      return;
+    }
+
+    if (currentMode === "binary") {
+      const out = translateSync(text, "binary");
+      if (window.VisualText) window.VisualText.render(out || "—");
+      return;
+    }
+  }
+
+  if (toggleMode === "visual") {
+    if (currentMode === "typeArt") {
+      window.handleImageForTextPicture(window.currentImage);
+      toggleMode = "text";
+
+      const canvas = document.querySelector("#canvas-container canvas");
+      if (!canvas) return;
+      const record = appendStage("text-to-image", {input: ""});
+      const ta = field(record.el, "input-text");
+      window.getBrightnessText(window.currentImage, ta);
+      return;
+    }
+    if (currentMode === "rgb") {
+      window.handleRGB(window.currentImage);
+      return;
+    }
+
+    if (currentMode === "description") {
+      const out = await window.createDescription(window.currentImage);
+      window.VisualText.render(out || "—");
+      return;
+    }
+  }
+
 });
 
-    submitBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const text = sourceEl.value || "";
-
-      saveButton.style.display = "block";
-
-      if (toggleMode === "text") {
-        if (!text.trim()) {
-          // resultEl.textContent = '—';
-          if (window.VisualMono) window.VisualMono.clear();
-          if (window.VisualColor1) window.VisualColor1.clear();
-          if (window.VisualColor2) window.VisualColor2.clear();
-          if (window.SquareGridR) window.SquareGridR.clear();
-          if (window.VisualColor3) window.VisualColor3.clear();
-          if (window.ColorLine2) window.ColorLine2.clear();
-          if (window.ColorLine3) window.ColorLine3.clear();
-          if (window.VisualText) window.VisualText.clear();
-          if (window.ConcretePoem) window.ConcretePoem.clear();
-          if (window.Neuron) window.Neuron.clear();
-          if (window.Neuron2) window.Neuron2.clear();
-          if (window.Neuron3) window.Neuron3.clear();
-          if (window.Neuron4) window.Neuron4.clear();
-          return;
-        }
-
-        // visual modes draw to p5 canvases
-        if (currentMode === "visual") {
-          // resultEl.textContent = '';
-          canvasArea.scrollTop = 0;
-          if (window.VisualMono) window.VisualMono.render(text);
-          return;
-        }
-
-        if (currentMode === "visualColor1") {
-          // resultEl.textContent = '';
-          canvasArea.scrollTop = 0;
-          if (window.VisualColor1) window.VisualColor1.render(text);
-          return;
-        }
-
-        if (currentMode === "visualColor2") {
-          // resultEl.textContent = "";
-          if (window.VisualColor2) window.VisualColor2.render(text);
-          return;
-        }
-
-        if (currentMode === "gridRadius") {
-          // resultEl.textContent = "";
-          if (window.SquareGridR) window.SquareGridR.render(text);
-          return;
-        }
-
-        if (currentMode === "visualColor3") {
-          // resultEl.textContent = "";
-          if (window.VisualColor3) window.VisualColor3.render(text);
-          return;
-        }
-
-        if (currentMode === "colorLine2") {
-          // resultEl.textContent = "";
-          if (window.ColorLine2) window.ColorLine2.render(text);
-          return;
-        }
-
-        if (currentMode === "colorLine3") {
-          // resultEl.textContent = "";
-          if (window.ColorLine3) window.ColorLine3.render(text);
-          return;
-        }
-
-        if (currentMode === "concretePoem") {
-          // resultEl.textContent = "";
-          if (window.ConcretePoem) window.ConcretePoem.render(text);
-          return;
-        }
-
-        if (currentMode === "neuron") {
-          // resultEl.textContent = "";
-          if (window.Neuron) window.Neuron.render(text);
-          return;
-        }
-
-        if (currentMode === "neuron2") {
-          // resultEl.textContent = "";
-          if (window.Neuron2) window.Neuron2.render(text);
-          return;
-        }
-
-        if (currentMode === "neuron3") {
-          // resultEl.textContent = "";
-          if (window.Neuron3) window.Neuron3.render(text);
-          return;
-        }
-
-        if (currentMode === "neuron4") {
-          // resultEl.textContent = "";
-          if (window.Neuron4) window.Neuron4.render(text);
-          return;
-        }
-
-        if (window.VisualMono) window.VisualMono.clear();
-        if (window.VisualColor1) window.VisualColor1.clear();
-        if (window.VisualColor2) window.VisualColor2.clear();
-        if (window.SquareGridR) window.SquareGridR.clear();
-        if (window.VisualColor3) window.VisualColor3.clear();
-        if (window.ColorLine2) window.ColorLine2.clear();
-        if (window.ColorLine3) window.ColorLine3.clear();
-        if (window.VisualText) window.VisualText.clear();
-        if (window.ConcretePoem) window.ConcretePoem.clear();
-        if (window.Neuron) window.Neuron.clear();
-        if (window.Neuron2) window.Neuron2.clear();
-        if (window.Neuron3) window.Neuron3.clear();
-        if (window.Neuron4) window.Neuron4.clear();
-
-        // else {
-        //   const out = translateSync(text, mode);
-        //   // resultEl.textContent = out || '—';
-        // }
-
-        if (currentMode === "french") {
-          try {
-            const out = await translateToFrench(text);
-            if (window.VisualText) window.VisualText.render(out || "—");
-          } catch (err) {
-            if (window.VisualText)
-              window.VisualText.render(
-                err && err.message ? err.message : "Translation failed"
-              );
-          }
-          return;
-        }
-
-        if (currentMode === "binary") {
-          const out = translateSync(text, "binary");
-          if (window.VisualText) window.VisualText.render(out || "—");
-          return;
-        }
-      }
-    });
     
       
-      // if (mode === "poem") {
-      //   const out = renderPoemSvg(text);
-      //   if (window.VisualText) window.VisualText.render(out || "—");
-      //   return;
-      // }
+    /** @type {Array<{ id: string, kind: 'text-to-image' | 'image-to-text', input: string, output: string | null, mode: string | null, el: HTMLElement | null }>} */
+    let stages = [];
+    let stageSeq = 0;
+
+    const chainStagesEl = document.getElementById("chain-stages");
+    const tplTextToImage = document.getElementById("tpl-text-to-image");
+    const tplImageToText = document.getElementById("tpl-image-to-text");
+
+    /**
+    * @param {'text-to-image' | 'image-to-text'} kind
+    * @param {{ input?: string }} [opts]  input: text for text→image, or image URL/data URL for image→text
+    */
+    function appendStage(kind, opts = {}) {
+      const input = opts.input ?? "";
+      const id = String(++stageSeq);
+      const record = {
+        id,
+        kind,
+        input,
+        output: null,
+        mode: null,
+        el: null,
+      };
+
+      const tpl = kind === "text-to-image" ? tplTextToImage : tplImageToText;
+      if (!tpl || !chainStagesEl) {
+        console.error("Missing template or #chain-stages");
+        return null;
+      }
+
+      const el = tpl.content.firstElementChild.cloneNode(true);
+      if (!el) return null;
+
+      el.setAttribute("data-stage-id", id);
+
+      const label = field(el, "stage-label");
+
+      if (label) {
+        label.textContent =
+          kind === "text-to-image"
+            ? `Chain ${id}: Text → image`
+            : `Chain ${id}: Image → text`;
+      }
+
+      if (kind === "text-to-image") {
+        el.style.display = "flex";
+        const textArea = field(el, "input-text");
+        if (textArea) textArea.value = input;
+        const panel = field(el, "to-image-buttons");
+        panel.style.display = "block";
+      }
+
+      if (kind === "image-to-text") {
+        el.style.display = "flex";
+        const img = field(el, "preview-img");
+        if (img && input) {
+          img.src = input;
+          img.style.display = "block";
+        }
+        window.currentImage = input;
+        const toText = field(el, "to-text-buttons");
+        if (toText) toText.style.display = input ? "block" : "none";
+      }
+
+      chainStagesEl.appendChild(el);
+      record.el = el;
+      stages.push(record);
+      return record;
+
+    }
+
 
   
   
