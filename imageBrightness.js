@@ -66,8 +66,8 @@
 
   let instance = null;
   let containerEl = null;
-
-  let currentGrid = null
+  let currentGrid = null;
+  let resizeObs = null;
 
   function ensure() {
     containerEl = document.getElementById("canvas-container");
@@ -123,6 +123,16 @@
       instance.redraw();
     });
 
+    if (!resizeObs) {
+      resizeObs = new ResizeObserver(() => {
+        const w = containerWidth(containerEl);
+        const h = containerEl.clientHeight || VIS_H;
+        instance.resizeCanvas(w, h);
+        instance.redraw();
+      });
+    }
+    resizeObs.observe(containerEl);
+
     return instance;
   }
 
@@ -145,6 +155,18 @@
     });
   }
 
+  function returnTextAsync(url) {
+    const p = ensure();
+    let textValue = "";
+    return new Promise((resolve) => {
+      p.loadImage(url, (img) => {
+        resolve(buildTextFromImage(img));
+      });
+
+    })
+  }
+
+  window.returnBrightnessText = returnTextAsync;
   window.getBrightnessText = getText;
   window.handleImageForTextPicture = renderFromImage;
 })();

@@ -41,8 +41,8 @@
 
   let instance = null;
   let containerEl = null;
-
-  let currentGrid = null
+  let currentGrid = null;
+  let resizeObs = null;
 
   function ensure() {
     containerEl = document.getElementById("canvas-container");
@@ -97,6 +97,16 @@
       instance.resizeCanvas(containerWidth(containerEl), VIS_H);
       instance.redraw();
     });
+
+    if (!resizeObs) {
+      resizeObs = new ResizeObserver(() => {
+        const w = containerWidth(containerEl);
+        const h = containerEl.clientHeight || VIS_H;
+        instance.resizeCanvas(w, h);
+        instance.redraw();
+      });
+    }
+    resizeObs.observe(containerEl);
 
     return instance;
   }

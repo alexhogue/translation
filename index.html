@@ -10,7 +10,7 @@
   <!-- <h1>Text Translation Playground</h1> -->
 
   <!-- <h2>Result</h2> -->
-  <div id="wrapper">
+
   <div id="all-content">
     <form id="translation-panel">
         <h1 id="page-title">Sequential Translator</h1>
@@ -150,13 +150,13 @@
                   <h2>Input source image</h2>
                   <div class="drop-area image-drop" data-role="drop-file">
                     <!-- <img id="image-icon" src="assets/image-icon.svg"/> -->
-                    <div class="drop-instructions">
+                    <!-- <div class="drop-instructions">
                       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 38 38" fill="none">
                         <path d="M6 0H32C33.5913 0 35.1174 0.632141 36.2426 1.75736C37.3679 2.88258 38 4.4087 38 6V32C38 33.5913 37.3679 35.1174 36.2426 36.2426C35.1174 37.3679 33.5913 38 32 38H6C4.4087 38 2.88258 37.3679 1.75736 36.2426C0.632141 35.1174 0 33.5913 0 32V6C0 4.4087 0.632141 2.88258 1.75736 1.75736C2.88258 0.632141 4.4087 0 6 0ZM6 2C4.93913 2 3.92172 2.42143 3.17157 3.17157C2.42143 3.92172 2 4.93913 2 6V29.18L10.58 20.58L15.58 25.58L25.58 15.58L36 26V6C36 4.93913 35.5786 3.92172 34.8284 3.17157C34.0783 2.42143 33.0609 2 32 2H6ZM15.58 28.42L10.58 23.42L2 32C2 33.0609 2.42143 34.0783 3.17157 34.8284C3.92172 35.5786 4.93913 36 6 36H32C33.0609 36 34.0783 35.5786 34.8284 34.8284C35.5786 34.0783 36 33.0609 36 32V28.82L25.58 18.42L15.58 28.42ZM11 6C12.3261 6 13.5979 6.52678 14.5355 7.46447C15.4732 8.40215 16 9.67392 16 11C16 12.3261 15.4732 13.5979 14.5355 14.5355C13.5979 15.4732 12.3261 16 11 16C9.67392 16 8.40215 15.4732 7.46447 14.5355C6.52678 13.5979 6 12.3261 6 11C6 9.67392 6.52678 8.40215 7.46447 7.46447C8.40215 6.52678 9.67392 6 11 6ZM11 8C10.2044 8 9.44129 8.31607 8.87868 8.87868C8.31607 9.44129 8 10.2044 8 11C8 11.7956 8.31607 12.5587 8.87868 13.1213C9.44129 13.6839 10.2044 14 11 14C11.7956 14 12.5587 13.6839 13.1213 13.1213C13.6839 12.5587 14 11.7956 14 11C14 10.2044 13.6839 9.44129 13.1213 8.87868C12.5587 8.31607 11.7956 8 11 8Z" fill="currentColor"/>
                       </svg>
                       <p data-role="instructions-text">Upload image here</p>
                       <input type="file" data-role="input-file" accept="image/*" >
-                    </div>
+                    </div> -->
                     <img data-role="preview-img" src="#" alt="image preview" style="display: none">
                   </div>
                 </div>
@@ -176,9 +176,6 @@
 
           <!-- <button id="submit-button" type="submit" style="display: none;">Translate</button> -->
         </div>
-        <div id="download-canvas-btn-cont">
-          <button type="button" id="download-canvas-btn" style="display: none;">Download output</button>
-        </div>
 
     </form>
 
@@ -188,8 +185,13 @@
       <!-- <pre id="result">—</pre> -->
       <div id="canvas-container"></div>
     </div>
+
+    <div id="download-canvas-btn-cont">
+      <button type="button" id="download-canvas-btn" style="display: none;">Download output</button>
+    </div>
   </div>
-  </div>
+
+
 
   <!-- p5.js library -->
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>

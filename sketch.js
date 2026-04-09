@@ -286,6 +286,7 @@ sourceEl.addEventListener("input", updateIfText);
 
 let activeInputTextarea = sourceEl;
 let activeImageArea = null;
+let text = "";
 
 
 document.getElementById("controls-section").addEventListener("click", async (e) => {
@@ -302,8 +303,20 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
   btn.setAttribute("aria-pressed", "true");
   currentMode = btn.getAttribute("data-mode");
 
+
   e.preventDefault();
-  const text = sourceEl.value || "";
+  const textEl = field(stage, "input-text");
+  text = (textEl ? textEl.value : sourceEl.value) || "";
+
+  removeStages(stage, stages);
+  
+
+  const isRoot = stage.getAttribute("data-stage-id") === "root";
+  const latestTemp = stages[stages.length - 1];
+  const isMostRecentTemplate =
+    (isRoot && stages.length === 0) ||
+    (latestTemp?.el != null && stage === latestTemp.el);
+  
 
   saveButton.style.display = "block";
 
@@ -345,14 +358,15 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
       // resultEl.textContent = '';
       canvasArea.scrollTop = 0;
       if (window.VisualColor1) window.VisualColor1.render(text);
+      console.log(isMostRecentTemplate);
+      if (isMostRecentTemplate) {
+        toggleMode = "visual";
 
-       toggleMode = "visual";
-
-       const canvas = document.querySelector("#canvas-container canvas");
-       if (!canvas) return;
-       const dataUrl = canvas.toDataURL("image/png");
-       appendStage("image-to-text", { input: dataUrl });
-
+        const canvas = document.querySelector("#canvas-container canvas");
+        if (!canvas) return;
+        const dataUrl = canvas.toDataURL("image/png");
+        appendStage("image-to-text", { input: dataUrl });
+      }
 
       return;
     }
@@ -463,13 +477,29 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
 
       const canvas = document.querySelector("#canvas-container canvas");
       if (!canvas) return;
-      const record = appendStage("text-to-image", {input: ""});
-      const ta = field(record.el, "input-text");
-      window.getBrightnessText(window.currentImage, ta);
+
+      text = await window.returnBrightnessText(window.currentImage);
+      const record = appendStage("text-to-image", {
+        input: text,
+      });
+      const textArea = field(record.el, "input-text");
+      window.getBrightnessText(window.currentImage, textArea);
       return;
     }
+
     if (currentMode === "rgb") {
       window.handleRGB(window.currentImage);
+      toggleMode = "text";
+
+      const canvas = document.querySelector("#canvas-container canvas");
+      if (!canvas) return;
+
+      text = await window.returnRGBText(window.currentImage);
+      const record = appendStage("text-to-image", {
+        input: text,
+      });
+      const textArea = field(record.el, "input-text");
+      window.getRGBText(window.currentImage, textArea);
       return;
     }
 
@@ -481,82 +511,119 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
   }
 
 });
-
     
       
-    /** @type {Array<{ id: string, kind: 'text-to-image' | 'image-to-text', input: string, output: string | null, mode: string | null, el: HTMLElement | null }>} */
-    let stages = [];
-    let stageSeq = 0;
+/** @type {Array<{ id: string, kind: 'text-to-image' | 'image-to-text', input: string, output: string | null, mode: string | null, el: HTMLElement | null }>} */
+let stages = [];
+let stageSeq = 0;
 
-    const chainStagesEl = document.getElementById("chain-stages");
-    const tplTextToImage = document.getElementById("tpl-text-to-image");
-    const tplImageToText = document.getElementById("tpl-image-to-text");
+const chainStagesEl = document.getElementById("chain-stages");
+const tplTextToImage = document.getElementById("tpl-text-to-image");
+const tplImageToText = document.getElementById("tpl-image-to-text");
 
-    /**
-    * @param {'text-to-image' | 'image-to-text'} kind
-    * @param {{ input?: string }} [opts]  input: text for text→image, or image URL/data URL for image→text
-    */
-    function appendStage(kind, opts = {}) {
-      const input = opts.input ?? "";
-      const id = String(++stageSeq);
-      const record = {
-        id,
-        kind,
-        input,
-        output: null,
-        mode: null,
-        el: null,
-      };
+/**
+* @param {'text-to-image' | 'image-to-text'} kind
+* @param {{ input?: string }} [opts]  input: text for text→image, or image URL/data URL for image→text
+*/
+function appendStage(kind, opts = {}) {
+  const input = opts.input ?? "";
+  const id = String(++stageSeq);
+  const record = {
+    id,
+    kind,
+    input,
+    output: null,
+    mode: null,
+    el: null,
+  };
 
-      const tpl = kind === "text-to-image" ? tplTextToImage : tplImageToText;
-      if (!tpl || !chainStagesEl) {
-        console.error("Missing template or #chain-stages");
-        return null;
+  const tpl = kind === "text-to-image" ? tplTextToImage : tplImageToText;
+  if (!tpl || !chainStagesEl) {
+    console.error("Missing template or #chain-stages");
+    return null;
+  }
+
+  const el = tpl.content.firstElementChild.cloneNode(true);
+  if (!el) return null;
+
+  el.setAttribute("data-stage-id", id);
+
+  const label = field(el, "stage-label");
+
+  if (label) {
+    label.textContent =
+      kind === "text-to-image"
+        ? `Chain ${id}: Text → image`
+        : `Chain ${id}: Image → text`;
+  }
+
+  if (kind === "text-to-image") {
+    el.style.display = "flex";
+    const textArea = field(el, "input-text");
+    textArea.value = input;
+    text = textArea.value;;
+    const panel = field(el, "to-image-buttons");
+    panel.style.display = "block";
+  }
+
+  if (kind === "image-to-text") {
+    el.style.display = "flex";
+    const img = field(el, "preview-img");
+    if (img && input) {
+      img.src = input;
+      img.style.display = "block";
+    }
+    window.currentImage = input;
+    const toText = field(el, "to-text-buttons");
+    if (toText) toText.style.display = input ? "block" : "none";
+  }
+
+  chainStagesEl.appendChild(el);
+  // el.scrollIntoView({ behavior: "smooth", block: "end" });
+  const panelBody = document.getElementById("translation-body");
+  panelBody.scrollTo({
+    top: el.offsetTop - panelBody.offsetTop, // or just panelBody.scrollHeight
+    behavior: "smooth",
+  });
+  record.el = el;
+  stages.push(record);
+  return record;
+
+}
+
+function removeStages(currentStage, allStages) {
+  const currentStageIDString = currentStage.getAttribute("data-stage-id");
+  if (!currentStageIDString) return;
+  let currentStageID;
+  if (currentStageIDString === "root") {
+    currentStageID = 0;
+  } else {
+    currentStageID = Number(currentStageIDString);
+  }
+
+  for (let i = allStages.length - 1; i >= 0; i--) {
+    const stage = allStages[i];
+    const stageID = Number(stage.id);
+    if (!stageID || stageID === "root") continue;
+    
+    if (stageID > currentStageID) {
+      stage.el.remove();
+      allStages.splice(i, 1);
+      if (stage.kind === "text-to-image") {
+        text = stage.input;
+        toggleMode = "visual";
+      } else {
+        window.currentImage = stage.input;
+        toggleMode = "text";
       }
 
-      const el = tpl.content.firstElementChild.cloneNode(true);
-      if (!el) return null;
-
-      el.setAttribute("data-stage-id", id);
-
-      const label = field(el, "stage-label");
-
-      if (label) {
-        label.textContent =
-          kind === "text-to-image"
-            ? `Chain ${id}: Text → image`
-            : `Chain ${id}: Image → text`;
-      }
-
-      if (kind === "text-to-image") {
-        el.style.display = "flex";
-        const textArea = field(el, "input-text");
-        if (textArea) textArea.value = input;
-        const panel = field(el, "to-image-buttons");
-        panel.style.display = "block";
-      }
-
-      if (kind === "image-to-text") {
-        el.style.display = "flex";
-        const img = field(el, "preview-img");
-        if (img && input) {
-          img.src = input;
-          img.style.display = "block";
-        }
-        window.currentImage = input;
-        const toText = field(el, "to-text-buttons");
-        if (toText) toText.style.display = input ? "block" : "none";
-      }
-
-      chainStagesEl.appendChild(el);
-      record.el = el;
-      stages.push(record);
-      return record;
-
+      stageSeq = currentStageID;
     }
 
+  }
 
-  
+
+}
   
 
 

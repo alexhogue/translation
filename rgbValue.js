@@ -33,8 +33,8 @@
 
   let instance = null;
   let containerEl = null;
-
-  let currentGrid = null
+  let currentGrid = null;
+  let resizeObs = null;
 
   function ensure() {
     containerEl = document.getElementById("canvas-container");
@@ -94,6 +94,16 @@
       instance.redraw();
     });
 
+    if (!resizeObs) {
+      resizeObs = new ResizeObserver(() => {
+        const w = containerWidth(containerEl);
+        const h = containerEl.clientHeight || VIS_H;
+        instance.resizeCanvas(w, h);
+        instance.redraw();
+      });
+    }
+    resizeObs.observe(containerEl);
+
     return instance;
   }
 
@@ -106,5 +116,28 @@
     });
   }
 
+  function getText(url, activeTextArea) {
+    const p = ensure();
+    const ta = activeTextArea ?? window.activeInputTextarea;
+    if (!p) return;
+    p.loadImage(url, (img) => {
+      ta.value = getRGBValues(img);
+      p.redraw();
+    });
+  }
+
+  // come back here
+  function returnTextAsync(url) {
+    const p = ensure();
+    let textValue = "";
+    return new Promise((resolve) => {
+      p.loadImage(url, (img) => {
+        resolve(getRGBValues(img));
+      });
+    });
+  }
+
+  window.returnRGBText = returnTextAsync;
+  window.getRGBText = getText;
   window.handleRGB = renderFromImage;
 })();

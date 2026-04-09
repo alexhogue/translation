@@ -17,6 +17,8 @@ html, body {
   overflow: hidden;
   width: 100%;
   height: 100%;
+  margin: 0;
+  padding: 0;
 
   background-color: var(--lightmode-background);
 }
@@ -63,11 +65,11 @@ h2 {
    display: flex;
    /* flex-wrap: wrap; */
    justify-content: space-between;
-   padding: 0px 10px;
+   padding: 0px 12px;
    box-sizing: border-box;
    width: 100%;
    height: 100vh;
-   gap: 6px;
+   /* gap: 6px; */
    overflow-y: hidden;
    flex-shrink: 0;
    position: relative;
@@ -81,7 +83,7 @@ h2 {
   }
 }
 #translation-panel{
-   margin-top: 6px;
+   margin-top: 12px;
    /* overflow-y: hidden; */
    height: 100%;
    display: flex;
@@ -104,6 +106,8 @@ h2 {
    cursor: col-resize;
    margin: 0;
    padding: 0;
+   align-self: stretch;
+   height: 100%;
    box-sizing: border-box;
    border-left: 1px solid rgba(255, 255, 255, 0.05);
    border-right: 1px solid rgb(0, 0, 0);
@@ -203,7 +207,7 @@ button:hover {
 }
 #mode-switch-cont {
    display: flex;
-   gap: 8px;
+   gap: 4px;
 }
 .toggle-button {
    padding: 4px 8px;
@@ -230,7 +234,7 @@ button:hover {
 .generate-btn-cont {
    display: flex;
    justify-content: flex-end;
-   gap: 6px;
+   gap: 4px;
    padding-top: 4px;
 }
 [data-role="drop-file"] {
@@ -311,14 +315,15 @@ canvas {
   background-color: transparent;
 }
 #download-canvas-btn-cont {
+   position: absolute;
+   z-index: 10;
    display: flex;
    justify-content: flex-end;
-   padding: 18px 0px;
+   bottom: 6px; 
+   right: 6px;
    margin-top: auto; 
    flex-shrink: 0;
 }
 .download-canvas-btn {
-  /* position: absolute; */
-  /* bottom: 0px;  */
   max-width: 250px;
 }
