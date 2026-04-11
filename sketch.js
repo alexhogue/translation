@@ -70,6 +70,8 @@ const canvas = document.querySelector("canvas");
 const saveButton = document.getElementById("download-canvas-btn");
 const compressBtn = document.getElementById("compress-carat");
 const pageTitle = document.getElementById("page-title");
+const arrowChain = document.getElementById("arrow-section");
+const generalButtonArea = document.querySelector("button-area");
 
 function field(root, role) {
   return root?.querySelector(`[data-role="${role}"]`);
@@ -118,15 +120,41 @@ compressBtn.addEventListener("click", () => {
     panelBody.style.display = "none";
     compressBtn.style.transform = "rotate(180deg)"
     compressBtn.setAttribute("aria-expanded", "false");
-    saveButton.style.display = "none";
+    panel.animate(
+      [
+        { opacity: 0, transform: "translateX(24px)" },
+        { opacity: 1, transform: "translateX(0px)" },
+      ],
+      { duration: 300, easing: "ease-in" }
+    );
+    resizer.animate(
+      [
+        { opacity: 0, transform: "translateX(24px)" },
+        { opacity: 1, transform: "translateX(0px)" },
+      ],
+      { duration: 300, easing: "ease-in" }
+    );
     resizer.style.pointerEvents = "none";
     // pageTitle.style.display = "none";
     panel.style.flexBasis = `${25}px`;
   } else {
     panelBody.style.display = "flex";
+    panel.animate(
+      [
+        { opacity: 0, transform: "translateX(-24px)" },
+        { opacity: 1, transform: "translateX(0px)" },
+      ],
+      { duration: 300, easing: "ease-in" }
+    );
+    resizer.animate(
+      [
+        { opacity: 0, transform: "translateX(-24px)" },
+        { opacity: 1, transform: "translateX(0px)" },
+      ],
+      { duration: 300, easing: "ease-in" }
+    );
     compressBtn.style.transform = "rotate(0deg)";
     compressBtn.setAttribute("aria-expanded", "true");
-    saveButton.style.display = "block";
     // pageTitle.style.display = "block";
     resizer.style.pointerEvents = "auto";
     panel.style.flexBasis = `${300}px`;
@@ -171,6 +199,7 @@ generateBtns.forEach((btn) => {
 
         // This is the key: keep manual typing AND make Generate fill the textarea
         sourceEl.value = paragraph;
+        refreshActiveCanvasFromText(sourceEl.value);
         panel.style.flexBasis = `${300}px`;
         updateIfText();
       } catch (err) {
@@ -202,6 +231,7 @@ generateBtns.forEach((btn) => {
 
         // This is the key: keep manual typing AND make Generate fill the textarea
         sourceEl.value = paragraph;
+        refreshActiveCanvasFromText(sourceEl.value);
         panel.style.flexBasis = `${300}px`;
         updateIfText();
       } catch (err) {
@@ -226,10 +256,24 @@ toggleBtns.forEach((btn) => {
     if (toggleMode === "text") {
       textControls.style.display = "block";
       imageControls.style.display = "none";
+      textControls.animate(
+        [
+          { opacity: 0, transform: "scale(0.75)" },
+          { opacity: 1, transform: "scale(1)" },
+        ],
+        { duration: 300, easing: "ease-out" }
+      );
 
     } else if (toggleMode === "visual") {
       imageControls.style.display = "block";
       textControls.style.display = "none";
+      imageControls.animate(
+        [
+          { opacity: 0, transform: "scale(0.75)" },
+          { opacity: 1, transform: "scale(1)" },
+        ],
+        { duration: 300, easing: "ease-out" }
+      );
     }
 
     restartBtnCont.style.display = "flex";
@@ -250,7 +294,7 @@ restartBtnCont.querySelector("button").addEventListener("click", () => {
   );
 
   if (!ok) return;
-
+  
   toggleLocked = false;
   toggleMode = "";
   currentMode = "";
@@ -276,20 +320,94 @@ restartBtnCont.querySelector("button").addEventListener("click", () => {
   });
 
   restartBtnCont.style.display = "none";
+  window.location.reload()
 
 });
 
+
 function updateIfText() {
   const hasText = (sourceEl.value || "").trim().length > 0;
-  textControls.querySelector('[data-role="to-image-buttons"]').style.visibility =
-    hasText ? "visible" : "hidden";
-  textControls.querySelector('[data-role="to-image-buttons"]').style.pointerEvents =
-    hasText ? "auto" : "none";
+  const imageButtons = textControls.querySelector(
+    '[data-role="to-image-buttons"]'
+  );
+  if (imageButtons.style.visibility === "hidden") {
+    imageButtons.style.visibility = hasText ? "visible" : "hidden";
+    imageButtons.animate(
+      [
+        { opacity: 0, transform: "translateY(-12px)" },
+        { opacity: 1, transform: "translateY(0px)" },
+      ],
+      { duration: 300, easing: "ease-out" }
+    );
+    imageButtons.style.pointerEvents = hasText ? "auto" : "none";
+  }
+  if (chainStagesEl) chainStagesEl.innerHTML = "";
     // panel.style.pointerEvents = hasText ? "auto" : "none";
 
 }
+function refreshActiveCanvasFromText(rawText) {
+  if (toggleMode !== "visual") return;
+  const t = (rawText ?? "").trim();
+  const renderers = {
+    visual: () => window.VisualMono,
+    visualColor1: () => window.VisualColor1,
+    visualColor2: () => window.VisualColor2,
+    gridRadius: () => window.SquareGridR,
+    visualColor3: () => window.VisualColor3,
+    colorLine2: () => window.ColorLine2,
+    colorLine3: () => window.ColorLine3,
+    concretePoem: () => window.ConcretePoem,
+    neuron: () => window.Neuron,
+    neuron2: () => window.Neuron2,
+    neuron3: () => window.Neuron3,
+    neuron4: () => window.Neuron4,
+  };
+  const updater = renderers[currentMode]?.();
+  if (!updater) return;
+  if (!t) updater.clear?.();
+  else updater.render?.(t);
+}
 
-sourceEl.addEventListener("input", updateIfText);
+function refreshActiveCanvasFromImage(url) {
+  if (toggleMode !== "text") return;
+  if (chainStagesEl) chainStagesEl.innerHTML = "";
+  //   const t = (rawText ?? "").trim();
+  if (currentMode === "rgb") {
+    window.handleRGB?.(url);
+  }
+  else if (currentMode === "typeArt") {
+    window.handleImageForTextPicture?.(url);
+    text = window.returnBrightnessText(window.currentImage);
+    const record = stages.find((s) => s.id === "1");
+    const textArea = field(record.el, "input-text");
+    window.getBrightnessText(window.currentImage, textArea);
+  }
+}
+
+sourceEl.addEventListener("input", () => {
+  updateIfText();
+  refreshActiveCanvasFromText(sourceEl.value);
+});
+
+function addAfterChain(currentStage) {
+  currentStage.append(arrowChain);
+  arrowChain.style.visibility = "visible";
+  const arrowList = arrowChain.children;
+
+  arrowList.forEach((arrow, index) => {
+    arrow.animate(
+      [
+        { opacity: 0.5, transform: "translateX(-24px)" },
+        { opacity: 1, transform: "translateX(0px)" },
+      ],
+      {
+        duration: 500,
+        fill: "forwards",
+        delay: index * 100, // Staggers each element by 100ms
+      });
+  })
+
+}
 
 let activeInputTextarea = sourceEl;
 let activeImageArea = null;
@@ -314,6 +432,7 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
   e.preventDefault();
   const textEl = field(stage, "input-text");
   text = (textEl ? textEl.value : sourceEl.value) || "";
+  refreshActiveCanvasFromText(text);
 
   removeStages(stage, stages);
   
@@ -323,6 +442,12 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
   const isMostRecentTemplate =
     (isRoot && stages.length === 0) ||
     (latestTemp?.el != null && stage === latestTemp.el);
+
+  if (isMostRecentTemplate) {
+    addAfterChain(stage);
+  }
+
+
   
 
   saveButton.style.display = "block";
@@ -355,8 +480,16 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
 
       const canvas = document.querySelector("#canvas-container canvas");
       if (!canvas) return;
+      canvas.animate(
+      [
+        { opacity: 0.5, transform: "translateX(-24px)" },
+        { opacity: 1, transform: "translateX(0px)" },
+      ],
+      { duration: 300, easing: "ease-in" }
+    );
       const dataUrl = canvas.toDataURL("image/png");
       appendStage("image-to-text", { input: dataUrl });
+
 
       return;
     }
@@ -517,6 +650,7 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
     }
   }
 
+
 });
     
       
@@ -586,6 +720,7 @@ function appendStage(kind, opts = {}) {
   }
 
   chainStagesEl.appendChild(el);
+  el.animate([{ opacity: 0, transform: 'scale(0.75)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 300, easing: 'ease-out'});
   // el.scrollIntoView({ behavior: "smooth", block: "end" });
   const panelBody = document.getElementById("translation-body");
   panelBody.scrollTo({

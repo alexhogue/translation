@@ -1,8 +1,20 @@
 @font-face {
    font-family: "Datatype";
-   src: url("./files/Datatype-VariableFont_wdth\,wght.ttf") format('truetype');
-   
+   src: url("./files/Datatype-VariableFont_wdth\,wght.ttf") format('truetype'); 
 }
+@font-face {
+   font-family: "Roboto-Mono";
+   src: url("./files/RobotoMono-VariableFont_wght.ttf") format('truetype'); 
+}
+@font-face {
+   font-family: "Roboto";
+   src: url("./files/Roboto-VariableFont_wdth,wght.ttf") format('truetype'); 
+}
+@font-face {
+   font-family: "Nunito";
+   src: url("./files/Nunito-VariableFont_wght.ttf") format('truetype'); 
+}
+
 
 :root {
    --lightmode-background: #f2f2ef;
@@ -30,20 +42,21 @@ html, body {
 }
 h1 {
    font-family: "Datatype";
-   font-size: 18px;
+   font-size: 20px;
    margin: 0;
    padding:0;
 }
 h2, p {
    font-family: "Datatype";
-   font-size: 18px;
+   font-size: 20px;
    margin: 0;
    padding:0;
 }
 h2 {
+   font-weight: 500;
+}
+h2.section-text {
    text-transform: uppercase;
-   font-weight: 900;
-   font-variation-settings: "wght" 900;
 }
 #page {
    display: flex;
@@ -54,8 +67,10 @@ h2 {
    /* background-color: #161616; */
    /* color: #f2f2ef; */
    border-bottom: 1px solid rgb(0, 0, 0);
-   padding: 6px 12px;
+   padding: 6px 14px;
    width: 100%;
+   display: flex;
+   gap: 12px;
    /* position: absolute; */
    z-index: 2;
 }
@@ -141,6 +156,9 @@ h2 {
    /* width: 22vw; */
    /* flex: 0 0 auto;  */
 }
+#translation-body::-webkit-scrollbar {
+  display: none;
+}
 @media screen and (max-width: 768px) {
   #translation-body {
     width: 100%;
@@ -150,6 +168,11 @@ h2 {
 }
 #translation-body > * {
    flex-grow: 1;
+}
+.section-title {
+   display: flex;
+   gap: 12px;
+   justify-content: space-between;
 }
 #panel-compress-cont {
    display: flex;
@@ -182,9 +205,11 @@ textarea {
 }
 textarea[data-role="input-text"] {
    padding: 10px 12px; 
-   font-family: "Datatype";
+   font-family: "Nunito";
+   font-weight: 200px;
    /* border-radius: 4px; */
 }
+
 .drop-zone.drag-over {
   outline: 2px dashed var(--lightmode-text);
   outline-offset: 2px;
@@ -198,7 +223,8 @@ button {
    /* border-radius: 4px; */
    color: var(--lightmode-text);
    transition: background-color 0.2s ease;
-   font-family: "Datatype";
+   font-family: "Nunito";
+   font-size: 14px;
    padding: 4px 8px;
    
 }
@@ -220,6 +246,10 @@ button:hover {
    flex-wrap: wrap;
    justify-content: space-between;
    gap: 4px;
+}
+#arrow-section {
+   justify-content: space-around;
+   display: flex;
 }
 #submit-button {
    height: 36px;

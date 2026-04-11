@@ -12,20 +12,24 @@
   <!-- <h2>Result</h2> -->
   <header id="top-banner">
     <h1 id="page-title">Sequential Translator</h1>
+    <h1>{b:64,91,87,17,22,76,17}</h1>
   </header>
 
   <div id="all-content">
     <form id="translation-panel" style="flex-basis: 300px;">
         <div id="panel-compress-cont">
           <button type="button" id="compress-carat" aria-expanded="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="18" viewBox="0 0 10 18" fill="none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="8" height="16" viewBox="0 0 10 18" fill="none">
               <path d="M9.42464 0.33089C9.52952 0.435406 9.61273 0.559597 9.66951 0.696342C9.72629 0.833088 9.75552 0.979699 9.75552 1.12776C9.75552 1.27583 9.72629 1.42244 9.66951 1.55918C9.61273 1.69593 9.52952 1.82012 9.42464 1.92464L2.72245 8.62683L9.42464 15.3309C9.63598 15.5422 9.75471 15.8289 9.75471 16.1278C9.75471 16.4266 9.63598 16.7133 9.42464 16.9246C9.21329 17.136 8.92665 17.2547 8.62776 17.2547C8.32888 17.2547 8.04223 17.136 7.83089 16.9246L0.330886 9.42464C0.226006 9.32012 0.14279 9.19593 0.0860091 9.05919C0.0292281 8.92244 -3.70624e-07 8.77583 -3.77096e-07 8.62776C-3.83568e-07 8.4797 0.0292281 8.33309 0.0860091 8.19634C0.14279 8.0596 0.226006 7.93541 0.330886 7.83089L7.83089 0.33089C7.9354 0.22601 8.0596 0.142793 8.19634 0.0860119C8.33309 0.0292309 8.4797 1.00062e-06 8.62776 9.9415e-07C8.77583 9.87678e-07 8.92244 0.0292309 9.05918 0.0860119C9.19593 0.142793 9.32012 0.22601 9.42464 0.33089Z" fill="#282828"/>
             </svg>
           </button>
         </div>
         <div id="translation-body">
           <div id="mode-switch-area">
-            <h2>Start from</h2>
+            <div class="section-title">
+              <h2 class="section-text">Start from</h2>
+              <h2>{l:33,46,13,13,89,12,76,39,44}</h2>
+            </div>
             <div style="display: flex; flex-direction: column; gap: 4px;">
               <div id="mode-switch-cont">
                 <button type="button" class="toggle-button" toggle-mode="text">Text</button>
@@ -41,7 +45,7 @@
             <div class="toggle-type-controls" data-stage-id="root" data-role="convert-to-image" style="display: none;">
               <div class="image-drop-cont">
                 <!-- <label for="source">Source text</label><br /> -->
-                <h2>Input Source Text</h2>
+                <h2 class="section-text">Input Source Text</h2>
                 <div class="drop-area text-input-area" data-role="source-wrap">
                   <textarea data-role="input-text" placeholder="Add any text here..."></textarea>
                 </div>
@@ -53,7 +57,7 @@
 
               <!-- <label for="mode">Translate into</label><br /> -->
               <div class="button-area" data-role="to-image-buttons" style="display: block; margin-top: 24px; visibility: hidden;">
-                <h2>Translate Into Image</h2>
+                <h2 class="section-text">Translate Into Image</h2>
                 <div class="mode-buttons" aria-label="Translation mode">
                   <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
                   <button type="button" class="mode-btn" data-mode="visualColor1">Color grid</button>
@@ -76,7 +80,7 @@
             <div class="toggle-type-controls" data-stage-id="root" data-role="convert-to-text" style="display:none">
 
               <div class="image-drop-cont">
-                <h2>Input source image</h2>
+                <h2 class="section-text">Input source image</h2>
                 <div class="drop-area image-drop" data-role="drop-file">
                   <!-- <img id="image-icon" src="assets/image-icon.svg"/> -->
                   <div class="drop-instructions">
@@ -94,7 +98,7 @@
               </div>
 
               <div class="button-area" data-role="to-text-buttons" style="display:none">
-                <h2>Translate Into Text</h2>
+                <h2 class="section-text">Translate Into Text</h2>
                 <div class="mode-buttons" aria-label="Translation mode">
                   <button type="button" class="mode-btn" data-mode="typeArt">Type art (brightness)</button>
                   <button type="button" class="mode-btn" data-mode="typeArtColor">Type art (color)</button>
@@ -102,6 +106,15 @@
                   <button type="button" class="mode-btn" data-mode="description">Image description</button>
                 </div>
               </div>
+            </div>
+
+            <div id="arrow-section" style="visibility: hidden;">
+              <p class="arrow">→</p>
+              <p class="arrow">→</p>
+              <p class="arrow">→</p>
+              <p class="arrow">→</p>
+              <p class="arrow">→</p>
+              <p class="arrow">→</p>
             </div>
 
             <div id="chain-stages" aria-label="Translation chain">
@@ -112,18 +125,18 @@
 
           <template id="tpl-text-to-image">
               <div class="toggle-type-controls" data-stage-id="" data-role="convert-to-image" style="display: none;">
-                <h2 data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
+                <h2 class="section-text" data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
                 <div class="image-drop-cont">
                   <!-- <label for="source">Source text</label><br /> -->
-                  <h2>Input Source Text</h2>
+                  <h2 class="section-text">Input Source Text</h2>
                   <div class="drop-area text-input-area" data-role="source-wrap">
-                    <textarea data-role="input-text" placeholder="Add any text here..." readonly></textarea>
+                    <textarea class="template-textbox" data-role="input-text" placeholder="Add any text here..." readonly></textarea>
                   </div>
                 </div>
 
                 <!-- <label for="mode">Translate into</label><br /> -->
                 <div class="button-area" data-role="to-image-buttons" style="display:none">
-                  <h2>Translate Into Image</h2>
+                  <h2 class="section-text">Translate Into Image</h2>
                   <div class="mode-buttons" aria-label="Translation mode">
                     <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
                     <button type="button" class="mode-btn" data-mode="visualColor1">Color grid</button>
@@ -147,9 +160,9 @@
 
             <template id="tpl-image-to-text">
               <div class="toggle-type-controls" data-stage-id="" data-role="convert-to-text" style="display:none">
-                <h2 data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
+                <h2 class="section-text" data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
                 <div class="image-drop-cont">
-                  <h2>Input source image</h2>
+                  <h2 class="section-text">Input source image</h2>
                   <div class="drop-area image-drop" data-role="drop-file">
                     <!-- <img id="image-icon" src="assets/image-icon.svg"/> -->
                     <!-- <div class="drop-instructions">
@@ -164,7 +177,7 @@
                 </div>
 
                 <div class="button-area" data-role="to-text-buttons" style="display:none">
-                  <h2>Translate Into Text</h2>
+                  <h2 class="section-text">Translate Into Text</h2>
                   <div class="mode-buttons" aria-label="Translation mode">
                     <button type="button" class="mode-btn" data-mode="typeArt">Type art (brightness)</button>
                     <button type="button" class="mode-btn" data-mode="typeArtColor">Type art (color)</button>

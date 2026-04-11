@@ -18,7 +18,8 @@ let imageList = [
   "pixels.jpg",
   "smudge.jpg",
   "mountain.jpg",
-  "neuron.jpeg"
+  "neuron.jpeg",
+  "firework.png",
 ];
 
 generateImgBtn.addEventListener("click", (e) => {
@@ -34,6 +35,13 @@ generateImgBtn.addEventListener("click", (e) => {
   imagePreview.src = url;
   
   imagePreview.style.display = "block";
+  imagePreview.animate(
+    [
+      { opacity: 0, transform: "scale(0.75)" },
+      { opacity: 1, transform: "scale(1)" },
+    ],
+    { duration: 300, easing: "ease-out" }
+  );
   instructionText.textContent = "Upload new image here";
 
   currentImage = url;
@@ -41,6 +49,14 @@ generateImgBtn.addEventListener("click", (e) => {
   window.currentImage = currentImage;  
   
   toTextButtons.style.display = currentImage ? "block" : "none";
+  toTextButtons.animate(
+    [
+      { opacity: 0, transform: "translateY(-12px)" },
+      { opacity: 1, transform: "translateY(0px)" },
+    ],
+    { duration: 300, easing: "ease-out" }
+  );
+  window.refreshActiveCanvasFromImage(window.currentImage);
 });
 
 imageDrop.addEventListener("click", () => {
@@ -55,6 +71,14 @@ fileInput.addEventListener("change", () => {
   window.currentImage = currentImage;  
   panel.style.flexBasis = `${300}px`;
   toTextButtons.style.display = currentImage ? "block" : "none";
+  toTextButtons.animate(
+    [
+      { opacity: 0, transform: "translateY(-12px)" },
+      { opacity: 1, transform: "translateY(0px)" },
+    ],
+    { duration: 300, easing: "ease-out" }
+  );
+  window.refreshActiveCanvasFromImage(window.currentImage);
 });
 
 imageDrop.addEventListener("dragover", (e) => {
@@ -81,6 +105,14 @@ imageDrop.addEventListener("drop", (e) => {
   window.currentImage = currentImage;  
   panel.style.flexBasis = `${300}px`;
   toTextButtons.style.display = currentImage ? "block" : "none";
+  toTextButtons.animate(
+    [
+      { opacity: 0, transform: "translateY(-12px)" },
+      { opacity: 1, transform: "translateY(0px)" },
+    ],
+    { duration: 300, easing: "ease-out" }
+  );
+  window.refreshActiveCanvasFromImage(window.currentImage);
 });
 
 function previewImage(file) {
