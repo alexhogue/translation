@@ -37,6 +37,7 @@ generateImgBtn.addEventListener("click", (e) => {
   instructionText.textContent = "Upload new image here";
 
   currentImage = url;
+  panel.style.flexBasis = `${300}px`;
   window.currentImage = currentImage;  
   
   toTextButtons.style.display = currentImage ? "block" : "none";
@@ -52,6 +53,7 @@ fileInput.addEventListener("change", () => {
   previewImage(file);
   currentImage = URL.createObjectURL(file);
   window.currentImage = currentImage;  
+  panel.style.flexBasis = `${300}px`;
   toTextButtons.style.display = currentImage ? "block" : "none";
 });
 
@@ -77,6 +79,7 @@ imageDrop.addEventListener("drop", (e) => {
 
   currentImage = URL.createObjectURL(file);
   window.currentImage = currentImage;  
+  panel.style.flexBasis = `${300}px`;
   toTextButtons.style.display = currentImage ? "block" : "none";
 });
 

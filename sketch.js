@@ -119,15 +119,18 @@ compressBtn.addEventListener("click", () => {
     compressBtn.style.transform = "rotate(180deg)"
     compressBtn.setAttribute("aria-expanded", "false");
     saveButton.style.display = "none";
-    pageTitle.style.display = "none";
+    resizer.style.pointerEvents = "none";
+    // pageTitle.style.display = "none";
     panel.style.flexBasis = `${25}px`;
   } else {
     panelBody.style.display = "flex";
     compressBtn.style.transform = "rotate(0deg)";
     compressBtn.setAttribute("aria-expanded", "true");
     saveButton.style.display = "block";
-    pageTitle.style.display = "block";
+    // pageTitle.style.display = "block";
+    resizer.style.pointerEvents = "auto";
     panel.style.flexBasis = `${300}px`;
+
   }
 
   requestAnimationFrame(() => {
@@ -278,8 +281,12 @@ restartBtnCont.querySelector("button").addEventListener("click", () => {
 
 function updateIfText() {
   const hasText = (sourceEl.value || "").trim().length > 0;
-  textControls.querySelector('[data-role="to-image-buttons"]').style.display =
-    hasText ? "block" : "none";
+  textControls.querySelector('[data-role="to-image-buttons"]').style.visibility =
+    hasText ? "visible" : "hidden";
+  textControls.querySelector('[data-role="to-image-buttons"]').style.pointerEvents =
+    hasText ? "auto" : "none";
+    // panel.style.pointerEvents = hasText ? "auto" : "none";
+
 }
 
 sourceEl.addEventListener("input", updateIfText);

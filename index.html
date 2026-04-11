@@ -8,12 +8,14 @@
 </head>
 <body>
   <!-- <h1>Text Translation Playground</h1> -->
-
+<div id="page">
   <!-- <h2>Result</h2> -->
+  <header id="top-banner">
+    <h1 id="page-title">Sequential Translator</h1>
+  </header>
 
   <div id="all-content">
-    <form id="translation-panel">
-        <h1 id="page-title">Sequential Translator</h1>
+    <form id="translation-panel" style="flex-basis: 300px;">
         <div id="panel-compress-cont">
           <button type="button" id="compress-carat" aria-expanded="true">
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="18" viewBox="0 0 10 18" fill="none">
@@ -50,7 +52,7 @@
               </div>
 
               <!-- <label for="mode">Translate into</label><br /> -->
-              <div class="button-area" data-role="to-image-buttons" style="display:none; margin-top: 24px;">
+              <div class="button-area" data-role="to-image-buttons" style="display: block; margin-top: 24px; visibility: hidden;">
                 <h2>Translate Into Image</h2>
                 <div class="mode-buttons" aria-label="Translation mode">
                   <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
@@ -189,6 +191,7 @@
     <div id="download-canvas-btn-cont">
       <button type="button" id="download-canvas-btn" style="display: none;">Download output</button>
     </div>
+  </div>
   </div>
 
 
