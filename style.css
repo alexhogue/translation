@@ -30,7 +30,7 @@ html, body {
 }
 h1 {
    font-family: "Datatype";
-   font-size: 12px;
+   font-size: 18px;
    margin: 0;
    padding:0;
 }
@@ -65,7 +65,7 @@ h2 {
    display: flex;
    /* flex-wrap: wrap; */
    justify-content: space-between;
-   padding: 0px 12px;
+   padding: 0px 14px;
    box-sizing: border-box;
    width: 100%;
    height: 100vh;
@@ -225,10 +225,7 @@ button:hover {
 .toggle-type-controls {
    display: flex;
    flex-direction: column;
-   gap: 12px;
-}
-.button-area {
-   margin-top: 12px;
+   gap: 24px;
 }
 
 .generate-btn-cont {

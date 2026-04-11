@@ -50,7 +50,7 @@
               </div>
 
               <!-- <label for="mode">Translate into</label><br /> -->
-              <div class="button-area" data-role="to-image-buttons" style="display:none">
+              <div class="button-area" data-role="to-image-buttons" style="display:none; margin-top: 24px;">
                 <h2>Translate Into Image</h2>
                 <div class="mode-buttons" aria-label="Translation mode">
                   <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
@@ -110,12 +110,12 @@
 
           <template id="tpl-text-to-image">
               <div class="toggle-type-controls" data-stage-id="" data-role="convert-to-image" style="display: none;">
-                <h2 data-role="stage-label">Chain</h2>
+                <h2 data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
                 <div class="image-drop-cont">
                   <!-- <label for="source">Source text</label><br /> -->
                   <h2>Input Source Text</h2>
                   <div class="drop-area text-input-area" data-role="source-wrap">
-                    <textarea data-role="input-text" placeholder="Add any text here..."></textarea>
+                    <textarea data-role="input-text" placeholder="Add any text here..." readonly></textarea>
                   </div>
                 </div>
 
@@ -145,7 +145,7 @@
 
             <template id="tpl-image-to-text">
               <div class="toggle-type-controls" data-stage-id="" data-role="convert-to-text" style="display:none">
-                <h2 data-role="stage-label">Chain</h2>
+                <h2 data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
                 <div class="image-drop-cont">
                   <h2>Input source image</h2>
                   <div class="drop-area image-drop" data-role="drop-file">
