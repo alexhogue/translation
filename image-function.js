@@ -148,6 +148,7 @@ async function createDescription(imageURL) {
     return text;
 }
 
+window.createDescription = createDescription;
 
 document.getElementById("controls-section").addEventListener("click", (e) => {
   const btn = e.target.closest(".mode-btn");

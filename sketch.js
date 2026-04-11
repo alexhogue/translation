@@ -409,6 +409,23 @@ function addAfterChain(currentStage) {
 
 }
 
+function handleTextImageSwitch() {
+  toggleMode = "visual";
+
+  const canvas = document.querySelector("#canvas-container canvas");
+  if (!canvas) return;
+  canvas.animate(
+    [
+      { opacity: 0.5, transform: "translateX(-24px)" },
+      { opacity: 1, transform: "translateX(0px)" },
+    ],
+    { duration: 300, easing: "ease-in" }
+  );
+  const dataUrl = canvas.toDataURL("image/png");
+  appendStage("image-to-text", { input: dataUrl });
+  
+}
+
 let activeInputTextarea = sourceEl;
 let activeImageArea = null;
 let text = "";
@@ -473,40 +490,18 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
     // visual modes draw to p5 canvases
     if (currentMode === "visual") {
       // resultEl.textContent = '';
-      canvasArea.scrollTop = 0;
       if (window.VisualMono) window.VisualMono.render(text);
 
-      toggleMode = "visual";
-
-      const canvas = document.querySelector("#canvas-container canvas");
-      if (!canvas) return;
-      canvas.animate(
-      [
-        { opacity: 0.5, transform: "translateX(-24px)" },
-        { opacity: 1, transform: "translateX(0px)" },
-      ],
-      { duration: 300, easing: "ease-in" }
-    );
-      const dataUrl = canvas.toDataURL("image/png");
-      appendStage("image-to-text", { input: dataUrl });
-
+      handleTextImageSwitch();
 
       return;
     }
 
     if (currentMode === "visualColor1") {
       // resultEl.textContent = '';
-      canvasArea.scrollTop = 0;
       if (window.VisualColor1) window.VisualColor1.render(text);
-      console.log(isMostRecentTemplate);
-      if (isMostRecentTemplate) {
-        toggleMode = "visual";
-
-        const canvas = document.querySelector("#canvas-container canvas");
-        if (!canvas) return;
-        const dataUrl = canvas.toDataURL("image/png");
-        appendStage("image-to-text", { input: dataUrl });
-      }
+     
+      handleTextImageSwitch();
 
       return;
     }
@@ -514,60 +509,70 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
     if (currentMode === "visualColor2") {
       // resultEl.textContent = "";
       if (window.VisualColor2) window.VisualColor2.render(text);
+      handleTextImageSwitch();
       return;
     }
 
     if (currentMode === "gridRadius") {
       // resultEl.textContent = "";
       if (window.SquareGridR) window.SquareGridR.render(text);
+      handleTextImageSwitch();
       return;
     }
 
     if (currentMode === "visualColor3") {
       // resultEl.textContent = "";
       if (window.VisualColor3) window.VisualColor3.render(text);
+      handleTextImageSwitch();
       return;
     }
 
     if (currentMode === "colorLine2") {
       // resultEl.textContent = "";
       if (window.ColorLine2) window.ColorLine2.render(text);
+      handleTextImageSwitch();
       return;
     }
 
     if (currentMode === "colorLine3") {
       // resultEl.textContent = "";
       if (window.ColorLine3) window.ColorLine3.render(text);
+      handleTextImageSwitch();
       return;
     }
 
     if (currentMode === "concretePoem") {
       // resultEl.textContent = "";
       if (window.ConcretePoem) window.ConcretePoem.render(text);
+      handleTextImageSwitch();
       return;
     }
 
     if (currentMode === "neuron") {
       // resultEl.textContent = "";
       if (window.Neuron) window.Neuron.render(text);
+      handleTextImageSwitch();
       return;
     }
 
     if (currentMode === "neuron2") {
       // resultEl.textContent = "";
       if (window.Neuron2) window.Neuron2.render(text);
+      handleTextImageSwitch();
       return;
     }
 
     if (currentMode === "neuron3") {
       // resultEl.textContent = "";
       if (window.Neuron3) window.Neuron3.render(text);
+      handleTextImageSwitch();
       return;
     }
 
     if (currentMode === "neuron4") {
       // resultEl.textContent = "";
       if (window.Neuron4) window.Neuron4.render(text);
+      handleTextImageSwitch();
       return;
     }
 
@@ -606,6 +611,7 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
     if (currentMode === "binary") {
       const out = translateSync(text, "binary");
       if (window.VisualText) window.VisualText.render(out || "—");
+      handleTextImageSwitch();
       return;
     }
   }
@@ -635,6 +641,7 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
       if (!canvas) return;
 
       text = await window.returnRGBText(window.currentImage);
+      console.log(text);
       const record = appendStage("text-to-image", {
         input: text,
       });
