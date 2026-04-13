@@ -368,19 +368,29 @@ function refreshActiveCanvasFromText(rawText) {
   else updater.render?.(t);
 }
 
-function refreshActiveCanvasFromImage(url) {
+async function refreshActiveCanvasFromImage(url, stageID) {
   if (toggleMode !== "text") return;
-  if (chainStagesEl) chainStagesEl.innerHTML = "";
+  if (stageID === "root") {if (chainStagesEl) chainStagesEl.innerHTML = "";}
   //   const t = (rawText ?? "").trim();
   if (currentMode === "rgb") {
     window.handleRGB?.(url);
-  }
-  else if (currentMode === "typeArt") {
+  } else if (currentMode === "typeArt") {
     window.handleImageForTextPicture?.(url);
-    text = window.returnBrightnessText(window.currentImage);
-    const record = stages.find((s) => s.id === "1");
-    const textArea = field(record.el, "input-text");
-    window.getBrightnessText(window.currentImage, textArea);
+    // text = await window.returnBrightnessText(window.currentImage);
+    // const record = stages.find((s) => s.id === stageID);
+    // const textArea = field(record.el, "input-text");
+    // window.getBrightnessText(window.currentImage, textArea);
+  } else if (currentMode === "typeArtColor") {
+    window.handleImageForTextColor?.(url);
+    // text = await window.asyncColorText(window.currentImage);
+    // let textArea
+    // if (stageID === "root") {
+    //   textArea = sourceEl;
+    // } else {
+    //   const record = stages.find((s) => s.id === stageID);
+    //   textArea = field(record.el, "input-text");
+    // }
+    // window.colorTextForBox(window.currentImage, textArea);
   }
 }
 
@@ -617,6 +627,25 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
   }
 
   if (toggleMode === "visual") {
+    const stageId = stage.getAttribute("data-stage-id");
+    let url = "";
+
+    if (stageId === "root") {
+      const img = field(imageControls, "preview-img");
+      console.log(img);
+      url = img.src && img.src !== "#" ? img.src : "";
+    } else {
+      const rec = window.stages.find((s) => s.id === stageId);
+      if (rec?.kind === "image-to-text" && rec.input) {
+        url = rec.input;
+      } else {
+        const img = field(stage, "preview-img");
+        url = img?.src && img.src !== "#" ? img.src : "";
+      }
+    }
+
+    window.currentImage = url;
+    
     if (currentMode === "typeArt") {
       window.handleImageForTextPicture(window.currentImage);
       toggleMode = "text";
@@ -646,14 +675,45 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
         input: text,
       });
       const textArea = field(record.el, "input-text");
+    
       window.getRGBText(window.currentImage, textArea);
       return;
     }
 
     if (currentMode === "description") {
-      const out = await window.createDescription(window.currentImage);
-      window.VisualText.render(out || "—");
+      text = await window.createDescription(window.currentImage);
+      window.VisualText.render(text || "—");
+
+      toggleMode = "text";
+      const canvas = document.querySelector("#canvas-container canvas");
+      if (!canvas) return;
+
+      const record = appendStage("text-to-image", {
+        input: text,
+      });
+      const textArea = field(record.el, "input-text");
+      textArea.value = text;
+
       return;
+    }
+
+
+    if (currentMode === "typeArtColor") {
+      window.handleImageForTextColor(window.currentImage);
+      toggleMode = "text";
+ 
+      const canvas = document.querySelector("#canvas-container canvas");
+      if (!canvas) return;
+
+      text = await window.asyncColorText(window.currentImage);
+      const record = appendStage("text-to-image", {
+        input: text,
+      });
+      const textArea = field(record.el, "input-text");
+
+      window.colorTextForBox(window.currentImage, textArea);
+      return;
+
     }
   }
 
@@ -663,6 +723,11 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
       
 /** @type {Array<{ id: string, kind: 'text-to-image' | 'image-to-text', input: string, output: string | null, mode: string | null, el: HTMLElement | null }>} */
 let stages = [];
+Object.defineProperty(window, "stages", {
+  get() {
+    return stages;
+  },
+});
 let stageSeq = 0;
 
 const chainStagesEl = document.getElementById("chain-stages");
@@ -760,6 +825,7 @@ function removeStages(currentStage, allStages) {
       allStages.splice(i, 1);
       if (stage.kind === "text-to-image") {
         text = stage.input;
+        console.log(text)
         toggleMode = "visual";
       } else {
         window.currentImage = stage.input;

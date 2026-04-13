@@ -45,6 +45,7 @@ h1 {
    font-size: 20px;
    margin: 0;
    padding:0;
+   font-weight: 125;
 }
 h2, p {
    font-family: "Datatype";
@@ -52,8 +53,8 @@ h2, p {
    margin: 0;
    padding:0;
 }
-h2 {
-   font-weight: 500;
+.header-design {
+   font-weight: 800;
 }
 h2.section-text {
    text-transform: uppercase;
@@ -66,17 +67,21 @@ h2.section-text {
 #top-banner {
    /* background-color: #161616; */
    /* color: #f2f2ef; */
-   border-bottom: 1px solid rgb(0, 0, 0);
-   padding: 6px 14px;
+   border-bottom: 1px solid var(--lightmode-text);
+   padding: 4px 14px;
    width: 100%;
    display: flex;
    gap: 12px;
+   justify-content: center;
    /* position: absolute; */
    z-index: 2;
 }
 #page-title{
    padding: 0px 0px 2px 0px;
    text-transform: uppercase;
+}
+.divider {
+   font-stretch: 150%;
 }
 #wrapper {
   -webkit-box-orient: vertical;

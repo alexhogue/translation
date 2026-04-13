@@ -88,7 +88,7 @@
         p.redraw();
         p.clear();
         const w = containerEl.clientWidth;
-        p.createCanvas(w, VIS_H);
+        p.createCanvas(w, containerEl.clientHeight);
         p.pixelDensity(2);
         p.noLoop();
         p.background(backgroundColor);
@@ -119,7 +119,10 @@
 
     window.addEventListener("resize", () => {
       if (!instance || !containerEl) return;
-      instance.resizeCanvas(containerWidth(containerEl), VIS_H);
+      instance.resizeCanvas(
+        containerWidth(containerEl),
+        containerEl.clientHeight
+      );
       instance.redraw();
     });
 

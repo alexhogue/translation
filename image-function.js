@@ -56,7 +56,7 @@ generateImgBtn.addEventListener("click", (e) => {
     ],
     { duration: 300, easing: "ease-out" }
   );
-  window.refreshActiveCanvasFromImage(window.currentImage);
+  window.refreshActiveCanvasFromImage(window.currentImage, "root");
 });
 
 imageDrop.addEventListener("click", () => {
@@ -78,7 +78,7 @@ fileInput.addEventListener("change", () => {
     ],
     { duration: 300, easing: "ease-out" }
   );
-  window.refreshActiveCanvasFromImage(window.currentImage);
+  window.refreshActiveCanvasFromImage(window.currentImage, "root");
 });
 
 imageDrop.addEventListener("dragover", (e) => {
@@ -112,7 +112,7 @@ imageDrop.addEventListener("drop", (e) => {
     ],
     { duration: 300, easing: "ease-out" }
   );
-  window.refreshActiveCanvasFromImage(window.currentImage);
+  window.refreshActiveCanvasFromImage(window.currentImage, "root");
 });
 
 function previewImage(file) {
@@ -157,14 +157,35 @@ document.getElementById("controls-section").addEventListener("click", (e) => {
     "[data-stage-id], [data-role='convert-to-text'], [data-role='convert-to-image']"
   );
   if (!stage) return;
-  // Only clear .mode-btn inside THIS stage (or same column type)
+
   stage
     .querySelectorAll(".mode-btn")
     .forEach((b) => b.removeAttribute("aria-pressed"));
   btn.setAttribute("aria-pressed", "true");
   currentMode = btn.getAttribute("data-mode");
   window.currentMode = currentMode;
-  // optional: stage.dataset.activeMode = currentMode for multi-stage
+  
+//   const stageId = stage.getAttribute("data-stage-id");
+//   let url = "";
+
+//   if (stageId === "root") {
+//     const img = field(imageControls, "preview-img");
+//     console.log(img);
+//     url = img.src && img.src !== "#" ? img.src : "";
+//   } else {
+//     const rec = window.stages.find((s) => s.id === stageId);
+//     if (rec?.kind === "image-to-text" && rec.input) {
+//       url = rec.input;
+//     } else {
+//       const img = field(stage, "preview-img");
+//       url = img?.src && img.src !== "#" ? img.src : "";
+//     }
+//   }
+  
+//   window.currentImage = url;
+  
+//   window.refreshActiveCanvasFromImage(url, stageId);
+
 });
 
 
