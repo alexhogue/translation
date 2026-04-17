@@ -34,10 +34,10 @@ html, body {
   background-color: var(--lightmode-background);
 }
 
-/* body {
-   filter: invert(100%);
+body {
+   transition: filter 0.25s ease;
 
-} */
+}
 @media screen and (max-width: 768px) {
   html, body {
     overflow-y: auto;

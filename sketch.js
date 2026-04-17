@@ -1,33 +1,67 @@
+const textControls = document.querySelector('[data-role="convert-to-image"]');
+const imageControls = document.querySelector('[data-role="convert-to-text"]');
+const panel = document.getElementById("translation-panel");
+const resizer = document.getElementById("resizer");
+const sourceWrap = textControls.querySelector('[data-role="source-wrap"]');
+const sourceEl = textControls.querySelector('[data-role="input-text"]');
+const modeEl = document.querySelector(".mode-buttons");
+const submitBtn = document.getElementById("submit-button");
+const canvasContainerEl = document.getElementById("canvas-container");
+const toggleBtns = document.querySelectorAll(".toggle-button");
+const restartBtnCont = document.getElementById("restart-cont");
+const generateBtns = document.querySelectorAll(".generate-text-btn");
+const generateSentBtn = textControls.querySelector(
+  '[data-role="generate-sentences"]'
+);
+const generatePanBtn = textControls.querySelector(
+  '[data-role="generate-pangram"]'
+);
+const canvasArea = document.getElementById("canvas-area");
+const canvas = document.querySelector("canvas");
+const saveButton = document.getElementById("download-canvas-btn");
+const compressBtn = document.getElementById("compress-carat");
+const pageTitle = document.getElementById("page-title");
+const arrowChain = document.getElementById("arrow-section");
+const generalButtonArea = document.querySelector("button-area");
+const darkModeBtn = document.getElementById("dark-mode-btn");
+const originalImg = document.getElementById("original-img");
+
 async function translateToFrench(text) {
   const trimmed = text.trim();
-  if (!trimmed) return '';
+  if (!trimmed) return "";
   const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-    trimmed,
+    trimmed
   )}&langpair=en|fr`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('Translation request failed');
+  if (!res.ok) throw new Error("Translation request failed");
   const data = await res.json();
   const translated = data?.responseData?.translatedText;
-  if (translated == null) throw new Error('Invalid response');
+  if (translated == null) throw new Error("Invalid response");
   return translated;
 }
 
-function translateSync(input, mode) {
-  if (!input.trim()) return '';
-  switch (mode) {
-    case 'symbols': return toSymbols(input);
-    case 'numbers': return toNumbers(input);
-    case 'binary': return toBinary(input);
-    case 'abstract': return toAbstract(input);
-    case 'script': return toAnotherScript(input);
-    case 'homoglyphs': return toHomoglyphs(input);
-    default: return input;
+darkModeBtn.addEventListener("click", () => {
+  if (darkModeBtn.getAttribute("data-theme") == "light") {
+    darkModeBtn.setAttribute("data-theme", "dark");
+    originalImg.style.filter = "invert(1)";
+    document.body.style.filter = "invert(1)";
+    originalImg.style.filter = "invert(1)";
+    darkModeBtn.children[0].style.display = "none";
+    darkModeBtn.children[1].style.display = "flex";
   }
-}
+  else if (darkModeBtn.getAttribute("data-theme") == "dark") {
+    darkModeBtn.setAttribute("data-theme", "light");
+    originalImg.style.filter = "invert(0)";
+    document.body.style.filter = "invert(0)";
+    originalImg.style.filter = "invert(0)";
+    darkModeBtn.children[0].style.display = "flex";
+    darkModeBtn.children[1].style.display = "none";
+  }
+});
 
 (function animateHeaderNoise() {
-  const noiseEls = document.querySelectorAll('#top-banner .header-noise');
- 
+  const noiseEls = document.querySelectorAll("#top-banner .header-noise");
+
   function tick() {
     noiseEls.forEach((el) => {
       const digitCount = 7;
@@ -38,32 +72,9 @@ function translateSync(input, mode) {
     });
   }
 
-  tick()
+  tick();
   setInterval(tick, 300);
-
 })();
-
-const textControls = document.querySelector('[data-role="convert-to-image"]');
-const imageControls = document.querySelector('[data-role="convert-to-text"]');
-const panel = document.getElementById('translation-panel');
-const resizer = document.getElementById("resizer");
-const sourceWrap = textControls.querySelector('[data-role="source-wrap"]');
-const sourceEl = textControls.querySelector('[data-role="input-text"]');
-const modeEl = document.querySelector('.mode-buttons');
-const submitBtn = document.getElementById('submit-button');
-const canvasContainerEl = document.getElementById('canvas-container');
-const toggleBtns = document.querySelectorAll(".toggle-button");
-const restartBtnCont = document.getElementById("restart-cont");
-const generateBtns = document.querySelectorAll(".generate-text-btn")
-const generateSentBtn = textControls.querySelector('[data-role="generate-sentences"]');
-const generatePanBtn = textControls.querySelector('[data-role="generate-pangram"]');
-const canvasArea = document.getElementById("canvas-area");
-const canvas = document.querySelector("canvas");
-const saveButton = document.getElementById("download-canvas-btn");
-const compressBtn = document.getElementById("compress-carat");
-const pageTitle = document.getElementById("page-title");
-const arrowChain = document.getElementById("arrow-section");
-const generalButtonArea = document.querySelector("button-area");
 
 function field(root, role) {
   return root?.querySelector(`[data-role="${role}"]`);
@@ -78,12 +89,10 @@ resizer.addEventListener("mousedown", (e) => {
     },
     false
   );
-
-})
+});
 function resize(e) {
   const clamped = Math.max(300, e.clientX);
   panel.style.flexBasis = `${clamped}px`;
-
 }
 
 const backgroundColor = getComputedStyle(
@@ -95,22 +104,38 @@ let toggleMode = "";
 let currentMode = "";
 let downloadCount = 0;
 
-
 saveButton.addEventListener("click", () => {
   const canvas = document.querySelector("#canvas-container canvas");
   if (!canvas) return;
+
+  let href = "";
   downloadCount += 1;
+
+  if (darkModeBtn.getAttribute("data-theme") === "dark") {
+    const tmp = document.createElement("canvas");
+    tmp.width = canvas.width;
+    tmp.height = canvas.height;
+    const ctx = tmp.getContext("2d");
+    ctx.filter = "invert(1)";
+    ctx.drawImage(canvas, 0, 0);
+
+    href = tmp.toDataURL("image/png");
+  
+  } else {
+    href = canvas.toDataURL("image/png");
+  }
+  
   const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
+  a.href = href;
   a.download = "translation_" + downloadCount + ".png";
   a.click();
-})
+});
 
 compressBtn.addEventListener("click", () => {
   const panelBody = document.getElementById("translation-body");
   if (compressBtn.getAttribute("aria-expanded") == "true") {
     panelBody.style.display = "none";
-    compressBtn.style.transform = "rotate(180deg)"
+    compressBtn.style.transform = "rotate(180deg)";
     compressBtn.setAttribute("aria-expanded", "false");
     panel.animate(
       [
@@ -150,14 +175,12 @@ compressBtn.addEventListener("click", () => {
     // pageTitle.style.display = "block";
     resizer.style.pointerEvents = "auto";
     panel.style.flexBasis = `${300}px`;
-
   }
 
   requestAnimationFrame(() => {
     window.dispatchEvent(new Event("resize"));
   });
-})
-
+});
 
 generateBtns.forEach((btn) => {
   btn.addEventListener("click", async (e) => {
@@ -185,7 +208,11 @@ generateBtns.forEach((btn) => {
         }
 
         // Font Gauntlet code uses `a.text` for the generated paragraph
-        const paragraph = data.text.match(/[^.!?]+[.!?]+/g).slice(0, 3).join(" ").trim();
+        const paragraph = data.text
+          .match(/[^.!?]+[.!?]+/g)
+          .slice(0, 3)
+          .join(" ")
+          .trim();
 
         if (!paragraph) throw new Error("No paragraph text in response");
 
@@ -216,8 +243,7 @@ generateBtns.forEach((btn) => {
         }
 
         // Font Gauntlet code uses `a.text` for the generated paragraph
-        const paragraph = data.text
-          .concat(".")
+        const paragraph = data.text.concat(".");
 
         if (!paragraph) throw new Error("No paragraph text in response");
 
@@ -229,10 +255,9 @@ generateBtns.forEach((btn) => {
       } catch (err) {
         alert(err?.message || "Failed to generate text");
       }
-
     }
   });
-})
+});
 
 toggleBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -255,7 +280,6 @@ toggleBtns.forEach((btn) => {
         ],
         { duration: 300, easing: "ease-out" }
       );
-
     } else if (toggleMode === "visual") {
       imageControls.style.display = "block";
       textControls.style.display = "none";
@@ -276,7 +300,6 @@ toggleBtns.forEach((btn) => {
       b.setAttribute("aria-disabled", "true");
       b.setAttribute("tabindex", "-1");
     });
-    
   });
 });
 
@@ -286,7 +309,7 @@ restartBtnCont.querySelector("button").addEventListener("click", () => {
   );
 
   if (!ok) return;
-  
+
   // toggleLocked = false;
   // toggleMode = "";
   // currentMode = "";
@@ -313,11 +336,8 @@ restartBtnCont.querySelector("button").addEventListener("click", () => {
 
   // restartBtnCont.style.display = "none";
 
-
-  window.location.reload()
-
+  window.location.reload();
 });
-
 
 function updateIfText() {
   const hasText = (sourceEl.value || "").trim().length > 0;
@@ -336,8 +356,7 @@ function updateIfText() {
     imageButtons.style.pointerEvents = hasText ? "auto" : "none";
   }
   if (chainStagesEl) chainStagesEl.innerHTML = "";
-    // panel.style.pointerEvents = hasText ? "auto" : "none";
-
+  // panel.style.pointerEvents = hasText ? "auto" : "none";
 }
 function refreshActiveCanvasFromText(rawText) {
   if (toggleMode !== "visual") return;
@@ -365,7 +384,9 @@ function refreshActiveCanvasFromText(rawText) {
 
 async function refreshActiveCanvasFromImage(url, stageID) {
   if (toggleMode !== "text") return;
-  if (stageID === "root") {if (chainStagesEl) chainStagesEl.innerHTML = "";}
+  if (stageID === "root") {
+    if (chainStagesEl) chainStagesEl.innerHTML = "";
+  }
   //   const t = (rawText ?? "").trim();
   if (currentMode === "rgb") {
     window.handleRGB?.(url);
@@ -409,16 +430,10 @@ function addAfterChain(currentStage) {
         duration: 500,
         fill: "forwards",
         delay: index * 100, // Staggers each element by 100ms
-      });
-
-  })
-
+      }
+    );
+  });
 }
-
-
-
-
-
 
 function handleTextImageSwitch() {
   toggleMode = "visual";
@@ -434,65 +449,177 @@ function handleTextImageSwitch() {
   );
   const dataUrl = canvas.toDataURL("image/png");
   appendStage("image-to-text", { input: dataUrl });
-  
 }
 
 let activeInputTextarea = sourceEl;
 let activeImageArea = null;
 let text = "";
 
-
-document.getElementById("controls-section").addEventListener("click", async (e) => {
-  const btn = e.target.closest(".mode-btn");
-  if (!btn) return;
-  const stage = btn.closest(
-    "[data-stage-id], [data-role='convert-to-text'], [data-role='convert-to-image']"
-  );
-  if (!stage) return;
-
-  stage
-    .querySelectorAll(".mode-btn")
-    .forEach((b) => b.removeAttribute("aria-pressed"));
-  btn.setAttribute("aria-pressed", "true");
-  currentMode = btn.getAttribute("data-mode");
-
-
-  e.preventDefault();
-  const textEl = field(stage, "input-text");
-  text = (textEl ? textEl.value : sourceEl.value) || "";
-  refreshActiveCanvasFromText(text);
-
-  removeStages(stage, stages);
-  
-
-  const isRoot = stage.getAttribute("data-stage-id") === "root";
-  const latestTemp = stages[stages.length - 1];
-  const isMostRecentTemplate =
-    (isRoot && stages.length === 0) ||
-    (latestTemp?.el != null && stage === latestTemp.el);
-
-  if (isMostRecentTemplate) {
-    addAfterChain(stage);
-  }
-
-  arrowChain.children.forEach((arrow, index) => {
-    arrow.animate(
-      [{ transform: "translateX(-6px)" }, { transform: "translateX(6px)" }],
-      {
-        duration: 500,
-        iterations: Infinity,
-        direction: "alternate",
-        easing: "ease-out",
-        delay: index * 100,
-      }
+document
+  .getElementById("controls-section")
+  .addEventListener("click", async (e) => {
+    const btn = e.target.closest(".mode-btn");
+    if (!btn) return;
+    const stage = btn.closest(
+      "[data-stage-id], [data-role='convert-to-text'], [data-role='convert-to-image']"
     );
-  });
+    if (!stage) return;
 
+    stage
+      .querySelectorAll(".mode-btn")
+      .forEach((b) => b.removeAttribute("aria-pressed"));
+    btn.setAttribute("aria-pressed", "true");
+    currentMode = btn.getAttribute("data-mode");
 
-  saveButton.style.display = "block";
+    e.preventDefault();
+    const textEl = field(stage, "input-text");
+    text = (textEl ? textEl.value : sourceEl.value) || "";
+    refreshActiveCanvasFromText(text);
 
-  if (toggleMode === "text") {
-    if (!text.trim()) {
+    removeStages(stage, stages);
+
+    const isRoot = stage.getAttribute("data-stage-id") === "root";
+    const latestTemp = stages[stages.length - 1];
+    const isMostRecentTemplate =
+      (isRoot && stages.length === 0) ||
+      (latestTemp?.el != null && stage === latestTemp.el);
+
+    if (isMostRecentTemplate) {
+      addAfterChain(stage);
+    }
+
+    arrowChain.children.forEach((arrow, index) => {
+      arrow.animate(
+        [{ transform: "translateX(-6px)" }, { transform: "translateX(6px)" }],
+        {
+          duration: 500,
+          iterations: Infinity,
+          direction: "alternate",
+          easing: "ease-out",
+          delay: index * 100,
+        }
+      );
+    });
+
+    saveButton.style.display = "block";
+
+    if (toggleMode === "text") {
+      if (!text.trim()) {
+        if (window.VisualMono) window.VisualMono.clear();
+        if (window.VisualColor1) window.VisualColor1.clear();
+        if (window.VisualColor2) window.VisualColor2.clear();
+        if (window.SquareGridR) window.SquareGridR.clear();
+        if (window.VisualColor3) window.VisualColor3.clear();
+        if (window.ColorLine2) window.ColorLine2.clear();
+        if (window.ColorLine3) window.ColorLine3.clear();
+        if (window.VisualText) window.VisualText.clear();
+        if (window.ConcretePoem) window.ConcretePoem.clear();
+        if (window.Neuron) window.Neuron.clear();
+        if (window.Neuron2) window.Neuron2.clear();
+        if (window.Neuron3) window.Neuron3.clear();
+        if (window.Neuron4) window.Neuron4.clear();
+        if (window.Binary) window.Binary.clear();
+        return;
+      }
+
+      // visual modes draw to p5 canvases
+      if (currentMode === "visual") {
+        // resultEl.textContent = '';
+        if (window.VisualMono) window.VisualMono.render(text);
+
+        handleTextImageSwitch();
+
+        return;
+      }
+
+      if (currentMode === "visualColor1") {
+        // resultEl.textContent = '';
+        if (window.VisualColor1) window.VisualColor1.render(text);
+
+        handleTextImageSwitch();
+
+        return;
+      }
+
+      if (currentMode === "visualColor2") {
+        // resultEl.textContent = "";
+        if (window.VisualColor2) window.VisualColor2.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "gridRadius") {
+        // resultEl.textContent = "";
+        if (window.SquareGridR) window.SquareGridR.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "visualColor3") {
+        // resultEl.textContent = "";
+        if (window.VisualColor3) window.VisualColor3.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "colorLine2") {
+        // resultEl.textContent = "";
+        if (window.ColorLine2) window.ColorLine2.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "colorLine3") {
+        // resultEl.textContent = "";
+        if (window.ColorLine3) window.ColorLine3.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "concretePoem") {
+        // resultEl.textContent = "";
+        if (window.ConcretePoem) window.ConcretePoem.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "neuron") {
+        // resultEl.textContent = "";
+        if (window.Neuron) window.Neuron.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "neuron2") {
+        // resultEl.textContent = "";
+        if (window.Neuron2) window.Neuron2.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "neuron3") {
+        // resultEl.textContent = "";
+        if (window.Neuron3) window.Neuron3.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "neuron4") {
+        // resultEl.textContent = "";
+        if (window.Neuron4) window.Neuron4.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "binary") {
+        // const out = translateSync(text, "binary");
+        // if (window.VisualText) window.VisualText.render(out || "—");
+        // handleTextImageSwitch();
+        if (window.Binary) window.Binary.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
       if (window.VisualMono) window.VisualMono.clear();
       if (window.VisualColor1) window.VisualColor1.clear();
       if (window.VisualColor2) window.VisualColor2.clear();
@@ -507,237 +634,116 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
       if (window.Neuron3) window.Neuron3.clear();
       if (window.Neuron4) window.Neuron4.clear();
       if (window.Binary) window.Binary.clear();
-      return;
-    }
 
-    // visual modes draw to p5 canvases
-    if (currentMode === "visual") {
-      // resultEl.textContent = '';
-      if (window.VisualMono) window.VisualMono.render(text);
+      // else {
+      //   const out = translateSync(text, mode);
+      //   // resultEl.textContent = out || '—';
+      // }
 
-      handleTextImageSwitch();
-
-      return;
-    }
-
-    if (currentMode === "visualColor1") {
-      // resultEl.textContent = '';
-      if (window.VisualColor1) window.VisualColor1.render(text);
-     
-      handleTextImageSwitch();
-
-      return;
-    }
-
-    if (currentMode === "visualColor2") {
-      // resultEl.textContent = "";
-      if (window.VisualColor2) window.VisualColor2.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "gridRadius") {
-      // resultEl.textContent = "";
-      if (window.SquareGridR) window.SquareGridR.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "visualColor3") {
-      // resultEl.textContent = "";
-      if (window.VisualColor3) window.VisualColor3.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "colorLine2") {
-      // resultEl.textContent = "";
-      if (window.ColorLine2) window.ColorLine2.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "colorLine3") {
-      // resultEl.textContent = "";
-      if (window.ColorLine3) window.ColorLine3.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "concretePoem") {
-      // resultEl.textContent = "";
-      if (window.ConcretePoem) window.ConcretePoem.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "neuron") {
-      // resultEl.textContent = "";
-      if (window.Neuron) window.Neuron.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "neuron2") {
-      // resultEl.textContent = "";
-      if (window.Neuron2) window.Neuron2.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "neuron3") {
-      // resultEl.textContent = "";
-      if (window.Neuron3) window.Neuron3.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "neuron4") {
-      // resultEl.textContent = "";
-      if (window.Neuron4) window.Neuron4.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (currentMode === "binary") {
-      // const out = translateSync(text, "binary");
-      // if (window.VisualText) window.VisualText.render(out || "—");
-      // handleTextImageSwitch();
-      if (window.Binary) window.Binary.render(text);
-      handleTextImageSwitch();
-      return;
-    }
-
-    if (window.VisualMono) window.VisualMono.clear();
-    if (window.VisualColor1) window.VisualColor1.clear();
-    if (window.VisualColor2) window.VisualColor2.clear();
-    if (window.SquareGridR) window.SquareGridR.clear();
-    if (window.VisualColor3) window.VisualColor3.clear();
-    if (window.ColorLine2) window.ColorLine2.clear();
-    if (window.ColorLine3) window.ColorLine3.clear();
-    if (window.VisualText) window.VisualText.clear();
-    if (window.ConcretePoem) window.ConcretePoem.clear();
-    if (window.Neuron) window.Neuron.clear();
-    if (window.Neuron2) window.Neuron2.clear();
-    if (window.Neuron3) window.Neuron3.clear();
-    if (window.Neuron4) window.Neuron4.clear();
-    if (window.Binary) window.Binary.clear();
-
-    // else {
-    //   const out = translateSync(text, mode);
-    //   // resultEl.textContent = out || '—';
-    // }
-
-    if (currentMode === "french") {
-      try {
-        const out = await translateToFrench(text);
-        if (window.VisualText) window.VisualText.render(out || "—");
-      } catch (err) {
-        if (window.VisualText)
-          window.VisualText.render(
-            err && err.message ? err.message : "Translation failed"
-          );
+      if (currentMode === "french") {
+        try {
+          const out = await translateToFrench(text);
+          if (window.VisualText) window.VisualText.render(out || "—");
+        } catch (err) {
+          if (window.VisualText)
+            window.VisualText.render(
+              err && err.message ? err.message : "Translation failed"
+            );
+        }
+        return;
       }
-      return;
     }
 
-  }
+    if (toggleMode === "visual") {
+      const stageId = stage.getAttribute("data-stage-id");
+      let url = "";
 
-  if (toggleMode === "visual") {
-    const stageId = stage.getAttribute("data-stage-id");
-    let url = "";
-
-    if (stageId === "root") {
-      const img = field(imageControls, "preview-img");
-      console.log(img);
-      url = img.src && img.src !== "#" ? img.src : "";
-    } else {
-      const rec = window.stages.find((s) => s.id === stageId);
-      if (rec?.kind === "image-to-text" && rec.input) {
-        url = rec.input;
+      if (stageId === "root") {
+        const img = field(imageControls, "preview-img");
+        console.log(img);
+        url = img.src && img.src !== "#" ? img.src : "";
       } else {
-        const img = field(stage, "preview-img");
-        url = img?.src && img.src !== "#" ? img.src : "";
+        const rec = window.stages.find((s) => s.id === stageId);
+        if (rec?.kind === "image-to-text" && rec.input) {
+          url = rec.input;
+        } else {
+          const img = field(stage, "preview-img");
+          url = img?.src && img.src !== "#" ? img.src : "";
+        }
+      }
+
+      window.currentImage = url;
+
+      if (currentMode === "typeArt") {
+        window.handleImageForTextPicture(window.currentImage);
+        toggleMode = "text";
+
+        const canvas = document.querySelector("#canvas-container canvas");
+        if (!canvas) return;
+
+        text = await window.returnBrightnessText(window.currentImage);
+        const record = appendStage("text-to-image", {
+          input: text,
+        });
+        const textArea = field(record.el, "input-text");
+        window.getBrightnessText(window.currentImage, textArea);
+        return;
+      }
+
+      if (currentMode === "rgb") {
+        window.handleRGB(window.currentImage);
+        toggleMode = "text";
+
+        const canvas = document.querySelector("#canvas-container canvas");
+        if (!canvas) return;
+
+        text = await window.returnRGBText(window.currentImage);
+        console.log(text);
+        const record = appendStage("text-to-image", {
+          input: text,
+        });
+        const textArea = field(record.el, "input-text");
+
+        window.getRGBText(window.currentImage, textArea);
+        return;
+      }
+
+      if (currentMode === "description") {
+        text = await window.createDescription(window.currentImage);
+        window.VisualText.render(text || "—");
+
+        toggleMode = "text";
+        const canvas = document.querySelector("#canvas-container canvas");
+        if (!canvas) return;
+
+        const record = appendStage("text-to-image", {
+          input: text,
+        });
+        const textArea = field(record.el, "input-text");
+        textArea.value = text;
+
+        return;
+      }
+
+      if (currentMode === "typeArtColor") {
+        window.handleImageForTextColor(window.currentImage);
+        toggleMode = "text";
+
+        const canvas = document.querySelector("#canvas-container canvas");
+        if (!canvas) return;
+
+        text = await window.asyncColorText(window.currentImage);
+        const record = appendStage("text-to-image", {
+          input: text,
+        });
+        const textArea = field(record.el, "input-text");
+
+        window.colorTextForBox(window.currentImage, textArea);
+        return;
       }
     }
+  });
 
-    window.currentImage = url;
-    
-    if (currentMode === "typeArt") {
-      window.handleImageForTextPicture(window.currentImage);
-      toggleMode = "text";
-
-      const canvas = document.querySelector("#canvas-container canvas");
-      if (!canvas) return;
-
-      text = await window.returnBrightnessText(window.currentImage);
-      const record = appendStage("text-to-image", {
-        input: text,
-      });
-      const textArea = field(record.el, "input-text");
-      window.getBrightnessText(window.currentImage, textArea);
-      return;
-    }
-
-    if (currentMode === "rgb") {
-      window.handleRGB(window.currentImage);
-      toggleMode = "text";
-
-      const canvas = document.querySelector("#canvas-container canvas");
-      if (!canvas) return;
-
-      text = await window.returnRGBText(window.currentImage);
-      console.log(text);
-      const record = appendStage("text-to-image", {
-        input: text,
-      });
-      const textArea = field(record.el, "input-text");
-    
-      window.getRGBText(window.currentImage, textArea);
-      return;
-    }
-
-    if (currentMode === "description") {
-      text = await window.createDescription(window.currentImage);
-      window.VisualText.render(text || "—");
-
-      toggleMode = "text";
-      const canvas = document.querySelector("#canvas-container canvas");
-      if (!canvas) return;
-
-      const record = appendStage("text-to-image", {
-        input: text,
-      });
-      const textArea = field(record.el, "input-text");
-      textArea.value = text;
-
-      return;
-    }
-
-
-    if (currentMode === "typeArtColor") {
-      window.handleImageForTextColor(window.currentImage);
-      toggleMode = "text";
- 
-      const canvas = document.querySelector("#canvas-container canvas");
-      if (!canvas) return;
-
-      text = await window.asyncColorText(window.currentImage);
-      const record = appendStage("text-to-image", {
-        input: text,
-      });
-      const textArea = field(record.el, "input-text");
-
-      window.colorTextForBox(window.currentImage, textArea);
-      return;
-
-    }
-  }
-
-
-});
-    
-      
 /** @type {Array<{ id: string, kind: 'text-to-image' | 'image-to-text', input: string, output: string | null, mode: string | null, el: HTMLElement | null }>} */
 let stages = [];
 Object.defineProperty(window, "stages", {
@@ -752,9 +758,9 @@ const tplTextToImage = document.getElementById("tpl-text-to-image");
 const tplImageToText = document.getElementById("tpl-image-to-text");
 
 /**
-* @param {'text-to-image' | 'image-to-text'} kind
-* @param {{ input?: string }} [opts]  input: text for text→image, or image URL/data URL for image→text
-*/
+ * @param {'text-to-image' | 'image-to-text'} kind
+ * @param {{ input?: string }} [opts]  input: text for text→image, or image URL/data URL for image→text
+ */
 function appendStage(kind, opts = {}) {
   const input = opts.input ?? "";
   const id = String(++stageSeq);
@@ -791,7 +797,7 @@ function appendStage(kind, opts = {}) {
     el.style.display = "flex";
     const textArea = field(el, "input-text");
     textArea.value = input;
-    text = textArea.value;;
+    text = textArea.value;
     const panel = field(el, "to-image-buttons");
     panel.style.display = "block";
   }
@@ -809,7 +815,13 @@ function appendStage(kind, opts = {}) {
   }
 
   chainStagesEl.appendChild(el);
-  el.animate([{ opacity: 0, transform: 'scale(0.75)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 300, easing: 'ease-out'});
+  el.animate(
+    [
+      { opacity: 0, transform: "scale(0.75)" },
+      { opacity: 1, transform: "scale(1)" },
+    ],
+    { duration: 300, easing: "ease-out" }
+  );
   // el.scrollIntoView({ behavior: "smooth", block: "end" });
   const panelBody = document.getElementById("translation-body");
   panelBody.scrollTo({
@@ -819,7 +831,6 @@ function appendStage(kind, opts = {}) {
   record.el = el;
   stages.push(record);
   return record;
-
 }
 
 function removeStages(currentStage, allStages) {
@@ -836,13 +847,13 @@ function removeStages(currentStage, allStages) {
     const stage = allStages[i];
     const stageID = Number(stage.id);
     if (!stageID || stageID === "root") continue;
-    
+
     if (stageID > currentStageID) {
       stage.el.remove();
       allStages.splice(i, 1);
       if (stage.kind === "text-to-image") {
         text = stage.input;
-        console.log(text)
+        console.log(text);
         toggleMode = "visual";
       } else {
         window.currentImage = stage.input;
@@ -851,13 +862,5 @@ function removeStages(currentStage, allStages) {
 
       stageSeq = currentStageID;
     }
-
   }
-
-
 }
-
-  
-
-
-
