@@ -11,9 +11,16 @@
 <div id="page">
   <!-- <h2>Result</h2> -->
   <header id="top-banner">
-    <h1>{b:24,51,68,97,36,76,65}</h1>
-    <h1 id="page-title">Recursive Translator</h1>
-    <h1>{b:64,91,87,17,36,76,17}</h1>
+    <h1 class="header-noise">{b:24,51,68,97,36,76,65}</h1>
+    <h1 id="page-title">Residual meaning</h1>
+    <h1 class="header-noise">{b:64,91,87,17,36,76,17}</h1>
+    <div id="meta-controls-cont">
+      <button type="button" id="dm-moon" style="background: none; border: 0; padding: 0; margin: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none" style="display:flex;">
+          <path d="M11.9998 2.99994H12.3928C11.1081 4.19365 10.2824 5.79979 10.0591 7.53916C9.83577 9.27854 10.229 11.0412 11.1705 12.5207C12.112 14.0002 13.5422 15.103 15.2124 15.6374C16.8826 16.1718 18.6873 16.1041 20.3128 15.4459C19.6875 16.9504 18.6656 18.257 17.356 19.2262C16.0464 20.1954 14.4982 20.791 12.8767 20.9493C11.2552 21.1077 9.62104 20.8229 8.14867 20.1253C6.6763 19.4278 5.42089 18.3436 4.51637 16.9885C3.61185 15.6334 3.09213 14.0582 3.01267 12.4309C2.9332 10.8036 3.29696 9.18524 4.06515 7.74846C4.83334 6.31167 5.97714 5.11037 7.37454 4.27268C8.77195 3.43499 10.3705 2.99234 11.9998 2.99194V2.99994Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
   </header>
 
   <div id="all-content">
@@ -78,7 +85,7 @@
                   <!-- <button type="button" class="mode-btn" data-mode="neuron">Neuron random</button> -->
                   <!-- <button type="button" class="mode-btn" data-mode="neuron2">Neuron color</button> -->
                   <button type="button" class="mode-btn" data-mode="neuron3">Neuron grid</button>
-                  <button type="button" class="mode-btn" data-mode="neuron4">Neuron words</button>
+                  <!-- <button type="button" class="mode-btn" data-mode="neuron4">Neuron words</button> -->
                   <button type="button" class="mode-btn" data-mode="binary">Binary</button>
                   <!-- <button type="button" class="mode-btn" data-mode="french">French</button> -->
                 </div>
@@ -160,7 +167,7 @@
                     <!-- <button type="button" class="mode-btn" data-mode="neuron">Neuron random</button> -->
                     <!-- <button type="button" class="mode-btn" data-mode="neuron2">Neuron color</button> -->
                     <button type="button" class="mode-btn" data-mode="neuron3">Neuron grid</button>
-                    <button type="button" class="mode-btn" data-mode="neuron4">Neuron words</button>
+                    <!-- <button type="button" class="mode-btn" data-mode="neuron4">Neuron words</button> -->
                     <button type="button" class="mode-btn" data-mode="binary">Binary</button>
                     <!-- <button type="button" class="mode-btn" data-mode="french">French</button> -->
                   </div>
@@ -171,7 +178,10 @@
 
             <template id="tpl-image-to-text">
               <div class="toggle-type-controls" data-stage-id="" data-role="convert-to-text" style="display:none">
-                <h2 class="section-text" data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
+                <div class="section-title">
+                  <h2 class="header-design">{l:60,46,13,13,43,12,76,20,44}</h2>
+                  <h2 class="section-text" data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
+                </div>
                 <div class="image-drop-cont">
                   <h2 class="section-text">Source image</h2>
                   <div class="drop-area image-drop" data-role="drop-file">
@@ -272,6 +282,8 @@
   <script src="imageText.js"></script>
 
   <script src="rgbValue.js"></script>
+
+  <script src="binary.js"></script>
 
   <!-- App logic using translation functions -->
    <script src="sketch.js"></script>

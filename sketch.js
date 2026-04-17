@@ -1,29 +1,3 @@
-// Core translation logic, adapted from your React project `transforms.js`
-
-const SYMBOLS = '◆●■▲▼★☆▪▫○◐◑◒◓☐☑☒⊕⊖⊗⊘'.split('');
-const modeButtons = document.querySelectorAll(".mode-btn");
-
-function getSymbolIndex(char) {
-  const code = char.charCodeAt(0);
-  return code % SYMBOLS.length;
-}
-
-function toSymbols(text) {
-  return text
-    .split('')
-    .map((c) => (c === ' ' ? ' ' : c === '\n' ? '\n' : SYMBOLS[getSymbolIndex(c)]))
-    .join('');
-}
-
-function toBinary(text) {
-  return text
-    .split('')
-    .map((c) =>
-      c === ' ' ? ' ' : c === '\n' ? '\n' : c.charCodeAt(0).toString(2).padStart(8, '0'),
-    )
-    .join(' ');
-}
-
 async function translateToFrench(text) {
   const trimmed = text.trim();
   if (!trimmed) return '';
@@ -50,6 +24,24 @@ function translateSync(input, mode) {
     default: return input;
   }
 }
+
+(function animateHeaderNoise() {
+  const noiseEls = document.querySelectorAll('#top-banner .header-noise');
+ 
+  function tick() {
+    noiseEls.forEach((el) => {
+      const digitCount = 7;
+      numberArray = Array.from({ length: digitCount }, () =>
+        Math.floor(Math.random() * 101)
+      );
+      el.textContent = `{b:${numberArray.join(",")}}`;
+    });
+  }
+
+  tick()
+  setInterval(tick, 300);
+
+})();
 
 const textControls = document.querySelector('[data-role="convert-to-image"]');
 const imageControls = document.querySelector('[data-role="convert-to-text"]');
@@ -295,31 +287,33 @@ restartBtnCont.querySelector("button").addEventListener("click", () => {
 
   if (!ok) return;
   
-  toggleLocked = false;
-  toggleMode = "";
-  currentMode = "";
-  downloadCount = 0;
-  stages = [];
-  stageSeq = 0;
-  if (chainStagesEl) chainStagesEl.innerHTML = "";
-  canvasContainerEl.innerHTML = "";
-  sourceEl.value = "";
-  window.currentImage = "";
-  modeButtons.forEach((btn) => {
-    btn.removeAttribute("aria-pressed");
-  });
-  saveButton.style.display = "none";
+  // toggleLocked = false;
+  // toggleMode = "";
+  // currentMode = "";
+  // downloadCount = 0;
+  // stages = [];
+  // stageSeq = 0;
+  // if (chainStagesEl) chainStagesEl.innerHTML = "";
+  // canvasContainerEl.innerHTML = "";
+  // sourceEl.value = "";
+  // window.currentImage = "";
+  // modeButtons.forEach((btn) => {
+  //   btn.removeAttribute("aria-pressed");
+  // });
+  // saveButton.style.display = "none";
 
-  document.getElementById("mode-switch-cont").classList.remove("toggle-locked");
-  toggleBtns.forEach((btn) => {
-    btn.removeAttribute("aria-pressed");
-    textControls.style.display = "none";
-    imageControls.style.display = "none";
-    btn.removeAttribute("aria-disabled", "true");
-    btn.removeAttribute("tabindex");
-  });
+  // document.getElementById("mode-switch-cont").classList.remove("toggle-locked");
+  // toggleBtns.forEach((btn) => {
+  //   btn.removeAttribute("aria-pressed");
+  //   textControls.style.display = "none";
+  //   imageControls.style.display = "none";
+  //   btn.removeAttribute("aria-disabled", "true");
+  //   btn.removeAttribute("tabindex");
+  // });
 
-  restartBtnCont.style.display = "none";
+  // restartBtnCont.style.display = "none";
+
+
   window.location.reload()
 
 });
@@ -361,6 +355,7 @@ function refreshActiveCanvasFromText(rawText) {
     neuron2: () => window.Neuron2,
     neuron3: () => window.Neuron3,
     neuron4: () => window.Neuron4,
+    binary: () => window.Binary,
   };
   const updater = renderers[currentMode]?.();
   if (!updater) return;
@@ -415,9 +410,15 @@ function addAfterChain(currentStage) {
         fill: "forwards",
         delay: index * 100, // Staggers each element by 100ms
       });
+
   })
 
 }
+
+
+
+
+
 
 function handleTextImageSwitch() {
   toggleMode = "visual";
@@ -474,8 +475,19 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
     addAfterChain(stage);
   }
 
+  arrowChain.children.forEach((arrow, index) => {
+    arrow.animate(
+      [{ transform: "translateX(-6px)" }, { transform: "translateX(6px)" }],
+      {
+        duration: 500,
+        iterations: Infinity,
+        direction: "alternate",
+        easing: "ease-out",
+        delay: index * 100,
+      }
+    );
+  });
 
-  
 
   saveButton.style.display = "block";
 
@@ -494,6 +506,7 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
       if (window.Neuron2) window.Neuron2.clear();
       if (window.Neuron3) window.Neuron3.clear();
       if (window.Neuron4) window.Neuron4.clear();
+      if (window.Binary) window.Binary.clear();
       return;
     }
 
@@ -586,6 +599,15 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
       return;
     }
 
+    if (currentMode === "binary") {
+      // const out = translateSync(text, "binary");
+      // if (window.VisualText) window.VisualText.render(out || "—");
+      // handleTextImageSwitch();
+      if (window.Binary) window.Binary.render(text);
+      handleTextImageSwitch();
+      return;
+    }
+
     if (window.VisualMono) window.VisualMono.clear();
     if (window.VisualColor1) window.VisualColor1.clear();
     if (window.VisualColor2) window.VisualColor2.clear();
@@ -599,6 +621,7 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
     if (window.Neuron2) window.Neuron2.clear();
     if (window.Neuron3) window.Neuron3.clear();
     if (window.Neuron4) window.Neuron4.clear();
+    if (window.Binary) window.Binary.clear();
 
     // else {
     //   const out = translateSync(text, mode);
@@ -618,12 +641,6 @@ document.getElementById("controls-section").addEventListener("click", async (e) 
       return;
     }
 
-    if (currentMode === "binary") {
-      const out = translateSync(text, "binary");
-      if (window.VisualText) window.VisualText.render(out || "—");
-      handleTextImageSwitch();
-      return;
-    }
   }
 
   if (toggleMode === "visual") {
@@ -839,6 +856,7 @@ function removeStages(currentStage, allStages) {
 
 
 }
+
   
 
 

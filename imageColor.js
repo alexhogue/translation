@@ -3,7 +3,8 @@
   const COLS = 80;
   // const density = " .:-=+*#%@";
   // const density = "@MWN#XGy%Ot?l!abovci-;:,.`  ";
-  const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
+  // const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
+  const density = "WMBG&Aaohkbdpwm0ZLCJYzcvnrjft?*->i!lI;:/,`' .  " + "    ";
 
 
   function colorToChar(r, g, b) {
@@ -38,7 +39,7 @@
   }
 
   function buildGridFromImage(img) {
-    const rows = Math.floor(COLS * (img.height / img.width) * 0.5);
+    const rows = Math.floor(COLS * (img.height / img.width) * 1.5);
     const cellW = img.width / COLS;
     const cellH = img.height / rows;
     const grid = [];

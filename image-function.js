@@ -20,6 +20,7 @@ let imageList = [
   "mountain.jpg",
   "neuron.jpeg",
   "firework.png",
+  "moth.png",
 ];
 
 generateImgBtn.addEventListener("click", (e) => {

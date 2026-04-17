@@ -31,9 +31,13 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-
   background-color: var(--lightmode-background);
 }
+
+/* body {
+   filter: invert(100%);
+
+} */
 @media screen and (max-width: 768px) {
   html, body {
     overflow-y: auto;
@@ -73,12 +77,18 @@ h2.section-text {
    display: flex;
    gap: 12px;
    justify-content: center;
+   /* position: relative; */
    /* position: absolute; */
    z-index: 2;
 }
 #page-title{
    padding: 0px 0px 2px 0px;
    text-transform: uppercase;
+}
+#meta-controls-cont {
+   position: absolute;
+   /* top: 0; */
+   right: 12px;
 }
 .divider {
    font-stretch: 150%;
@@ -118,7 +128,7 @@ h2.section-text {
   }
 }
 #translation-panel{
-   margin-top: 12px;
+   /* margin-top: 12px; */
    /* overflow-y: hidden; */
    height: 100%;
    display: flex;
@@ -158,6 +168,7 @@ h2.section-text {
    /* height: 100%;  */
    padding-bottom: 24px;
    gap: 24px;
+   padding-top: 24px;
    /* width: 22vw; */
    /* flex: 0 0 auto;  */
 }
@@ -182,12 +193,16 @@ h2.section-text {
 #panel-compress-cont {
    display: flex;
    justify-content: flex-end;
+   height: 24px;
    width: 100%;
+   padding-top: 6px; 
+   background-color: transparent;
+   position: absolute;
 }
 #compress-carat {
    border: 0;
    margin: 0;
-   padding: 0;
+   padding: 0px;
    background: none;
 }
 @media screen and (max-width: 768px) {
@@ -213,6 +228,10 @@ textarea[data-role="input-text"] {
    font-family: "Nunito";
    font-weight: 200px;
    /* border-radius: 4px; */
+}
+.template-textbox:focus {
+   outline: none;
+
 }
 
 .drop-zone.drag-over {
@@ -307,6 +326,8 @@ button:hover {
 [data-role="input-file"] {
    display: none;
 }
+
+
 .image-drop-cont{
    display: flex;
    flex-direction: column;
@@ -348,13 +369,14 @@ button:hover {
 }
 #canvas-container {
    flex: 1;
+   
    /* min-width: 250px; */
    padding: 12px;
    max-height: 100vh;
    height: 100%;  
 
    overflow-y: auto;
-   background-color: transparent;
+   /* background-color: #e1e1db; */
    /* border-top: 1px solid var(--lightmode-text);
    border-left: 1px solid var(--lightmode-text); */
 }

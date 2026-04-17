@@ -4,7 +4,9 @@
   const COLS = 80;
   // const density = " .:-=+*#%@";
   // const density = "@MWN#XGy%Ot?l!abovci-;:,.`  ";
-  const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
+  // const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
+  const density = "WMBG&AaohkbdpwmZ0LCJYzcvnrjft?*->i!lI;:/,`' .  " + "    ";
+
 
   function brightnessToChar(brightness) {
     const index = Math.floor((brightness / 255) * (density.length - 1));
@@ -12,7 +14,7 @@
   }
 
   function buildGridFromImage(img) {
-    const rows = Math.floor(COLS * (img.height / img.width) * 0.5);
+    const rows = Math.floor(COLS * (img.height / img.width) * 1.5);
     const cellW = img.width / COLS;
     const cellH = img.height / rows;
     const grid = [];

@@ -8,7 +8,7 @@
     const c = (ch || "").toLowerCase();
     const code = c.charCodeAt(0);
     if (code >= 97 && code <= 122) return code - 97;
-    return 13;
+    else return 13;
   }
 
   function visualSplitIntoWords(text) {
