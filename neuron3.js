@@ -119,11 +119,11 @@
       };
 
       p.draw = () => {
-        p.background(backgroundColor);
         const availableWidth = containerEl.clientWidth;
 
         p.resizeCanvas(availableWidth, containerEl.clientHeight);
         const { sentenceDots } = layoutSentences(currentText, availableWidth, p.height);
+        p.background(backgroundColor);
 
         for (const s of sentenceDots) {
           p.noStroke();

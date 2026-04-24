@@ -4,20 +4,27 @@
   // const density = " .:-=+*#%@";
   // const density = "@MWN#XGy%Ot?l!abovci-;:,.`  ";
   // const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
-  const density = "WMBG&Aaohkbdpwm0ZLCJYzcvnrjft?*->i!lI;:/,`' .  " + "    ";
+  const density = "WMB8G&Aaohkbdpwm0Z7LCJYzcvnrjft?*->i!lI;:/,`' .  " + "    ";
 
+  function brightnessToChar(brightness) {
+    const index = Math.floor((brightness / 255) * (density.length - 1));
+    return density[Math.min(index, density.length - 1)];
+  }
 
   function colorToChar(r, g, b) {
     const rScaled = r / 255;
     const gScaled = g / 255;
     const bScaled = b / 255;
+    const brightness = (r + g + b) / 3;
 
     const max = Math.max(rScaled, gScaled, bScaled);
     const min = Math.min(rScaled, gScaled, bScaled);
     const delta = max - min;
     let hue;
 
-    if (delta === 0) return 0;
+    if (delta === 0) {
+      return brightnessToChar(brightness);
+    }
 
     switch (max) {
       case rScaled:

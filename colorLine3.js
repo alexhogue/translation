@@ -2,10 +2,14 @@
   const VIS_H = 800;
 
   function alphabetIndex(ch) {
-    const c = (ch || "").toLowerCase();
-    const code = c.charCodeAt(0);
-    if (code >= 97 && code <= 122) return code - 97;
-    return null;
+    // const c = (ch || "").toLowerCase();
+    // const code = c.charCodeAt(0);
+    const str = String(ch);
+    const cp = str.codePointAt(0);
+    if (cp >= 97 && cp <= 122) return cp - 97;
+    if (cp >= 48 && cp <= 57) {
+      return Math.round(((cp - 48) / 9) * 26);
+    } else return 13;
   }
 
   function visualSplitIntoWords(text) {
@@ -76,11 +80,9 @@
 
     for (let wIndex = 0; wIndex < words.length; wIndex++) {
       const word = words[wIndex];
-      const letters = word.split("");
+      const letters = word.split("").filter((ch) => ch !== "[" && ch !== "]");
       const length = letters.length;
-      const lettersOnly = letters.filter((ch) => /[a-zA-Z]/.test(ch));
-      const cleanLength = lettersOnly.length;
-      if (!length || !cleanLength) continue;
+      if (!length) continue;
 
       const wordHash =
         letters.reduce((s, ch, i) => s + ch.charCodeAt(0) * (i + 7), 0) +
@@ -106,6 +108,7 @@
        const ch = letters[0];
        const aIdx = alphabetIndex(ch);
        const clamped = Math.max(0, Math.min(25, aIdx));
+       console.log(aIdx);
        const t = clamped / 25;
       //  console.log(ch + " " + aIdx);
 
@@ -116,7 +119,7 @@
 
       const innerH = canvasH - 2 * marginX
       let wordCy = marginY + innerH * t;
-      console.log(ch + " " + wordCy)
+    
 
       // Gentle jitter, but keep centers within margins.
       const jitterX = (wordHash % 40) - 20;
@@ -130,7 +133,7 @@
       centers.push({
         cx: wordCx,
         cy: wordCy,
-        color: colorForWordLength(cleanLength),
+        color: colorForWordLength(length),
         start: startsSentence,
         break: /[.!?]$/.test(word),
       });

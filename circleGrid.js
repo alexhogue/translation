@@ -6,10 +6,14 @@
   let button;
 
   function alphabetIndex(ch) {
-    const c = (ch || "").toLowerCase();
-    const code = c.charCodeAt(0);
-    if (code >= 97 && code <= 122) return code - 97;
-    return null;
+    // const c = (ch || "").toLowerCase();
+    // const code = c.charCodeAt(0);
+    const str = String(ch);
+    const cp = str.codePointAt(0);
+    if (cp >= 97 && cp <= 122) return cp - 97;
+    if (cp >= 48 && cp <= 57) {
+      return Math.round(((cp - 48) / 9) * 26);
+    } else return 13;
   }
 
   function splitWords(text) {

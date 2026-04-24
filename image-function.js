@@ -43,7 +43,9 @@ generateImgBtn.addEventListener("click", (e) => {
     ],
     { duration: 300, easing: "ease-out" }
   );
-  instructionText.textContent = "Upload new image here";
+  instructionText.textContent = "(Upload new image here)";
+  document.getElementById("image-icon").style.display = "none";
+
 
   currentImage = url;
   panel.style.flexBasis = `${300}px`;
@@ -123,7 +125,7 @@ function previewImage(file) {
     reader.onload = (e) => {
       imagePreview.src = e.target.result;
       imagePreview.style.display = "block";
-      instructionText.textContent = "Upload new image here";
+      instructionText.textContent = "(Upload new image here)";
     };
 
     reader.readAsDataURL(file);
@@ -165,6 +167,8 @@ document.getElementById("controls-section").addEventListener("click", (e) => {
   btn.setAttribute("aria-pressed", "true");
   currentMode = btn.getAttribute("data-mode");
   window.currentMode = currentMode;
+
+  refreshActiveCanvasFromText(text);
   
 //   const stageId = stage.getAttribute("data-stage-id");
 //   let url = "";

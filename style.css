@@ -58,7 +58,12 @@ h2, p {
    padding:0;
 }
 .header-design {
-   font-weight: 800;
+   font-weight: 200;
+   font-stretch: 120%;
+}
+.header-bars {
+   font-weight: 900;
+   font-stretch: 120%;
 }
 h2.section-text {
    text-transform: uppercase;
@@ -122,7 +127,7 @@ h2.section-text {
 @media screen and (max-width: 768px) {
   #all-content {
     flex-direction: column;
-    overflow-y: auto;
+    overflow-y: visible;
     height: auto;
     padding: 24px;
   }
@@ -141,7 +146,8 @@ h2.section-text {
   #translation-panel {
     flex: 1;
     width: 100%;
-    overflow-y: visible;
+    height: auto;
+    /* overflow-y: visible; */
   }
 }
 #resizer {
@@ -180,6 +186,7 @@ h2.section-text {
     width: 100%;
     min-width: 0;
     height: auto;
+    overflow-y: visible;
   }
 }
 #translation-body > * {
@@ -274,10 +281,14 @@ button:hover {
 #arrow-section {
    justify-content: space-around;
    display: flex;
+   /* padding-bottom: 24px; */
 }
 #submit-button {
    height: 36px;
 }
+/* #mode-switch-area {
+   padding-bottom: 24px;
+} */
 #mode-switch-cont {
    display: flex;
    gap: 4px;
@@ -298,7 +309,7 @@ button:hover {
 .toggle-type-controls {
    display: flex;
    flex-direction: column;
-   gap: 24px;
+   /* gap: 24px; */
 }
 
 .generate-btn-cont {
@@ -306,6 +317,9 @@ button:hover {
    justify-content: flex-end;
    gap: 4px;
    padding-top: 4px;
+}
+[data-role="instructions-text"] { 
+   font-family: "Nunito";
 }
 [data-role="drop-file"] {
    min-height: 100px;
@@ -317,6 +331,7 @@ button:hover {
    justify-content: center;
    align-items: center;
 }
+
 .drop-instructions {
    display: flex;
    gap: 12px;
@@ -356,6 +371,8 @@ button:hover {
 #canvas-area {
    position: relative;
    display: flex;
+   /* justify-content: center; */
+   /* align-items: center; */
    flex-direction: column;
    height: 100%;
    min-height: 400px;
@@ -367,11 +384,11 @@ button:hover {
    overflow-y: hidden;
    /* padding-top: 24px; */
 }
-#canvas-container {
+#canvas-container, #initial-display {
    flex: 1;
    
    /* min-width: 250px; */
-   padding: 12px;
+   padding: 0px 6px;
    max-height: 100vh;
    height: 100%;  
 
@@ -379,6 +396,15 @@ button:hover {
    /* background-color: #e1e1db; */
    /* border-top: 1px solid var(--lightmode-text);
    border-left: 1px solid var(--lightmode-text); */
+}
+#filler-text {
+   position: absolute;
+   z-index: 20;
+   left: 50%;
+   top: 50%;
+   transform: translate(-50%, -50%)
+
+
 }
 canvas {
   display: block;
@@ -398,6 +424,11 @@ canvas {
    right: 6px;
    margin-top: auto; 
    flex-shrink: 0;
+}
+@media screen and (max-width: 768px) {
+  #download-canvas-btn-cont {
+    bottom: 0px; 
+  }
 }
 .download-canvas-btn {
   max-width: 250px;

@@ -25,20 +25,21 @@ const arrowChain = document.getElementById("arrow-section");
 const generalButtonArea = document.querySelector("button-area");
 const darkModeBtn = document.getElementById("dark-mode-btn");
 const originalImg = document.getElementById("original-img");
+const initialDisplay = document.getElementById("initial-display");
 
-async function translateToFrench(text) {
-  const trimmed = text.trim();
-  if (!trimmed) return "";
-  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-    trimmed
-  )}&langpair=en|fr`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Translation request failed");
-  const data = await res.json();
-  const translated = data?.responseData?.translatedText;
-  if (translated == null) throw new Error("Invalid response");
-  return translated;
-}
+// async function translateToFrench(text) {
+//   const trimmed = text.trim();
+//   if (!trimmed) return "";
+//   const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+//     trimmed
+//   )}&langpair=en|fr`;
+//   const res = await fetch(url);
+//   if (!res.ok) throw new Error("Translation request failed");
+//   const data = await res.json();
+//   const translated = data?.responseData?.translatedText;
+//   if (translated == null) throw new Error("Invalid response");
+//   return translated;
+// }
 
 darkModeBtn.addEventListener("click", () => {
   if (darkModeBtn.getAttribute("data-theme") == "light") {
@@ -64,7 +65,7 @@ darkModeBtn.addEventListener("click", () => {
 
   function tick() {
     noiseEls.forEach((el) => {
-      const digitCount = 7;
+      const digitCount = 8;
       numberArray = Array.from({ length: digitCount }, () =>
         Math.floor(Math.random() * 101)
       );
@@ -75,6 +76,32 @@ darkModeBtn.addEventListener("click", () => {
   tick();
   setInterval(tick, 300);
 })();
+
+function addNewDesign() {
+  const sectionTitle = document.querySelectorAll(".section-title");
+  
+  const barDesigns = document.querySelectorAll(".header-bars");
+  const newestElement = barDesigns[barDesigns.length - 1];
+
+  // // Create the new repeated element
+  // const newDiv = document.createElement("div");
+  // newDiv.className = "repeated-element";
+
+  const generateRandomList = (min, max, count) => {
+    return Array.from(
+      { length: count },
+      () => Math.floor(Math.random() * (max - min + 1)) + min
+    );
+  };
+
+  console.log(newestElement);
+  // Edit ONLY the new one's value before it's even visible
+  console.log(newestElement.textContent);
+  newestElement.textContent = `{b:${generateRandomList(5, 100, 8)}}`;
+
+  // Add it to the page
+  // container.appendChild(newDiv);
+}
 
 function field(root, role) {
   return root?.querySelector(`[data-role="${role}"]`);
@@ -374,6 +401,8 @@ function refreshActiveCanvasFromText(rawText) {
     neuron2: () => window.Neuron2,
     neuron3: () => window.Neuron3,
     neuron4: () => window.Neuron4,
+    watercolor: () => window.Watercolor,
+    french: () => window.French,
     binary: () => window.Binary,
   };
   const updater = renderers[currentMode]?.();
@@ -474,11 +503,14 @@ document
     e.preventDefault();
     const textEl = field(stage, "input-text");
     text = (textEl ? textEl.value : sourceEl.value) || "";
-    refreshActiveCanvasFromText(text);
-
-    removeStages(stage, stages);
+  
 
     const isRoot = stage.getAttribute("data-stage-id") === "root";
+    if (isRoot) {
+      initialDisplay.style.display = "none";
+      initialDisplay.setAttribute("status", "closed");
+      canvasContainerEl.style.display = "flex";
+    }
     const latestTemp = stages[stages.length - 1];
     const isMostRecentTemplate =
       (isRoot && stages.length === 0) ||
@@ -501,6 +533,10 @@ document
       );
     });
 
+    refreshActiveCanvasFromText(text);
+   
+    removeStages(stage, stages);
+
     saveButton.style.display = "block";
 
     if (toggleMode === "text") {
@@ -518,6 +554,9 @@ document
         if (window.Neuron2) window.Neuron2.clear();
         if (window.Neuron3) window.Neuron3.clear();
         if (window.Neuron4) window.Neuron4.clear();
+        if (window.charMap) window.charMap.clear();
+        if (window.Watercolor) window.Watercolor.clear();
+        if (window.French) window.French.clear();
         if (window.Binary) window.Binary.clear();
         return;
       }
@@ -611,6 +650,21 @@ document
         return;
       }
 
+      if (currentMode === "charMap") {
+        // resultEl.textContent = "";
+        if (window.charMap) window.charMap.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+      if (currentMode === "watercolor") {
+        // resultEl.textContent = "";
+        if (window.Watercolor) window.Watercolor.render(text);
+        handleTextImageSwitch();
+        return;
+      }
+
+
       if (currentMode === "binary") {
         // const out = translateSync(text, "binary");
         // if (window.VisualText) window.VisualText.render(out || "—");
@@ -619,6 +673,15 @@ document
         handleTextImageSwitch();
         return;
       }
+
+       if (currentMode === "french") {
+         // const out = translateSync(text, "binary");
+         // if (window.VisualText) window.VisualText.render(out || "—");
+         // handleTextImageSwitch();
+         if (window.French) window.French.render(text);
+         handleTextImageSwitch();
+         return;
+       }
 
       if (window.VisualMono) window.VisualMono.clear();
       if (window.VisualColor1) window.VisualColor1.clear();
@@ -633,6 +696,9 @@ document
       if (window.Neuron2) window.Neuron2.clear();
       if (window.Neuron3) window.Neuron3.clear();
       if (window.Neuron4) window.Neuron4.clear();
+      if (window.charMap) window.charMap.clear();
+      if (window.Watercolor) window.Watercolor.clear();
+      if (window.French) window.French.clear();
       if (window.Binary) window.Binary.clear();
 
       // else {
@@ -640,18 +706,18 @@ document
       //   // resultEl.textContent = out || '—';
       // }
 
-      if (currentMode === "french") {
-        try {
-          const out = await translateToFrench(text);
-          if (window.VisualText) window.VisualText.render(out || "—");
-        } catch (err) {
-          if (window.VisualText)
-            window.VisualText.render(
-              err && err.message ? err.message : "Translation failed"
-            );
-        }
-        return;
-      }
+      // if (currentMode === "french") {
+      //   try {
+      //     const out = await translateToFrench(text);
+      //     if (window.VisualText) window.VisualText.render(out || "—");
+      //   } catch (err) {
+      //     if (window.VisualText)
+      //       window.VisualText.render(
+      //         err && err.message ? err.message : "Translation failed"
+      //       );
+      //   }
+      //   return;
+      // }
     }
 
     if (toggleMode === "visual") {
@@ -752,6 +818,8 @@ Object.defineProperty(window, "stages", {
   },
 });
 let stageSeq = 0;
+let textNumber = 1;
+let stageRepeatCount = 0;
 
 const chainStagesEl = document.getElementById("chain-stages");
 const tplTextToImage = document.getElementById("tpl-text-to-image");
@@ -773,6 +841,16 @@ function appendStage(kind, opts = {}) {
     el: null,
   };
 
+  
+  // if (stageRepeatCount === 1) {
+  //   numberString = String(++textNumber);
+  //   stageRepeatCount = 0;
+  // } else {
+  //   stageRepeatCount = 1;
+  // }
+
+  
+
   const tpl = kind === "text-to-image" ? tplTextToImage : tplImageToText;
   if (!tpl || !chainStagesEl) {
     console.error("Missing template or #chain-stages");
@@ -786,11 +864,15 @@ function appendStage(kind, opts = {}) {
 
   const label = field(el, "stage-label");
 
+  const chainIndex = stages.length + 1; // this new stage's position after root
+  const layerNumber = chainIndex === 1 ? 1 : Math.floor((chainIndex + 2) / 2);
+  const numberString = String(layerNumber);
+
   if (label) {
     label.textContent =
       kind === "text-to-image"
-        ? `Chain ${id}: Text → image`
-        : `Chain ${id}: Image → text`;
+        ? `Encoding layer ${numberString}`
+        : `Decoding layer ${numberString}`;
   }
 
   if (kind === "text-to-image") {
@@ -830,6 +912,7 @@ function appendStage(kind, opts = {}) {
   });
   record.el = el;
   stages.push(record);
+  addNewDesign();
   return record;
 }
 
@@ -853,7 +936,6 @@ function removeStages(currentStage, allStages) {
       allStages.splice(i, 1);
       if (stage.kind === "text-to-image") {
         text = stage.input;
-        console.log(text);
         toggleMode = "visual";
       } else {
         window.currentImage = stage.input;
@@ -861,6 +943,7 @@ function removeStages(currentStage, allStages) {
       }
 
       stageSeq = currentStageID;
+      
     }
   }
 }

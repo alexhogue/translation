@@ -1,17 +1,25 @@
 (function () {
 
-    function toBinary(text) {
-        return text
-            .split("")
-            .map((c) =>
-            c === " "
-                ? " "
-                : c === "\n"
-                ? "\n"
-                : c.charCodeAt(0).toString(2).padStart(8, "0")
-            )
-            .join(" ");
-    }
+  function splitIntoSentences(text) {
+    const t = (text || "").trim();
+    if (!t) return [];
+    return t
+      .split(/(?<=[.!?])\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  
+
+  function wordToBinaryString(word) {
+    const bytes = new TextEncoder().encode(word);
+    return [...bytes].map((b) => b.toString(2).padStart(8, "0")).join(""); // full bitstring for the whole word
+  }
+  function sentencesToBinaryDigits(text) {
+    return splitIntoSentences(text).map((sentence) =>
+      sentence.trim().split(/\s+/).filter(Boolean).map(wordToBinaryString)
+    );
+  }
+
 
   function containerWidth(container) {
     const w = container && container.clientWidth ? container.clientWidth : 900;
@@ -25,6 +33,7 @@
   const SQUARE_SIZE = 40;
   const GAP = 0;
   let squareWidth = 25;
+  let margin = 25;
 
   function ensure() {
     containerEl = document.getElementById("canvas-container");
@@ -50,76 +59,119 @@
       };
 
       p.draw = () => {
-        p.background(backgroundColor);
         const availableWidth = containerEl.clientWidth;
         // p.resizeCanvas(availableWidth, containerEl.clientHeight);
 
-        const binaryText = toBinary(currentText);
-        const binaryEntry = binaryText
-          .split(" ")
-          .filter((entry) => entry !== "");
-        console.log(binaryEntry);
+        const binarySentences = sentencesToBinaryDigits(currentText);
+        console.log(availableWidth);
 
-        const cols = Math.max(
-          1,
-          Math.floor((availableWidth + GAP) / (squareWidth + GAP))
-        );
-        const rows = Math.ceil(binaryEntry.length / cols) || 1;
-        const width = cols * (squareWidth + GAP) - GAP;
-        const height = rows * (SQUARE_SIZE + GAP) - GAP;
-        p.resizeCanvas(width, height);
-        p.noStroke();
+        const cols = binarySentences.length;
+        const innerW = containerEl.clientWidth - margin;
+        const innerH = containerEl.clientHeight - margin;
+        // const rows = Math.ceil(binaryEntry.length / cols) || 1;
+
+        p.resizeCanvas(availableWidth, containerEl.clientHeight);
+        p.background(backgroundColor);
+  
+
         p.colorMode(p.HSL, 360, 100, 100, 1);
 
-        binaryEntry.forEach((entry, i) => {
 
-          const col = i % cols;
-          const row = Math.floor(i / cols);
-          let x = col * (squareWidth + GAP);
-          let y = row * (SQUARE_SIZE + GAP);
+        let prevX = 0;
+        let totalX = 0;
 
-          chs = entry.split("");
 
-          console.log("characters " + chs);
-          let oneCount = 0;
-          let zeroCount = 0;
+          binarySentences.forEach((sentence, sIndex) => {
+            // const row = i % rows;
 
-          chs.forEach((ch, i) => {
-            console.log("ch " + ch);
-            if (ch === "1") {
-                oneCount = oneCount + 1;
-            } else if (ch === "0") {
-                zeroCount = zeroCount + 1;
+            let band = innerW / Math.max(cols, 1);
+            let x = margin + sIndex * band + band / 2;
+
+            let difference = 0;
+            let oneCount = 0;
+            let zeroCount = 0;
+
+            sentence.forEach((word, wIndex) => {
+              chs = word.split("");
+
+              chs.forEach((ch, i) => {
+                if (ch === "1") {
+                  oneCount = oneCount + 1;
+                } else if (ch === "0") {
+                  zeroCount = zeroCount + 1;
+                }
+              });
+              const total = oneCount + zeroCount;
+              difference = Math.abs(oneCount - zeroCount);
+            });
+            console.log(x);
+
+            if (oneCount >= zeroCount) {
+              let hue = (difference * 47) % 150;
+              p.noStroke();
+              p.fill(hue, 65, 65, 1);
+              p.rect(prevX, 0, x - prevX, p.height);
+            } else {
+              let hue = 300 - ((difference * 47) % 150);
+              p.noStroke();
+              p.fill(hue, 65, 65, 1);
+              p.rect(prevX, 0, x - prevX, p.height);
             }
-          })
-          
-          const dominant = Math.max(oneCount, zeroCount);
-          let rectW = 25;
-          if (dominant >= 8) rectW = 80;
-          else if (dominant === 7) rectW = 68;
-          else if (dominant === 6) rectW = 56;
-          else if (dominant === 5) rectW = 44;
-          
-          let hue = 0;
-          let trans = 0;
-          console.log(oneCount + " " + zeroCount);
+            prevX = x;
+            p.stroke(360, 100, 0, 1);
+            p.line(x, 0, x, p.height);
+          });
+        
 
-          if (oneCount > zeroCount) {
-            hue = 150;
-            trans = 1;
-          } else if (oneCount < zeroCount) {
-            hue = 290;
-            trans = 1;
-          } else {
-            hue = 150;
-            trans = 0;
-            squareWidth = 20;
-          }
 
-          console.log(hue);
+        binarySentences.forEach((sentence, sIndex) => {
+          // const row = i % rows;
 
-          p.fill(hue, 75, 45, trans);
-          p.rect(x, y, SQUARE_SIZE, SQUARE_SIZE);
+          let band = innerW / Math.max(cols, 1);
+          let x = margin + sIndex * band + band / 2;
+
+
+          sentence.forEach((word, wIndex) => {
+            const sentLength = sentence.length;
+            const yDivs = innerH / sentLength;
+            const y = margin + wIndex * yDivs;
+
+            let oneCount = 0;
+            let zeroCount = 0;
+
+            chs = word.split("");
+
+
+            chs.forEach((ch, i) => {
+              if (ch === "1") {
+                oneCount = oneCount + 1;
+              } else if (ch === "0") {
+                zeroCount = zeroCount + 1;
+              }
+            });
+            const total = oneCount + zeroCount;
+
+
+            if (oneCount >= zeroCount) {
+              p.fill(360, 100, 100, 1);
+              p.stroke(360, 100, 0, 1);
+              p.circle(x, y, 12);
+            } else {
+              p.fill(360, 100, 0, 1);
+              p.stroke(360, 100, 100, 1);
+              p.circle(x, y, 10);
+            }
+
+  
+
+          });
+
+
+        
+
+      
+
+
         });
     }
 

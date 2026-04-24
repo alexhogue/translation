@@ -5,10 +5,14 @@
   const VIS_H = 800;
 
   function alphabetIndex(ch) {
-    const c = (ch || "").toLowerCase();
-    const code = c.charCodeAt(0);
-    if (code >= 97 && code <= 122) return code - 97;
-    else return 13;
+    // const c = (ch || "").toLowerCase();
+    // const code = c.charCodeAt(0);
+    const str = String(ch);
+    const cp = str.codePointAt(0);
+    if (cp >= 97 && cp <= 122) return cp - 97;
+    if (cp >= 48 && cp <= 57) {
+      return Math.round(((cp - 48) / 9) * 26);
+    } else return 13;
   }
 
   function visualSplitIntoWords(text) {
@@ -33,10 +37,10 @@
     for (let wIndex = 0; wIndex < words.length; wIndex++) {
       const word = words[wIndex];
       const letters = word.split("");
+      console.log(letters);
       const length = letters.length;
-      const lettersOnly = letters.filter((ch) => /[a-zA-Z]/.test(ch));
-      const cleanLength = lettersOnly.length;
-      if (!length || !cleanLength) continue;
+
+      if (!length) continue;
 
       const wordHash =
         letters.reduce((s, ch, i) => s + ch.charCodeAt(0) * (i + 7), 0) + wIndex * 41;
@@ -74,8 +78,6 @@
 
       for (let li = 0; li < letters.length; li++) {
         const ch = letters[li];
-        const code = ch.charCodeAt(0);
-        if (code < 65 || (code > 90 && code < 97) || code > 122) continue;
 
         const aIdx = alphabetIndex(ch);
         const wordSeed = letters.reduce(

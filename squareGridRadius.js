@@ -22,7 +22,10 @@
         const code = c.charCodeAt(0);
         if (code >= 65 && code <= 90) return code - 65;
         if (code >= 97 && code <= 122) return code - 97;
-        return null;
+        if (code >= 48 && code <= 57) {
+          return Math.round(((code - 48) / 9) * 26);
+        }
+         return null;
       })
       .filter((n) => n !== null);
   }
