@@ -39,7 +39,7 @@
       const t = (text || "").trim();
       if (!t) return [];
       return t
-        .split(/(?<=[.!?])\s+/)
+        .split(/(?<=[.!?,])\s+|\r?\n+/)
         .map((s) => s.trim())
         .filter(Boolean);
     }

@@ -1,52 +1,15 @@
 (function () {
   const VIS_H = 800;
-  const COLS = 80;
-  // const density = " .:-=+*#%@";
-  // const density = "@MWN#XGy%Ot?l!abovci-;:,.`  ";
-  // const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
-  const density = "WMB8G&Aaohkbdpwm0Z7LCJYzcvnrjft?*->i!lI;:/,`' .  " + "    ";
+  const MARGIN = 40;
+  const COLS = 12;
 
-  function brightnessToChar(brightness) {
-    const index = Math.floor((brightness / 255) * (density.length - 1));
-    return density[Math.min(index, density.length - 1)];
+  function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
   }
 
-  function colorToChar(r, g, b) {
-    const rScaled = r / 255;
-    const gScaled = g / 255;
-    const bScaled = b / 255;
-    const brightness = (r + g + b) / 3;
-
-    const max = Math.max(rScaled, gScaled, bScaled);
-    const min = Math.min(rScaled, gScaled, bScaled);
-    const delta = max - min;
-    let hue;
-
-    if (brightness > 245) return " ";
-
-    if (delta < 0.04) return brightnessToChar(brightness);
-
-    switch (max) {
-      case rScaled:
-        hue = (gScaled - bScaled) / delta;
-        break;
-      case gScaled:
-        hue = (bScaled - rScaled) / delta + 2;
-        break;
-      case bScaled:
-        hue = (rScaled - gScaled) / delta + 4;
-        break;
-    }
-    hue = Math.round(hue * 60); // Convert to degrees
-    if (hue < 0) hue += 360;
-
-    const index = Math.floor((hue / 360) * (density.length - 1));
-    return density[Math.min(index, density.length - 1)];
-
-  }
-
-  function buildGridFromImage(img) {
-    const rows = Math.floor(COLS * (img.height / img.width) * 1.5);
+  function getHexValues(img) {
+    const rows = Math.floor(2*COLS * (img.height / img.width) * 0.75);
     const cellW = img.width / COLS;
     const cellH = img.height / rows;
     const grid = [];
@@ -58,44 +21,42 @@
         const px = Math.floor((i + 0.5) * cellW);
         const py = Math.floor((j + 0.5) * cellH);
         const idx = (py * img.width + px) * 4;
-
         const r = img.pixels[idx];
         const g = img.pixels[idx + 1];
         const b = img.pixels[idx + 2];
-
-        const hue = colorToChar(r, g, b);
-
-        row.push(hue);
+        const hex = "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        row.push(hex);
       }
       grid.push(row);
     }
-    console.log({ grid, COLS, rows });
     return { grid, COLS, rows };
   }
 
-   function buildTextFromImage(img) {
-     const rows = Math.floor(COLS * (img.height / img.width) * 0.5);
-     const cellW = img.width / COLS;
-     const cellH = img.height / rows;
-     img.loadPixels();
+  function transferToText(img) {
+    const rows = Math.floor(2 * COLS * (img.height / img.width) * 0.75);
+    const cellW = img.width / COLS;
+    const cellH = img.height / rows;
+    img.loadPixels();
 
-     const textLines = [];
-     for (let j = 0; j < rows; j++) {
-       let line = "";
-       for (let i = 0; i < COLS; i++) {
-         const px = Math.floor((i + 0.5) * cellW);
-         const py = Math.floor((j + 0.5) * cellH);
-         const idx = (py * img.width + px) * 4;
-         const r = img.pixels[idx];
-         const g = img.pixels[idx + 1];
-         const b = img.pixels[idx + 2];
-         const hue = colorToChar(r, g, b);
-         line += hue;
-       }
-       textLines.push(line);
-     }
-     return textLines.join("\n");
-   }
+    const textLines = [];
+    for (let j = 0; j < rows; j++) {
+      let line = "";
+      for (let i = 0; i < COLS; i++) {
+        const px = Math.floor((i + 0.5) * cellW);
+        const py = Math.floor((j + 0.5) * cellH);
+        const idx = (py * img.width + px) * 4;
+        const r = img.pixels[idx];
+        const g = img.pixels[idx + 1];
+        const b = img.pixels[idx + 2];
+        const hex =
+          "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        line += " " + hex + "; ";
+      }
+      textLines.push(line);
+    }
+    return textLines.join("\n");
+
+  }
 
   function containerWidth(container) {
     const w = container && container.clientWidth ? container.clientWidth : 900;
@@ -138,15 +99,16 @@
         const availableWidth = containerEl.clientWidth;
         if (!currentGrid) return; 
         const { grid, COLS, rows } = currentGrid;
-        const w = p.width;
-        const h = p.height;
-        const cellW = w / COLS;
-        const cellH = h / rows;
+        const w = containerEl.clientWidth - MARGIN;
+        const h = containerEl.clientHeight - MARGIN;
+        const cellW = (w) / COLS;
+        const cellH = (h) / rows;
         p.fill(0);
         p.noStroke();
 
         for (let j = 0; j < rows; j++) {
           for (let i = 0; i < COLS; i++) {
+            p.textAlign(p.LEFT, p.TOP);
             p.text(grid[j][i], i * cellW, (j + 1) * cellH);
           }
         }
@@ -181,7 +143,7 @@
     const p = ensure();
     if (!p) return;
     p.loadImage(url, (img) => {
-      currentGrid = buildGridFromImage(img);
+      currentGrid = getHexValues(img);
       p.redraw();
     });
   }
@@ -191,7 +153,7 @@
     const ta = activeTextArea ?? window.activeInputTextarea;
     if (!p) return;
     p.loadImage(url, (img) => {
-      ta.value = buildTextFromImage(img);
+      ta.value = transferToText(img);
       p.redraw();
     });
   }
@@ -201,12 +163,12 @@
     let textValue = "";
     return new Promise((resolve) => {
       p.loadImage(url, (img) => {
-        resolve(buildTextFromImage(img));
+        resolve(transferToText(img));
       });
     });
   }
 
-  window.asyncColorText = returnTextAsync;
-  window.colorTextForBox = getText;
-  window.handleImageForTextColor = renderFromImage;
+  window.returnHexText = returnTextAsync;
+  window.getHexText = getText;
+  window.handleHex = renderFromImage;
 })();

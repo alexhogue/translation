@@ -68,6 +68,11 @@ h2, p {
 h2.section-text {
    text-transform: uppercase;
 }
+h2.section-label {
+   font-family: "Nunito";
+   font-size: 14px;
+   font-weight: 400;
+}
 #page {
    display: flex;
    flex-direction: column;
@@ -95,6 +100,9 @@ h2.section-text {
    /* top: 0; */
    right: 12px;
 }
+#restart-btn {
+   padding: 2px 8px;
+}
 .divider {
    font-stretch: 150%;
 }
@@ -114,7 +122,7 @@ h2.section-text {
    display: flex;
    /* flex-wrap: wrap; */
    justify-content: space-between;
-   padding: 0px 14px;
+   padding: 0px 12px;
    box-sizing: border-box;
    width: 100%;
    height: 100vh;
@@ -152,7 +160,7 @@ h2.section-text {
 }
 #resizer {
    position: relative;
-   flex-basis: 18px;
+   flex-basis: 12px;
    z-index: 2;
    cursor: col-resize;
    margin: 0;
@@ -175,6 +183,7 @@ h2.section-text {
    padding-bottom: 24px;
    gap: 24px;
    padding-top: 24px;
+   align-items: stretch; 
    /* width: 22vw; */
    /* flex: 0 0 auto;  */
 }
@@ -256,7 +265,7 @@ button {
    transition: background-color 0.2s ease;
    font-family: "Nunito";
    font-size: 14px;
-   padding: 4px 8px;
+   padding: 2px 2px;
    
 }
 button:hover {
@@ -275,6 +284,7 @@ button:hover {
 .mode-buttons {
    display: flex;
    flex-wrap: wrap;
+   align-items: stretch;
    justify-content: space-between;
    gap: 4px;
 }
@@ -309,14 +319,43 @@ button:hover {
 .toggle-type-controls {
    display: flex;
    flex-direction: column;
+   align-items: stretch;
+   min-width: 0;
+   width: 100%;
+   box-sizing: border-box;
    /* gap: 24px; */
 }
 
 .generate-btn-cont {
    display: flex;
    justify-content: flex-end;
+   flex-wrap: wrap;
    gap: 4px;
    padding-top: 4px;
+}
+.generate-text-btn, [data-role="random-image"] {
+   border: 0;
+   margin: 0;
+   padding: 0px;
+   background: none;
+   display: flex;
+   gap: 2px;
+}
+.generate-text-btn:hover, [data-role="random-image"]:hover {
+   background: none;
+   color: var(--lightmode-text);
+   transition: 0.2s ease;
+}
+.generate-text-btn p, [data-role="random-image"] p {
+   text-decoration-line: underline;
+   text-decoration-style: dotted;
+   text-underline-offset: 2px;
+   font-size: 14px;
+   transition: 0.2s ease;
+}
+.generate-text-btn p:hover, [data-role="random-image"] p:hover {
+   text-decoration-style: solid;
+   transition: 0.2s ease;
 }
 [data-role="instructions-text"] { 
    font-family: "Nunito";
@@ -325,13 +364,24 @@ button:hover {
    min-height: 100px;
    border: 1px solid var(--lightmode-text);
    display: flex;
-   padding: 12px;
-   gap: 12px;
+   padding: 0 0 4px 0px;
+   gap: 4px;
    flex-direction: column;
    justify-content: center;
-   align-items: center;
+   align-items: stretch;
+   cursor: copy;
 }
 
+.generation-area {
+   display:flex; 
+   /* flex-direction: row;  */
+   flex-direction: row;
+   gap: 4px; 
+   align-items: stretch;
+   width: 100%;
+   box-sizing: border-box;
+   min-width: 0;
+}
 .drop-instructions {
    display: flex;
    gap: 12px;
@@ -346,6 +396,10 @@ button:hover {
 .image-drop-cont{
    display: flex;
    flex-direction: column;
+   align-items: stretch;
+   box-sizing: border-box;
+   min-width: 0;
+   width: 100%;
 }
 #image-drop-area.drag-over {
    color: var(--greyed-text);
@@ -357,15 +411,104 @@ button:hover {
    color: var(--greyed-text);
 }
 [data-role="preview-img"] {
-   width: 80%;
+   width: 100%;
    height: auto;
 }
+.button-area {
+   align-items: stretch;
+   width: 100%;
+   /* max-width: 300px; */
+   box-sizing: border-box;
+}
+[data-role="stage-input-row"] {
+   display: flex;
+   flex-direction: row;
+   gap: 4px;
+   align-items: stretch;
+   box-sizing: border-box;
+   width: 100%;
+   min-width: 0;
+}
+[data-role="stage-input-row"] > .button-area {
+  flex: 1 1 100%;   /* takes all available width */
+  min-width: 0;
+  width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+[data-role="stage-input-row"].has-output > .button-area {
+  flex: 1 1 0;
+  width: 0;
+  max-width: 400px;
+}
+/* default state: no output yet */
+[data-role="stage-input-row"] > .button-area {
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+[data-role="stage-input-row"] > [data-role="stage-output"] {
+  display: none;
+}
+[data-role="stage-input-row"].has-output > [data-role="stage-output"] {
+  display: block;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.stage-output-image-wrap {
+   width: 100%;
+   min-width: 0;
+   height: auto;
+   border: 1px solid var(--lightmode-text);
+   box-sizing: border-box;
+}
+.stage-output-image {
+   width: 100%;
+
+   min-width: 0;
+   box-sizing: border-box;
+   object-fit: contain;
+}
+.stage-output-text {
+   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  resize: none;
+
+}
+.stage-output-text:focus {
+    outline: none;
+}
+[data-role="stage-input-row"] > :not(.button-area) {
+  display: none;
+}
+[data-role="stage-input-row"].has-output > :not(.button-area) {
+  display: block;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+
 #chain-stages {
    display: flex;
    flex-direction: column;
    gap: 24px;
    margin-top: 24px;
    margin-bottom: 24px;
+}
+
+
+/* For chain stages, we store inputs but do not display them.
+   The only preview shown is the output next to the buttons that produced it. */
+[data-role="convert-to-image"] [data-role="stage-prev-output"],
+[data-role="convert-to-text"] [data-role="stage-prev-output"] {
+  display: none;
 }
 
 #canvas-area {

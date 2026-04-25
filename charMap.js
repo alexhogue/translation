@@ -13,10 +13,11 @@
   }
 
   function visualSplitIntoWords(text) {
-    return (text || "")
-      .split(/\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+    // return (text || "")
+    //   .split(/\s+/)
+    //   .map((s) => s.trim())
+    //   .filter(Boolean);
+    return String(text || "").match(/\r?\n|[^\s\r\n]+/g) || [];
   }
 
   function buildCharDots(text, canvasW, canvasH) {
@@ -42,6 +43,7 @@
         letters.push(wordLetters[lIndex]);
         
       }
+      console.log(word)
     }
 
     for (let lIndex = 0; lIndex < letters.length; lIndex++) {
@@ -76,11 +78,13 @@
         chType = "letter";
       } else if (/^\d$/.test(ch)) {
         chType = "number";
+      } else if (ch === "\n" || ch === "\r") {
+        chType = "newline"; 
       } else {
         chType = "symbol";
       }
 
-      const isPeriod = /[.?!]/.test(ch);
+      const isPeriod = /[.?!,\n]|\r?\n/.test(ch);
       console.log(isPeriod)
 
       dots.push({
@@ -149,7 +153,7 @@
             p.noStroke();
             p.fill(0, 0, 0, 10);
             p.rect(0, 0, d.cx, p.height);
-            
+
             p.stroke(18, 0, 176);
             p.strokeWeight(1);
             p.line(d.cx, 0, d.cx, p.height);

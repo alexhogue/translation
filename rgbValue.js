@@ -19,7 +19,7 @@
         const r = img.pixels[idx];
         const g = img.pixels[idx + 1];
         const b = img.pixels[idx + 2];
-        row.push("[" + [r, g, b].toString() + "]");
+        row.push("[" + [r, g, b].toString() + "];");
       }
       grid.push(row);
     }

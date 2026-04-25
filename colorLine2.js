@@ -133,7 +133,7 @@
       wordCx = Math.max(marginX, Math.min(canvasW - marginX, wordCx));
       let wordCy = Math.max(marginY, Math.min(VIS_H/1.75 - 45 * syl_count(word), VIS_H - marginY));
 
-      const endsWithPunctuation = /[.!?]$/.test(word);
+      const endsWithPunctuation = /[.!?]$|\r?\n/.test(word);
       const startsSentence = nextStartsSentence;  
 
       centers.push({
@@ -141,7 +141,7 @@
         cy: wordCy,
         color: colorForWordLength(cleanLength),
         start: startsSentence,
-        break: /[.!?]$/.test(word),
+        break: /[.!?]$|\r?\n/.test(word),
       });
 
       nextStartsSentence = endsWithPunctuation;

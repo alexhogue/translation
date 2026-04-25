@@ -12,7 +12,7 @@
   function splitIntoSentences(text) {
     // Split on ., ?, ! but keep them attached to the sentence
     return text
-      .split(/(?<=[.!?])\s+/) // “Lookbehind”: split after punctuation + spaces
+      .split(/(?<=[.!?])\s+|\r?\n+/) // “Lookbehind”: split after punctuation + spaces
       .map((s) => s.trim())
       .filter(Boolean);
   }

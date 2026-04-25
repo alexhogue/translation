@@ -1,11 +1,14 @@
 import { pipeline } from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1";
-const imageControls = document.querySelector('[data-role="convert-to-text"]');
-const imageDrop = imageControls.querySelector('[data-role="drop-file"]');
-const fileInput = imageControls.querySelector('[data-role="input-file"]');
-const imagePreview = imageControls.querySelector('[data-role="preview-img"]');
-const instructionText = imageControls.querySelector('[data-role="instructions-text"]');
-const generateImgBtn = imageControls.querySelector('[data-role="random-image"]');
-const toTextButtons = imageControls.querySelector('[data-role="to-text-buttons"]');
+const imageInput = document.querySelector('[data-role="convert-to-text-input"]');
+const imageModes = document.querySelector(
+  '[data-role="convert-to-text-modes"]'
+);
+const imageDrop = imageInput.querySelector('[data-role="drop-file"]');
+const fileInput = imageInput.querySelector('[data-role="input-file"]');
+const imagePreview = imageInput.querySelector('[data-role="preview-img"]');
+const instructionText = imageInput.querySelector('[data-role="instructions-text"]');
+const generateImgBtn = imageInput.querySelector('[data-role="random-image"]');
+const toTextButtons = imageModes.querySelector('[data-role="to-text-buttons"]');
 
 let currentImage = "";
 
@@ -21,6 +24,7 @@ let imageList = [
   "neuron.jpeg",
   "firework.png",
   "moth.png",
+  "monet.jpg",
 ];
 
 generateImgBtn.addEventListener("click", (e) => {
@@ -48,9 +52,10 @@ generateImgBtn.addEventListener("click", (e) => {
 
 
   currentImage = url;
-  panel.style.flexBasis = `${300}px`;
+  panel.style.flexBasis = `${420}px`;
   window.currentImage = currentImage;  
   
+  imageControls.style.display = currentImage ? "block" : "none";
   toTextButtons.style.display = currentImage ? "block" : "none";
   toTextButtons.animate(
     [
@@ -72,7 +77,8 @@ fileInput.addEventListener("change", () => {
   previewImage(file);
   currentImage = URL.createObjectURL(file);
   window.currentImage = currentImage;  
-  panel.style.flexBasis = `${300}px`;
+  panel.style.flexBasis = `${420}px`;
+  imageControls.style.display = currentImage ? "block" : "none";
   toTextButtons.style.display = currentImage ? "block" : "none";
   toTextButtons.animate(
     [
@@ -106,7 +112,8 @@ imageDrop.addEventListener("drop", (e) => {
 
   currentImage = URL.createObjectURL(file);
   window.currentImage = currentImage;  
-  panel.style.flexBasis = `${300}px`;
+  panel.style.flexBasis = `${420}px`;
+  imageControls.style.display = currentImage ? "block" : "none";
   toTextButtons.style.display = currentImage ? "block" : "none";
   toTextButtons.animate(
     [

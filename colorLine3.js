@@ -13,10 +13,7 @@
   }
 
   function visualSplitIntoWords(text) {
-    return (text || "")
-      .split(/\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+    return String(text || "").match(/\r?\n|[^\s\r\n]+/g) || [];
   }
 
   function colorForWordLength(len) {
@@ -71,6 +68,8 @@
     const words = visualSplitIntoWords(trimmed);
     if (!words.length) return { blobs: [], centers: [] };
 
+    console.log(words);
+
     const blobs = [];
     const centers = [];
 
@@ -80,8 +79,29 @@
 
     for (let wIndex = 0; wIndex < words.length; wIndex++) {
       const word = words[wIndex];
-      const letters = word.split("").filter((ch) => ch !== "[" && ch !== "]");
-      const length = letters.length;
+
+      const isLineBreak =
+        typeof word === "string" && word.length > 0 && /^\s+$/.test(word);
+
+      if (isLineBreak) {
+        nextStartsSentence = true;
+        continue; // do not draw
+      }
+      
+      console.log(`word ${word}`)
+      const letters = word.split("").filter((ch) => ch !== "[" && ch !== "]" && ch !== "#");
+
+      let length = 0;
+      if (word === "\n") {
+        length = 0;
+  
+      } else {
+        length = letters.length;
+      }
+
+      const endsWithPunctuation =
+        /[.!?]$|\r?\n/.test(word) || word === "\n" || word === "\r\n";
+      
       if (!length) continue;
 
       const wordHash =
@@ -108,7 +128,7 @@
        const ch = letters[0];
        const aIdx = alphabetIndex(ch);
        const clamped = Math.max(0, Math.min(25, aIdx));
-       console.log(aIdx);
+      //  console.log(aIdx);
        const t = clamped / 25;
       //  console.log(ch + " " + aIdx);
 
@@ -127,7 +147,7 @@
       wordCx = Math.max(marginX, Math.min(canvasW - marginX, wordCx));
       wordCy = Math.max(marginY, Math.min(VIS_H - marginY, wordCy));
 
-      const endsWithPunctuation = /[.!?]$/.test(word);
+      
       const startsSentence = nextStartsSentence;  
 
       centers.push({
@@ -135,7 +155,7 @@
         cy: wordCy,
         color: colorForWordLength(length),
         start: startsSentence,
-        break: /[.!?]$/.test(word),
+        break: /[.!?]$|\r?\n/.test(word),
       });
 
       nextStartsSentence = endsWithPunctuation;
