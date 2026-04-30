@@ -67,11 +67,25 @@ h2, p {
 }
 h2.section-text {
    text-transform: uppercase;
+   letter-spacing: 1px;
+
 }
 h2.section-label {
    font-family: "Nunito";
    font-size: 14px;
    font-weight: 400;
+}
+.header-area {
+   display: flex;
+   width: 100%;
+   gap: 4px;
+   justify-content: space-between;
+   align-items: first baseline;
+}
+.h-line {
+  width: 100%;   
+  border-top: 1px solid black; 
+  margin: 20px 0;  
 }
 #page {
    display: flex;
@@ -427,55 +441,89 @@ button:hover {
    align-items: stretch;
    box-sizing: border-box;
    width: 100%;
-   min-width: 0;
 }
 [data-role="stage-input-row"] > .button-area {
-  flex: 1 1 100%;   /* takes all available width */
+  flex: 1 1 0;   /* takes all available width */
   min-width: 0;
   width: 0;
   width: 100%;
   box-sizing: border-box;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
 }
 [data-role="stage-input-row"].has-output > .button-area {
   flex: 1 1 0;
   width: 0;
   max-width: 400px;
 }
-/* default state: no output yet */
-[data-role="stage-input-row"] > .button-area {
-  flex: 1 1 100%;
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
+[data-role="stage-input-row"] > .button-area .mode-buttons {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 [data-role="stage-input-row"] > [data-role="stage-output"] {
-  display: none;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  flex: 1 1 0;
+  box-sizing: border-box;
+  width: 0;
+  min-width: 0;
+  min-height: 0;
 }
 [data-role="stage-input-row"].has-output > [data-role="stage-output"] {
-  display: block;
+  display: flex;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
   flex: 1 1 0;
   width: 0;
   min-width: 0;
   box-sizing: border-box;
 }
+[data-role="stage-input-row"] > .stage-output-col {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;             
+  flex-direction: column;   
+}
+
+[data-role="stage-input-row"] > .stage-output-col > [data-role="stage-output"] {
+  flex: 1 1 auto;          
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
 .stage-output-image-wrap {
+   flex: 1 1 auto;
+   min-height: 0;
    width: 100%;
+   height: 100%;
    min-width: 0;
    height: auto;
+   display: flex;
+   align-items: center;
+   justify-content: center;
    border: 1px solid var(--lightmode-text);
    box-sizing: border-box;
 }
 .stage-output-image {
-   width: 100%;
-
-   min-width: 0;
+   max-width: 100%;
+   max-height: 100%;
+   width: auto;
+   height: auto;
    box-sizing: border-box;
    object-fit: contain;
 }
 .stage-output-text {
-   width: 100%;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
-  min-width: 0;
+  min-height: 0;
+  resize: none;
   box-sizing: border-box;
   resize: none;
 
@@ -485,13 +533,24 @@ button:hover {
 }
 [data-role="stage-input-row"] > :not(.button-area) {
   display: none;
+  min-width: 0;
+  min-height: 0;
 }
 [data-role="stage-input-row"].has-output > :not(.button-area) {
-  display: block;
+  display: flex;
+  flex-direction: column;
+
   flex: 1 1 0;
   width: 0;
   min-width: 0;
   box-sizing: border-box;
+  align-self: stretch;
+}
+[data-role="stage-input-row"].has-output > :not(.button-area) > [data-role="stage-output"] {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 

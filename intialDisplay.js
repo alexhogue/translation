@@ -56,7 +56,7 @@
             copies.push({
               str: p.random(textOptions),
               x: p.random(-100, p.width),
-              y: p.random(-25, p.height),
+              y: p.random(-25, containerEl.clientHeight),
               size: p.random(12, 24),
             });
             p.redraw();

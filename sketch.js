@@ -457,33 +457,117 @@ function refreshActiveCanvasFromText(rawText) {
   else updater.render?.(t);
 }
 
+// async function refreshActiveCanvasFromImage(url, stageID) {
+//   if (toggleMode !== "visual") return;
+//   if (stageID === "root") {
+//     if (chainStagesEl) chainStagesEl.innerHTML = "";
+//   }
+//   if (currentMode === "rgb") {
+//     window.handleRGB?.(url);
+//   } else if (currentMode === "hex") {
+//     window.handleHex?.(url);
+//   } else if (currentMode === "typeArt") {
+//     window.handleImageForTextPicture?.(url);
+//   } else if (currentMode === "typeArtColor") {
+//     window.handleImageForTextColor?.(url);
+//   }
+// }
+
+function clearRootOutputPreviews() {
+  const rootOutputs = document.querySelectorAll(
+    '[data-role="convert-to-image-modes"] [data-role="stage-output"], ' +
+      '[data-role="convert-to-text-modes"] [data-role="stage-output"]'
+  );
+  rootOutputs.forEach((out) => {
+    out.innerHTML = "";
+    const row = out.closest('[data-role="stage-input-row"]');
+    if (row) row.classList.remove("has-output");
+  });
+  const rootLabels = document.querySelectorAll(
+    '[data-role="convert-to-image-modes"] [data-role="stage-output-label"], ' +
+      '[data-role="convert-to-text-modes"] [data-role="stage-output-label"]'
+  );
+  rootLabels.forEach((label) => {
+    label.style.display = "none";
+  });
+}
+
 async function refreshActiveCanvasFromImage(url, stageID) {
-  if (toggleMode !== "visual") return;
+  const imageUrl = String(url || "");
+  if (!imageUrl) return;
+
+  // Always treat a new image as a fresh root flow.
   if (stageID === "root") {
+    // Reset chain state
+    stages = [];
+    stageSeq = 0;
     if (chainStagesEl) chainStagesEl.innerHTML = "";
+    
+    clearRootOutputPreviews();
+
+    // Reset pressed states
+    document
+      .querySelectorAll(
+        '[data-role="convert-to-text-modes"] .mode-btn, [data-role="convert-to-image-modes"] .mode-btn'
+      )
+      .forEach((b) => b.removeAttribute("aria-pressed"));
+
+    // Reset mode + source
+    toggleMode = "visual"; // image -> text branch
+    currentMode = "";
+    window.currentImage = imageUrl;
+
+    // Show root image controls, hide text controls
+    imageInput.style.display = "block";
+    imageControls.style.display = "block";
+    textInput.style.display = "none";
+    textControls.style.display = "none";
+
+    // Reset arrow/canvas state
+    if (arrowChain) arrowChain.style.visibility = "hidden";
+    initialDisplay.style.display = "block";
+    // canvasContainerEl.style.display = "flex";
+
+    // Clear previous renderer outputs
+    window.VisualText?.clear?.();
+    window.VisualMono?.clear?.();
+    window.VisualColor1?.clear?.();
+    window.VisualColor2?.clear?.();
+    window.SquareGridR?.clear?.();
+    window.VisualColor3?.clear?.();
+    window.ColorLine2?.clear?.();
+    window.ColorLine3?.clear?.();
+    window.ConcretePoem?.clear?.();
+    window.Neuron?.clear?.();
+    window.Neuron2?.clear?.();
+    window.Neuron3?.clear?.();
+    window.Neuron4?.clear?.();
+    window.charMap?.clear?.();
+    window.Watercolor?.clear?.();
+    window.French?.clear?.();
+    window.Binary?.clear?.();
+    
+
+    return;
   }
-  //   const t = (rawText ?? "").trim();
+
+  // Non-root stage refresh path (keep if you still use it)
+  if (toggleMode !== "visual") return;
+
+  window.currentImage = imageUrl;
+
   if (currentMode === "rgb") {
-    window.handleRGB?.(url);
+    window.handleRGB?.(imageUrl);
   } else if (currentMode === "hex") {
-    window.handleHex?.(url);
+    window.handleHex?.(imageUrl);
   } else if (currentMode === "typeArt") {
-    window.handleImageForTextPicture?.(url);
-    // text = await window.returnBrightnessText(window.currentImage);
-    // const record = stages.find((s) => s.id === stageID);
-    // const textArea = field(record.el, "input-text");
-    // window.getBrightnessText(window.currentImage, textArea);
+    window.handleImageForTextPicture?.(imageUrl);
   } else if (currentMode === "typeArtColor") {
-    window.handleImageForTextColor?.(url);
-    // text = await window.asyncColorText(window.currentImage);
-    // let textArea
-    // if (stageID === "root") {
-    //   textArea = sourceEl;
-    // } else {
-    //   const record = stages.find((s) => s.id === stageID);
-    //   textArea = field(record.el, "input-text");
-    // }
-    // window.colorTextForBox(window.currentImage, textArea);
+    window.handleImageForTextColor?.(imageUrl);
+  } else if (currentMode === "description") {
+    // optional immediate preview refresh
+    const t = await window.createDescription?.(imageUrl);
+    if (t != null) window.VisualText?.render?.(t || "—");
   }
 }
 
@@ -532,6 +616,7 @@ function handleTextImageSwitch() {
 
 let activeInputTextarea = sourceEl;
 let activeImageArea = null;
+let lastRootImageMode = "";
 let text = "";
 
 document
@@ -567,15 +652,21 @@ document
       initialDisplay.setAttribute("status", "closed");
       canvasContainerEl.style.display = "flex";
     }
+    if (isRoot && isImageToTextClick) {
+      lastRootImageMode = currentMode;
+    }
     const latestTemp = stages[stages.length - 1];
+
     const isMostRecentTemplate =
       (isRoot && stages.length === 0) ||
       (latestTemp?.el != null && stage === latestTemp.el);
+  
 
-    if (isMostRecentTemplate) {
-      addAfterChain(stage);
-    }
+    refreshActiveCanvasFromText(text);
+   
+    removeStages(stage, stages);
 
+    if (stage) addAfterChain(stage);
     arrowChain.children.forEach((arrow, index) => {
       arrow.animate(
         [{ transform: "translateX(-6px)" }, { transform: "translateX(6px)" }],
@@ -588,10 +679,6 @@ document
         }
       );
     });
-
-    refreshActiveCanvasFromText(text);
-   
-    removeStages(stage, stages);
 
     saveButton.style.display = "block";
 
@@ -913,6 +1000,45 @@ document
         return;
       }
 
+      if (currentMode === "feature") {
+        toggleMode = "text";
+        const canvas = document.querySelector("#canvas-container canvas");
+        if (!canvas) return;
+        text = await window.createFeatureText(window.currentImage);
+        window.VisualText.render(text || "—");
+        setStageOutputForEl(stage, text, "text");
+        const record = appendStage("text-to-image", { input: text });
+        const textArea = field(record.el, "input-text");
+        if (textArea) textArea.value = text;
+        return;
+      }
+      if (currentMode === "featurePoem") {
+        toggleMode = "text";
+        const canvas = document.querySelector("#canvas-container canvas");
+        if (!canvas) return;
+        text = await window.createFeaturePoem(window.currentImage);
+        window.VisualText.render(text || "—");
+        setStageOutputForEl(stage, text, "text");
+        const record = appendStage("text-to-image", { input: text });
+        const textArea = field(record.el, "input-text");
+        if (textArea) textArea.value = text;
+        return;
+      }
+
+      if (currentMode === "literal") {
+        toggleMode = "text";
+        const canvas = document.querySelector("#canvas-container canvas");
+        if (!canvas) return;
+        text = await window.extractLiteralVisualTokens(window.currentImage);
+        window.VisualText.render(text || "—");
+        setStageOutputForEl(stage, text, "text");
+        const record = appendStage("text-to-image", { input: text });
+        const textArea = field(record.el, "input-text");
+        if (textArea) textArea.value = text;
+        return;
+
+      }
+
       if (currentMode === "description") {
         text = await window.createDescription(window.currentImage);
         window.VisualText.render(text || "—");
@@ -930,6 +1056,7 @@ document
 
         return;
       }
+      
 
       if (currentMode === "typeArtColor") {
         window.handleImageForTextColor(window.currentImage);
@@ -1010,8 +1137,8 @@ function appendStage(kind, opts = {}) {
   if (label) {
     label.textContent =
       kind === "text-to-image"
-        ? `Translation ${chainIndex + 1}`
-        : `Translation ${chainIndex + 1}`;
+        ? `${chainIndex + 1}`
+        : `${chainIndex + 1}`;
   }
 
   if (kind === "text-to-image") {
