@@ -43,7 +43,7 @@
         letters.push(wordLetters[lIndex]);
         
       }
-      console.log(word)
+      // console.log(word)
     }
 
     for (let lIndex = 0; lIndex < letters.length; lIndex++) {

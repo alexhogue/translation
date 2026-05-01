@@ -1,4 +1,12 @@
-import { pipeline } from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1";
+import {
+  pipeline
+} from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1";
+import {
+  CLIPModel,
+  AutoTokenizer,
+  AutoProcessor,
+  RawImage,
+} from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1";
 const imageInput = document.querySelector('[data-role="convert-to-text-input"]');
 const imageModes = document.querySelector(
   '[data-role="convert-to-text-modes"]'
@@ -228,6 +236,62 @@ async function createFeatureText(imageURL) {
 }
 
 window.createFeatureText = createFeatureText;
+
+//////// CLIP //////////
+
+let _clip = null;
+async function getClip() {
+  if (_clip) return _clip;
+  const modelId = "Xenova/clip-vit-base-patch32";
+  const [model, tokenizer, processor] = await Promise.all([
+    CLIPModel.from_pretrained(modelId),
+    AutoTokenizer.from_pretrained(modelId),
+    AutoProcessor.from_pretrained(modelId),
+  ]);
+  _clip = { model, tokenizer, processor, modelId };
+  return _clip;
+}
+
+function tensorTo2D(t) {
+  // Handles Tensor -> JS nested arrays
+  const v = t?.tolist ? t.tolist() : [];
+  return Array.isArray(v) ? v : [];
+}
+
+export async function getClipStageScores(text, imageUrl) {
+  const { model, tokenizer, processor, modelId } = await getClip();
+
+  const textInputs = await tokenizer(String(text || ""), {
+    padding: true,
+    truncation: true,
+  });
+
+  const image = await RawImage.fromURL(String(imageUrl || ""));
+  const imageInputs = await processor(image);
+  const out = await model({
+    ...textInputs,
+    ...imageInputs,
+  });
+
+  const logitsImage = tensorTo2D(out.logits_per_image); // [img_batch, text_batch]
+  const logitsText = tensorTo2D(out.logits_per_text); // [text_batch, img_batch]
+  const textEmbeds = tensorTo2D(out.text_embeds); // [text_batch, dim]
+  const imageEmbeds = tensorTo2D(out.image_embeds); // [img_batch, dim]
+
+  return {
+    text_embedding: textEmbeds?.[0] ?? null,
+    image_embedding: imageEmbeds?.[0] ?? null,
+    logit_image_to_text: logitsImage?.[0]?.[0] ?? null,
+    logit_text_to_image: logitsText?.[0]?.[0] ?? null,
+    model_id: modelId,
+  };
+}
+
+window.getClipStageScores = getClipStageScores;
+
+
+
+
 
 /////////////
 

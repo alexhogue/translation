@@ -65,6 +65,18 @@ h2, p {
    font-weight: 900;
    font-stretch: 120%;
 }
+.circle-outline {
+   border-radius: 50%;
+   border: 1px dotted var(--lightmode-text);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 28px;
+   min-width: 28px;
+   height: 28px;
+}
+
+
 h2.section-text {
    text-transform: uppercase;
    letter-spacing: 1px;
@@ -136,7 +148,7 @@ h2.section-label {
    display: flex;
    /* flex-wrap: wrap; */
    justify-content: space-between;
-   padding: 0px 12px;
+   padding: 0px 18px;
    box-sizing: border-box;
    width: 100%;
    height: 100vh;
@@ -174,7 +186,7 @@ h2.section-label {
 }
 #resizer {
    position: relative;
-   flex-basis: 12px;
+   flex-basis: 18px;
    z-index: 2;
    cursor: col-resize;
    margin: 0;
@@ -437,7 +449,7 @@ button:hover {
 [data-role="stage-input-row"] {
    display: flex;
    flex-direction: row;
-   gap: 4px;
+   gap: 18px;
    align-items: stretch;
    box-sizing: border-box;
    width: 100%;

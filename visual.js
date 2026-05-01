@@ -37,7 +37,6 @@
     for (let wIndex = 0; wIndex < words.length; wIndex++) {
       const word = words[wIndex];
       const letters = word.split("");
-      console.log(letters);
       const length = letters.length;
 
       if (!length) continue;

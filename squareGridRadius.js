@@ -96,7 +96,6 @@
                   p.noStroke();
                   p.rect(x, y, SQUARE_SIZE, SQUARE_SIZE);
               } else if (0 < idx || idx < 1) {
-                console.log(idx);
                   const col = i % cols;
                   const row = Math.floor(i / cols);
                   const x = col * (SQUARE_SIZE + GAP) + SQUARE_SIZE / 2;

@@ -1,11 +1,15 @@
-const textControls = document.querySelector('[data-role="convert-to-image-modes"]');
+const textControls = document.querySelector(
+  '[data-role="convert-to-image-modes"]'
+);
 const textInput = document.querySelector(
   '[data-role="convert-to-image-input"]'
 );
 const imageInput = document.querySelector(
   '[data-role="convert-to-text-input"]'
 );
-const imageControls = document.querySelector('[data-role="convert-to-text-modes"]');
+const imageControls = document.querySelector(
+  '[data-role="convert-to-text-modes"]'
+);
 const panel = document.getElementById("translation-panel");
 const resizer = document.getElementById("resizer");
 const sourceWrap = textInput.querySelector('[data-role="source-wrap"]');
@@ -33,6 +37,13 @@ const darkModeBtn = document.getElementById("dark-mode-btn");
 const originalImg = document.getElementById("original-img");
 const initialDisplay = document.getElementById("initial-display");
 
+let originalEmbedding = null;
+let previousEmbedding = null;
+let previousTextEmbedding = null;
+let previousImgEmbedding = null;
+const embeddingHistory = [];
+
+
 // async function translateToFrench(text) {
 //   const trimmed = text.trim();
 //   if (!trimmed) return "";
@@ -55,8 +66,7 @@ darkModeBtn.addEventListener("click", () => {
     originalImg.style.filter = "invert(1)";
     darkModeBtn.children[0].style.display = "none";
     darkModeBtn.children[1].style.display = "flex";
-  }
-  else if (darkModeBtn.getAttribute("data-theme") == "dark") {
+  } else if (darkModeBtn.getAttribute("data-theme") == "dark") {
     darkModeBtn.setAttribute("data-theme", "light");
     originalImg.style.filter = "invert(0)";
     document.body.style.filter = "invert(0)";
@@ -85,7 +95,7 @@ darkModeBtn.addEventListener("click", () => {
 
 // function addNewDesign() {
 //   const sectionTitle = document.querySelectorAll(".section-title");
-  
+
 //   const barDesigns = document.querySelectorAll(".header-bars");
 //   const newestElement = barDesigns[barDesigns.length - 1];
 
@@ -105,8 +115,8 @@ darkModeBtn.addEventListener("click", () => {
 //   console.log(newestElement.textContent);
 //   newestElement.textContent = `{b:${generateRandomList(5, 100, 8)}}`;
 
-  // Add it to the page
-  // container.appendChild(newDiv);
+// Add it to the page
+// container.appendChild(newDiv);
 // }
 
 function field(root, role) {
@@ -118,7 +128,6 @@ function setStageOutputForEl(stageEl, value, type) {
   if (!out) return;
   out.innerHTML = "";
 
-
   const row = out.closest('[data-role="stage-input-row"]');
   if (row) row.classList.remove("has-output");
 
@@ -127,16 +136,19 @@ function setStageOutputForEl(stageEl, value, type) {
   if (type === "image") {
     const div = document.createElement("div");
     div.className = "stage-output-image-wrap";
-  
+
     const img = document.createElement("img");
     img.alt = "output preview";
     img.src = String(value || "");
     img.className = "stage-output-image";
     // img.style.width = "100%";
     // img.style.height = "auto";
-    
-    div.appendChild(img); 
+
+    div.appendChild(img);
     out.appendChild(div);
+
+
+    
     if (row) row.classList.add("has-output");
     if (outputLabel) outputLabel.style.display = "block";
     return;
@@ -192,11 +204,10 @@ saveButton.addEventListener("click", () => {
     ctx.drawImage(canvas, 0, 0);
 
     href = tmp.toDataURL("image/png");
-  
   } else {
     href = canvas.toDataURL("image/png");
   }
-  
+
   const a = document.createElement("a");
   a.href = href;
   a.download = "translation_" + downloadCount + ".png";
@@ -502,7 +513,7 @@ async function refreshActiveCanvasFromImage(url, stageID) {
     stages = [];
     stageSeq = 0;
     if (chainStagesEl) chainStagesEl.innerHTML = "";
-    
+
     clearRootOutputPreviews();
 
     // Reset pressed states
@@ -546,7 +557,6 @@ async function refreshActiveCanvasFromImage(url, stageID) {
     window.Watercolor?.clear?.();
     window.French?.clear?.();
     window.Binary?.clear?.();
-    
 
     return;
   }
@@ -641,10 +651,12 @@ document
 
     e.preventDefault();
     const stageId = stage.getAttribute("data-stage-id");
-    const rec = stageId && stageId !== "root" ? stages.find((s) => s.id === stageId) : null;
+    const rec =
+      stageId && stageId !== "root"
+        ? stages.find((s) => s.id === stageId)
+        : null;
     const textEl = field(stage, "input-text");
-    text = (textEl ? textEl.value : (rec?.input ?? sourceEl.value)) || "";
-  
+    text = (textEl ? textEl.value : rec?.input ?? sourceEl.value) || "";
 
     const isRoot = stage.getAttribute("data-stage-id") === "root";
     if (isRoot) {
@@ -660,10 +672,9 @@ document
     const isMostRecentTemplate =
       (isRoot && stages.length === 0) ||
       (latestTemp?.el != null && stage === latestTemp.el);
-  
 
     refreshActiveCanvasFromText(text);
-   
+
     removeStages(stage, stages);
 
     if (stage) addAfterChain(stage);
@@ -713,6 +724,28 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const stageId = stage.getAttribute("data-stage-id");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        console.log(rec);
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
+        
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -724,6 +757,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -734,7 +786,21 @@ document
         const canvas = document.querySelector("#canvas-container canvas");
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
-        setStageOutputForEl(stage, dataUrl, "image");
+        record = setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(stageId, dataUrl, "text-to-image", text); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -746,6 +812,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -757,6 +842,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -768,6 +872,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -779,6 +902,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -790,6 +932,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -812,6 +973,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -823,6 +1003,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -833,7 +1032,26 @@ document
         const canvas = document.querySelector("#canvas-container canvas");
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
-        setStageOutputForEl(stage, dataUrl, "image");
+        setStageOutputForEl(stage, dataUrl, "image")
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -845,6 +1063,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -856,6 +1093,25 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
@@ -870,22 +1126,60 @@ document
         if (!canvas) return;
         const dataUrl = canvas.toDataURL("image/png");
         setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         appendStage("image-to-text", { input: dataUrl });
         return;
       }
 
-       if (currentMode === "french") {
-         // const out = translateSync(text, "binary");
-         // if (window.VisualText) window.VisualText.render(out || "—");
-         // handleTextImageSwitch();
-         if (window.French) window.French.render(text);
-         const canvas = document.querySelector("#canvas-container canvas");
-         if (!canvas) return;
-         const dataUrl = canvas.toDataURL("image/png");
-         setStageOutputForEl(stage, dataUrl, "image");
-         appendStage("image-to-text", { input: dataUrl });
-         return;
-       }
+      if (currentMode === "french") {
+        // const out = translateSync(text, "binary");
+        // if (window.VisualText) window.VisualText.render(out || "—");
+        // handleTextImageSwitch();
+        if (window.French) window.French.render(text);
+        const canvas = document.querySelector("#canvas-container canvas");
+        if (!canvas) return;
+        const dataUrl = canvas.toDataURL("image/png");
+        setStageOutputForEl(stage, dataUrl, "image");
+        const rec = setStageRecordOutputById(
+          stageId,
+          dataUrl,
+          "text-to-image",
+          text
+        ); // output of text->image
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
+        appendStage("image-to-text", { input: dataUrl });
+        return;
+      }
 
       if (window.VisualMono) window.VisualMono.clear();
       if (window.VisualColor1) window.VisualColor1.clear();
@@ -954,11 +1248,35 @@ document
 
         text = await window.returnBrightnessText(window.currentImage);
         setStageOutputForEl(stage, text, "text");
+
+        const stageId = stage.getAttribute("data-stage-id");
+        const rec = setStageRecordOutputById(
+          stageId,
+          text,
+          "image-to-text",
+          window.currentImage
+        ); // output of image->text
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        console.log(rec)
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
+
         const record = appendStage("text-to-image", {
           input: text,
         });
         const textArea = field(record.el, "input-text");
         window.getBrightnessText(window.currentImage, textArea);
+        console.log(record)
         return;
       }
 
@@ -971,7 +1289,28 @@ document
 
         text = await window.returnRGBText(window.currentImage);
         setStageOutputForEl(stage, text, "text");
-        console.log(text);
+
+        const stageId = stage.getAttribute("data-stage-id");
+        const rec = setStageRecordOutputById(
+          stageId,
+          text,
+          "image-to-text",
+          window.currentImage
+        ); // output of image->text
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
+
         const record = appendStage("text-to-image", {
           input: text,
         });
@@ -990,7 +1329,28 @@ document
 
         text = await window.returnHexText(window.currentImage);
         setStageOutputForEl(stage, text, "text");
-        console.log(text);
+
+        const stageId = stage.getAttribute("data-stage-id");
+        const rec = setStageRecordOutputById(
+          stageId,
+          text,
+          "image-to-text",
+          window.currentImage
+        ); // output of image->text
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
+
         const record = appendStage("text-to-image", {
           input: text,
         });
@@ -1007,6 +1367,28 @@ document
         text = await window.createFeatureText(window.currentImage);
         window.VisualText.render(text || "—");
         setStageOutputForEl(stage, text, "text");
+
+        const stageId = stage.getAttribute("data-stage-id");
+        const rec = setStageRecordOutputById(
+          stageId,
+          text,
+          "image-to-text",
+          window.currentImage
+        ); // output of image->text
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
+
         const record = appendStage("text-to-image", { input: text });
         const textArea = field(record.el, "input-text");
         if (textArea) textArea.value = text;
@@ -1019,6 +1401,28 @@ document
         text = await window.createFeaturePoem(window.currentImage);
         window.VisualText.render(text || "—");
         setStageOutputForEl(stage, text, "text");
+
+        const stageId = stage.getAttribute("data-stage-id");
+        const rec = setStageRecordOutputById(
+          stageId,
+          text,
+          "image-to-text",
+          window.currentImage
+        ); // output of image->text
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
+
         const record = appendStage("text-to-image", { input: text });
         const textArea = field(record.el, "input-text");
         if (textArea) textArea.value = text;
@@ -1032,11 +1436,32 @@ document
         text = await window.extractLiteralVisualTokens(window.currentImage);
         window.VisualText.render(text || "—");
         setStageOutputForEl(stage, text, "text");
+
+        const stageId = stage.getAttribute("data-stage-id");
+        const rec = setStageRecordOutputById(
+          stageId,
+          text,
+          "image-to-text",
+          window.currentImage
+        ); // output of image->text
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
+
         const record = appendStage("text-to-image", { input: text });
         const textArea = field(record.el, "input-text");
         if (textArea) textArea.value = text;
         return;
-
       }
 
       if (currentMode === "description") {
@@ -1048,6 +1473,27 @@ document
         const canvas = document.querySelector("#canvas-container canvas");
         if (!canvas) return;
 
+        const stageId = stage.getAttribute("data-stage-id");
+        const rec = setStageRecordOutputById(
+          stageId,
+          text,
+          "image-to-text",
+          window.currentImage
+        ); // output of image->text
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
+
         const record = appendStage("text-to-image", {
           input: text,
         });
@@ -1056,7 +1502,6 @@ document
 
         return;
       }
-      
 
       if (currentMode === "typeArtColor") {
         window.handleImageForTextColor(window.currentImage);
@@ -1066,7 +1511,26 @@ document
         if (!canvas) return;
 
         text = await window.asyncColorText(window.currentImage);
-        setStageOutputForEl(stage, text, "text");
+        const stageId = stage.getAttribute("data-stage-id");
+        const rec = setStageRecordOutputById(
+          stageId,
+          text,
+          "image-to-text",
+          window.currentImage
+        ); // output of image->text
+        if (rec) {
+          const i = stages.indexOf(rec);
+          const prev = i > 0 ? stages[i - 1] : null;
+          await computeAndAttachClip(rec, prev);
+        }
+        const { clip } = rec;
+        const {
+          logit_image_to_text,
+          logit_text_to_image,
+          text_embedding,
+          image_embedding,
+        } = clip || {};
+        let metrics = computeMetrics(text_embedding, image_embedding, rec);
         const record = appendStage("text-to-image", {
           input: text,
         });
@@ -1077,6 +1541,158 @@ document
       }
     }
   });
+
+  function cosineSimilarity(a, b) {
+    if (!a || !b) return null;
+
+    let dot = 0,
+      magA = 0,
+      magB = 0;
+
+    for (let i = 0; i < a.length; i++) {
+      dot += a[i] * b[i];
+      magA += a[i] * a[i];
+      magB += b[i] * b[i];
+    }
+
+    return dot / (Math.sqrt(magA) * Math.sqrt(magB) + 1e-8);
+  }
+
+  function computeMetrics(text_embedding, image_embedding, record) {
+    let drift = null;
+    let stability = null;
+
+
+    if (record.kind === "text-to-image") {
+      if (!originalEmbedding) {
+        originalEmbedding = text_embedding;
+      }
+
+      if (previousImgEmbedding) {
+        stability = cosineSimilarity(previousImgEmbedding, image_embedding);
+      }
+
+      if (rootRecord.kind === "image-to-text") {
+        if (originalEmbedding) {
+          drift = cosineSimilarity(originalEmbedding, image_embedding);
+        }
+      }
+
+      previousImgEmbedding = image_embedding;
+
+    }
+
+    if (record.kind === "image-to-text") {
+      if (!originalEmbedding) {
+        originalEmbedding = image_embedding;
+      }
+
+      if (previousTextEmbedding) {
+        stability = cosineSimilarity(previousTextEmbedding, text_embedding);
+      }
+
+      if (rootRecord.kind === "text-to-image") {
+        if (originalEmbedding) {
+          drift = cosineSimilarity(originalEmbedding, text_embedding);
+        }
+      }
+
+      previousTextEmbedding = text_embedding;
+    }
+
+    embeddingHistory.push({
+      drift,
+      stability,
+    });
+
+    console.log(embeddingHistory);
+
+    return {
+      drift, // similarity to first step
+      stability, // similarity to previous step
+    };
+  }
+
+function buildClipPair(record) {
+  // text -> image stage: input is text, output is image data URL
+  if (record.kind === "text-to-image") {
+    const text = String(record.input || "").trim();
+    const imageUrl = String(record.output || "").trim();
+    if (!text || !imageUrl) return null;
+    return { text, imageUrl };
+  }
+
+  // image -> text stage: input is image URL, output is generated text
+  if (record.kind === "image-to-text") {
+    const text = String(record.output || "").trim();
+    const imageUrl = String(record.input || "").trim();
+    if (!text || !imageUrl) return null;
+    return { text, imageUrl };
+  }
+
+  return null;
+}
+
+let rootRecord = null;
+function getOrCreateRootRecord(kind, input = "") {
+  if (rootRecord) return rootRecord;
+  const safeKind = kind === "text-to-image" ? "text-to-image" : "image-to-text";
+  const safeInput = String(input || "");
+
+  rootRecord = {
+    id: "root",
+    kind: safeKind, // or "text-to-image" depending flow
+    input: safeInput,
+    output: null,
+    mode: null,
+    el: null,
+    clip: {
+      text_embedding: null,
+      image_embedding: null,
+      logit_image_to_text: null,
+      logit_text_to_image: null,
+      pair_from_stage_id: null,
+    },
+  };
+  return rootRecord;
+}
+
+function setStageRecordOutputById(stageId, output, rootKind, rootInput) {
+  if (stageId === "root") {
+    const rec = getOrCreateRootRecord(rootKind, rootInput);
+    rec.output = output;
+    return rec;
+  }
+  if (!stageId) return null;
+  const rec = stages.find((s) => s.id === stageId);
+  if (!rec) return null;
+  rec.output = output;
+  return rec;
+}
+
+async function computeAndAttachClip(record, prevRecord) {
+  const pair = buildClipPair(record);
+  if (!pair) return;
+
+   try {
+     const clip = await window.getClipStageScores(pair.text, pair.imageUrl);
+     record.clip = {
+       ...clip,
+       pair_from_stage_id: prevRecord?.id ?? null,
+     };
+     console.log(clip);
+   } catch (err) {
+     record.clip = {
+       text_embedding: null,
+       image_embedding: null,
+       logit_image_to_text: null,
+       logit_text_to_image: null,
+       pair_from_stage_id: prevRecord?.id ?? null,
+       error: err?.message || String(err),
+     };
+   }
+
+}
 
 /** @type {Array<{ id: string, kind: 'text-to-image' | 'image-to-text', input: string, output: string | null, mode: string | null, el: HTMLElement | null }>} */
 let stages = [];
@@ -1107,9 +1723,15 @@ function appendStage(kind, opts = {}) {
     output: null,
     mode: null,
     el: null,
+    clip: {
+      text_embedding: null,
+      image_embedding: null,
+      logit_image_to_text: null,
+      logit_text_to_image: null,
+      pair_from_stage_id: null,
+    },
   };
 
-  
   // if (stageRepeatCount === 1) {
   //   numberString = String(++textNumber);
   //   stageRepeatCount = 0;
@@ -1136,9 +1758,7 @@ function appendStage(kind, opts = {}) {
 
   if (label) {
     label.textContent =
-      kind === "text-to-image"
-        ? `${chainIndex + 1}`
-        : `${chainIndex + 1}`;
+      kind === "text-to-image" ? `${chainIndex + 1}` : `${chainIndex + 1}`;
   }
 
   if (kind === "text-to-image") {
@@ -1211,7 +1831,6 @@ function removeStages(currentStage, allStages) {
       }
 
       stageSeq = currentStageID;
-      
     }
   }
 }

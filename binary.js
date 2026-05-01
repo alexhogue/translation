@@ -63,7 +63,7 @@
         // p.resizeCanvas(availableWidth, containerEl.clientHeight);
 
         const binarySentences = sentencesToBinaryDigits(currentText);
-        console.log(availableWidth);
+        // console.log(availableWidth);
 
         const cols = binarySentences.length;
         const innerW = containerEl.clientWidth - margin;
