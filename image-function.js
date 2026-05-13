@@ -55,6 +55,13 @@ function scrollPanelToBottom() {
 
 generateImgBtn.addEventListener("click", (e) => {
   e.preventDefault();
+
+  const arrows = document.querySelectorAll(".between-arrows");
+  arrows.forEach((el) => {
+    el.style.display = "none";
+  });
+
+
   const indexLength = imageList.length;
 
   const randomIndex = Math.floor(Math.random() * indexLength);
@@ -192,50 +199,146 @@ async function createDescription(imageURL) {
 window.createDescription = createDescription;
 
 
-let featurePipe = null;
-
-async function getFeaturePipe() {
-  if (!featurePipe) {
-    featurePipe = await pipeline(
-      "image-feature-extraction",
-      "Xenova/vit-base-patch16-224"
-    );
-  }
-  return featurePipe;
+let _imgFeatPipe = null;
+async function getImageFeaturePipe() {
+  if (_imgFeatPipe) return _imgFeatPipe;
+  // pick one available in transformers.js browser runtime
+  _imgFeatPipe = await pipeline(
+    "image-feature-extraction",
+    "Xenova/vit-base-patch16-224",
+    { quantized: true }
+  );
+  return _imgFeatPipe;
 }
 
-function meanPool2D(arr2d) {
-  const n = arr2d.length;
-  const d = arr2d[0].length;
-  const out = new Array(d).fill(0);
-  for (let i = 0; i < n; i++) {
-    const row = arr2d[i];
-    for (let j = 0; j < d; j++) out[j] += row[j];
+function meanPool2D(tokens) {
+  // tokens: [num_tokens, dim]
+  if (!Array.isArray(tokens) || !tokens.length) return null;
+  const dim = tokens[0].length;
+  const sum = new Array(dim).fill(0);
+  for (const t of tokens) {
+    for (let i = 0; i < dim; i++) sum[i] += t[i];
   }
-  for (let j = 0; j < d; j++) out[j] /= n;
-  return out;
+  return sum.map((v) => v / tokens.length);
 }
 
 async function createFeatureText(imageURL) {
-  const model = await getFeaturePipe();
-  const output = await model(imageURL);
+  const pipe = await getImageFeaturePipe();
+  let output = await pipe(String(imageURL || ""));
 
-  const nested = output.tolist ? output.tolist() : output;
-  const tokensByDim = Array.isArray(nested?.[0]?.[0]) ? nested[0] : nested; // [tokens, dim]
+  if (output?.tolist) output = output.tolist();
+
+  let tokensByDim = output;
+  while (
+    Array.isArray(tokensByDim) &&
+    Array.isArray(tokensByDim[0]) &&
+    Array.isArray(tokensByDim[0][0])
+  ) {
+    tokensByDim = tokensByDim[0];
+  }
+
   if (!tokensByDim?.length) return "No features extracted.";
 
   const pooled = meanPool2D(tokensByDim);
+  if (!pooled) return "No features extracted.";
 
-  // readable compact text
   const topN = 100;
   const lines = [];
   for (let i = 0; i < Math.min(topN, pooled.length); i++) {
-    lines.push(`f[${i+1}] = ${Number(pooled[i]).toFixed(4)}`);
+    lines.push(`f[${i + 1}] = ${Number(pooled[i]).toFixed(4)}`);
   }
   return lines.join("\n");
 }
 
 window.createFeatureText = createFeatureText;
+
+function l2Normalize(v) {
+  const norm = Math.sqrt(v.reduce((s, x) => s + x * x, 0)) || 1e-8;
+  return v.map((x) => x / norm);
+}
+async function getImageEmbeddingFromPng(pngUrl) {
+  const pipe = await getImageFeaturePipe();
+  let out = await pipe(String(pngUrl));
+
+  // Convert Tensor -> JS array if needed
+  if (out?.tolist) out = out.tolist();
+
+  // Normalize shape to [tokens, dim]
+  // common: [1, tokens, dim]
+  while (
+    Array.isArray(out) &&
+    Array.isArray(out[0]) &&
+    Array.isArray(out[0][0])
+  ) {
+    out = out[0];
+  }
+
+  const pooled = meanPool2D(out);
+  if (!pooled) return null;
+  return l2Normalize(pooled);
+}
+
+function cosineSimilarity(a, b) {
+  if (!a || !b || a.length !== b.length) return null;
+  let dot = 0,
+    magA = 0,
+    magB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    magA += a[i] * a[i];
+    magB += b[i] * b[i];
+  }
+  return dot / (Math.sqrt(magA) * Math.sqrt(magB) + 1e-8);
+}
+
+async function getPngEmbeddingSimilarity(clickedPng, latestPng) {
+  const [aEmb, bEmb] = await Promise.all([
+    getImageEmbeddingFromPng(clickedPng),
+    getImageEmbeddingFromPng(latestPng),
+  ]);
+  const similarity = cosineSimilarity(aEmb, bEmb); // -1..1
+  const pct =
+    similarity == null ? null : Math.round(((similarity + 1) / 2) * 100);
+  return { similarity, pct };
+}
+window.getPngEmbeddingSimilarity = getPngEmbeddingSimilarity;
+
+
+////////
+
+
+// function meanPool2D(arr2d) {
+//   const n = arr2d.length;
+//   const d = arr2d[0].length;
+//   const out = new Array(d).fill(0);
+//   for (let i = 0; i < n; i++) {
+//     const row = arr2d[i];
+//     for (let j = 0; j < d; j++) out[j] += row[j];
+//   }
+//   for (let j = 0; j < d; j++) out[j] /= n;
+//   return out;
+// }
+
+// async function createFeatureText(imageURL) {
+//   const model = await getFeaturePipe();
+//   const output = await model(imageURL);
+
+//   const nested = output.tolist ? output.tolist() : output;
+//   const tokensByDim = Array.isArray(nested?.[0]?.[0]) ? nested[0] : nested; // [tokens, dim]
+//   if (!tokensByDim?.length) return "No features extracted.";
+
+//   const pooled = meanPool2D(tokensByDim);
+
+//   // readable compact text
+//   const topN = 100;
+//   const lines = [];
+//   for (let i = 0; i < Math.min(topN, pooled.length); i++) {
+//     lines.push(`f[${i+1}] = ${Number(pooled[i]).toFixed(4)}`);
+//   }
+//   return lines.join("\n");
+// }
+
+// window.createFeatureText = createFeatureText;
 
 //////// CLIP //////////
 
@@ -258,13 +361,12 @@ function tensorTo2D(t) {
   return Array.isArray(v) ? v : [];
 }
 
-export async function getClipStageScores(text, imageUrl) {
+export async function getClipStageScores(textUrl, imageUrl) {
   const { model, tokenizer, processor, modelId } = await getClip();
 
-  const textInputs = await tokenizer(String(text || ""), {
-    padding: true,
-    truncation: true,
-  });
+
+  const textImg = await RawImage.fromURL(String(textUrl || ""));
+  const textInputs = await processor(textImg);
 
   const image = await RawImage.fromURL(String(imageUrl || ""));
   const imageInputs = await processor(image);
@@ -287,8 +389,48 @@ export async function getClipStageScores(text, imageUrl) {
   };
 }
 
-window.getClipStageScores = getClipStageScores;
+async function getPngSimilarity(clickedPng, latestPng) {
+  const load = (url) =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = url;
+    });
 
+  const [aImg, bImg] = await Promise.all([load(clickedPng), load(latestPng)]);
+
+  const w = 128;
+  const h = 128;
+  const c1 = document.createElement("canvas");
+  const c2 = document.createElement("canvas");
+  c1.width = c2.width = w;
+  c1.height = c2.height = h;
+
+  const x1 = c1.getContext("2d");
+  const x2 = c2.getContext("2d");
+  x1.drawImage(aImg, 0, 0, w, h);
+  x2.drawImage(bImg, 0, 0, w, h);
+
+  const d1 = x1.getImageData(0, 0, w, h).data;
+  const d2 = x2.getImageData(0, 0, w, h).data;
+
+  let sum = 0;
+  for (let i = 0; i < d1.length; i += 4) {
+    const dr = d1[i] - d2[i];
+    const dg = d1[i + 1] - d2[i + 1];
+    const db = d1[i + 2] - d2[i + 2];
+    sum += dr * dr + dg * dg + db * db;
+  }
+
+  const rmse = Math.sqrt(sum / (w * h * 3));
+  const similarity = Math.max(0, 1 - rmse / 255);
+  const pct = Math.round(similarity * 100);
+
+  return { similarity, pct };
+}
+
+window.getPngSimilarity = getPngSimilarity;
 
 
 

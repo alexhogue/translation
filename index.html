@@ -12,11 +12,11 @@
   <!-- <h2>Result</h2> -->
   <header id="top-banner">
     <!-- <h1 class="header-noise">{b:24,51,68,97,36,76,65}</h1> -->
-    <h1 id="page-title">Residual meaning</h1>
+    <h1 id="page-title">translation telephone</h1>
     <h1 class="header-noise">{b:64,91,87,17,36,76,17, 56}</h1>
     <div id="meta-controls-cont">
-      <button type="button" id="dark-mode-btn" data-theme="light" style="background: none; border: 0; padding: 0; margin: 0;">
-        <svg id="dm-moon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none" style="display:flex;">
+      <button type="button" id="dark-mode-btn" data-theme="light" style="background: none; border: 0; padding: 0; margin: 0; display: flex; justify-content: center; align-items: center;">
+        <svg id="dm-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:flex;">
           <path d="M11.9998 2.99994H12.3928C11.1081 4.19365 10.2824 5.79979 10.0591 7.53916C9.83577 9.27854 10.229 11.0412 11.1705 12.5207C12.112 14.0002 13.5422 15.103 15.2124 15.6374C16.8826 16.1718 18.6873 16.1041 20.3128 15.4459C19.6875 16.9504 18.6656 18.257 17.356 19.2262C16.0464 20.1954 14.4982 20.791 12.8767 20.9493C11.2552 21.1077 9.62104 20.8229 8.14867 20.1253C6.6763 19.4278 5.42089 18.3436 4.51637 16.9885C3.61185 15.6334 3.09213 14.0582 3.01267 12.4309C2.9332 10.8036 3.29696 9.18524 4.06515 7.74846C4.83334 6.31167 5.97714 5.11037 7.37454 4.27268C8.77195 3.43499 10.3705 2.99234 11.9998 2.99194V2.99994Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <svg id="lm-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:none;">
@@ -77,6 +77,7 @@
                     <textarea data-role="input-text" placeholder="Add any text here..."></textarea>
                   </div>
                   <div class="generate-btn-cont">
+                    <button type="button" class="action-btn" data-role="compare-image" data-compare-target="source" style="display:none">[ <p>Compare</p> ]</button>
                     <button type="button" class="generate-text-btn" data-role="generate-sentences" text-type="sentences">[ <p>Generate paragraph</p> ]</button>
                     <button type="button" class="generate-text-btn" data-role="generate-pangram" text-type="pangram">[ <p>Generate pangram</p> ]</button>
                   </div>
@@ -91,10 +92,10 @@
 
             <div class="toggle-type-controls modes" data-stage-id="root" data-role="convert-to-image-modes" style="display:none">
               <div class="header-area">
-                <h2 class="section-text" data-role="stage-label" style="margin: 0; padding: 0; margin-bottom: 24px;">Translation</h2>
+                <h2 class="section-text" data-role="stage-label" style="margin: 0; padding: 0; margin-bottom: 24px;">Translate to Image</h2>
                 <div class="h-line"></div>
                 <div class="circle-outline">
-                  <h2 style="font-size: 32px; font-weight: 900;">1</h2>
+                  <h2 class="number-text">1</h2>
                 </div>
               </div>
               <div data-role="stage-input-row" style="display:flex;">
@@ -107,7 +108,7 @@
                     <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
                     <button type="button" class="mode-btn" data-mode="visualColor1">Color grid</button>
                     <!-- <button type="button" class="mode-btn" data-mode="visualColor2">Square grid</button> -->
-                    <button type="button" class="mode-btn" data-mode="gridRadius">Punctuation grid</button>
+                    <button type="button" class="mode-btn" data-mode="gridRadius">Character grid</button>
                     <button type="button" class="mode-btn" data-mode="concretePoem">Blackout poem</button>
                     <!-- <button type="button" class="mode-btn" data-mode="visualColor3">Color line</button> -->
                     <!-- <button type="button" class="mode-btn" data-mode="colorLine2">Syllables line</button> -->
@@ -121,14 +122,31 @@
                     <!-- <button type="button" class="mode-btn" data-mode="french">Radial waves</button> -->
                     <!-- <button type="button" class="mode-btn" data-mode="neuron4">Neuron words</button> -->
                     <button type="button" class="mode-btn" data-mode="binary">Binary</button>
-                    <button type="button" class="mode-btn" data-mode="boo">boo</button>
                     <!-- <button type="button" class="mode-btn" data-mode="french">French</button> -->
                   </div>
+                </div>
+                <div class="between-arrows" style="display:none">
+                    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                      <path d="M1 1 L9 6 L1 11 Z" />
+                    </svg>
+                    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                      <path d="M1 1 L9 6 L1 11 Z" />
+                    </svg>
+                    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                      <path d="M1 1 L9 6 L1 11 Z" />
+                    </svg>
+                    <!-- <p class="arrow">→</p> -->
+                    <!-- <p class="arrow">→</p> -->
+                    <!-- <p class="arrow">→</p> -->
                 </div>
                 <div class="stage-output-col">
                   <h2 class="section-label" data-role="stage-output-label" style="display:none">Output preview</h2>
                   <div data-role="stage-output"></div>
                 </div>
+              </div>
+              <div class="action-btn-cont" data-role="other-actions" style="display:none">
+                <button type="button" class="action-btn" data-role="compare-image" data-compare-target="first" style="display:none">[ <p>Compare</p> ]</button>
+                <button type="button" class="action-btn" data-role="download-image">[ <p>Download</p> ]</button>
               </div>
             </div>
 
@@ -161,6 +179,7 @@
                     </div>
                   </div>
                   <div class="generate-btn-cont">
+                    <button type="button" class="action-btn" data-role="compare-image" data-compare-target="source" style="display:none">[ <p>Compare</p> ]</button>
                     <button type="button" data-role="random-image" text-type="image">[ <p>Generate image</p> ]</button>
                   </div>
                 </div>
@@ -172,7 +191,7 @@
 
               <div class="toggle-type-controls modes" data-stage-id="root" data-role="convert-to-text-modes" style="display:none">
                 <div class="header-area">
-                  <h2 class="section-text" data-role="stage-label" style="margin: 0; padding: 0; margin-bottom: 24px;">Translation</h2>
+                  <h2 class="section-text" data-role="stage-label" style="margin: 0; padding: 0; margin-bottom: 24px;">Translate to Text</h2>
                   <div class="h-line"></div>
                   <div class="circle-outline">
                     <h2 class="number-text">1</h2>
@@ -191,9 +210,23 @@
                       <button type="button" class="mode-btn" data-mode="feature">Raw features</button>
                       <button type="button" class="mode-btn" data-mode="description">Image description</button>
                       <button type="button" class="mode-btn" data-mode="literal">Literal map</button>
-                      <button type="button" class="mode-btn" data-mode="featurePoem">Mad libs</button>
+                      <!-- <button type="button" class="mode-btn" data-mode="featurePoem">Mad libs</button> -->
                     </div>
                   </div>
+                  <div class="between-arrows" style="display:none">
+                    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                      <path d="M1 1 L9 6 L1 11 Z" />
+                    </svg>
+                    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                      <path d="M1 1 L9 6 L1 11 Z" />
+                    </svg>
+                    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                      <path d="M1 1 L9 6 L1 11 Z" />
+                    </svg>
+                    <!-- <p class="arrow">→</p> -->
+                    <!-- <p class="arrow">→</p> -->
+                    <!-- <p class="arrow">→</p> -->
+                </div>
                   <div >
                     <h2 class="section-label" data-role="stage-output-label" style="display:none">Output preview</h2>
                     <div data-role="stage-output">
@@ -201,17 +234,23 @@
                     </div>
                   </div>
                 </div>
+                <div class="action-btn-cont" data-role="other-actions" style="display:none">
+                  <button type="button" class="action-btn" data-role="compare-image" data-compare-target="first" style="display:none">[ <p>Compare</p> ]</button>
+                  <button type="button" class="action-btn" data-role="download-image">[ <p>Download</p> ]</button>
+                </div>
               </div>
             
 
-            <div id="arrow-section" style="visibility: hidden;">
+
+
+            <!-- <div id="arrow-section" style="display: none;">
               <p class="arrow">→</p>
               <p class="arrow">→</p>
               <p class="arrow">→</p>
               <p class="arrow">→</p>
               <p class="arrow">→</p>
               <p class="arrow">→</p>
-            </div>
+            </div> -->
 
             <div id="chain-stages" aria-label="Translation chain">
               
@@ -223,7 +262,7 @@
               <div class="toggle-type-controls" data-stage-id="" data-role="convert-to-image" style="display: none; margin-top: 48px;">
                 <!-- <div class="section-title" style="padding-bottom: 24px;"> -->
                   <div class="header-area">
-                    <h2 class="section-text" style="margin: 0; padding: 0; margin-bottom: 24px;">Translation</h2>
+                    <h2 class="section-text" style="margin: 0; padding: 0; margin-bottom: 24px;">Translate to Image</h2>
                     <div class="h-line"></div>
                     <div class="circle-outline">
                       <h2 class="section-text number-text" data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
@@ -239,7 +278,7 @@
                         <button type="button" class="mode-btn" data-mode="visual">Mono dots</button>
                         <button type="button" class="mode-btn" data-mode="visualColor1">Color grid</button>
                         <!-- <button type="button" class="mode-btn" data-mode="visualColor2">Square grid</button> -->
-                        <button type="button" class="mode-btn" data-mode="gridRadius">Punctuation grid</button>
+                        <button type="button" class="mode-btn" data-mode="gridRadius">Character grid</button>
                         <button type="button" class="mode-btn" data-mode="concretePoem">Blackout poem</button>
                         <!-- <button type="button" class="mode-btn" data-mode="visualColor3">Color line</button> -->
                         <!-- <button type="button" class="mode-btn" data-mode="colorLine2">Syllables line</button> -->
@@ -252,10 +291,23 @@
                         <button type="button" class="mode-btn" data-mode="french">Sentence split</button>
                         <!-- <button type="button" class="mode-btn" data-mode="neuron4">Neuron words</button> -->
                         <button type="button" class="mode-btn" data-mode="binary">Binary</button>
-                        <button type="button" class="mode-btn" data-mode="boo">boo</button>
                         <!-- <button type="button" class="mode-btn" data-mode="french">French</button> -->
                       </div>
                     </div>
+                    <div class="between-arrows" style="display:none">
+                    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                      <path d="M1 1 L9 6 L1 11 Z" />
+                    </svg>
+                    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                      <path d="M1 1 L9 6 L1 11 Z" />
+                    </svg>
+                    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                      <path d="M1 1 L9 6 L1 11 Z" />
+                    </svg>
+                    <!-- <p class="arrow">→</p> -->
+                    <!-- <p class="arrow">→</p> -->
+                    <!-- <p class="arrow">→</p> -->
+                </div>
                     <div data-role="stage-output"></div>
                   </div>
                   <div class="image-drop-cont" data-role="stage-prev-output" style="padding-bottom: 24px;">
@@ -264,6 +316,11 @@
                     </div>
                   </div>
                   <!-- </div> -->
+
+                  <div class="action-btn-cont" data-role="other-actions" style="display:none">
+                    <button type="button" class="action-btn" data-role="compare-image" style="display:none">[ <p>Compare</p> ]</button>
+                    <button type="button" class="action-btn" data-role="download-image">[ <p>Download</p> ]</button>
+                  </div>
               </div>
 
             </template>
@@ -275,7 +332,7 @@
                   <h2 class="header-design">{l:60,46,13,13,43,12,76,20,44,30,12}</h2>
                 </div> -->
                 <div class="header-area">
-                  <h2 class="section-text" style="margin: 0; padding: 0; margin-bottom: 24px;">Translation</h2>
+                  <h2 class="section-text" style="margin: 0; padding: 0; margin-bottom: 24px;">Translate to Text</h2>
                   <div class="h-line"></div>
                   <div class="circle-outline">
                     <h2 class="section-text number-text" data-role="stage-label" style="margin: 0; padding: 0;">Chain</h2>
@@ -294,15 +351,33 @@
                          <button type="button" class="mode-btn" data-mode="feature">Raw features</button>
                         <button type="button" class="mode-btn" data-mode="description">Image description</button>
                         <button type="button" class="mode-btn" data-mode="literal">Literal map</button>
-                        <button type="button" class="mode-btn" data-mode="featurePoem">Mad libs</button>
+                        <!-- <button type="button" class="mode-btn" data-mode="featurePoem">Mad libs</button> -->
                       </div>
                     </div>
+                    <div class="between-arrows" style="display:none">
+                      <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                        <path d="M1 1 L9 6 L1 11 Z" />
+                      </svg>
+                      <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                        <path d="M1 1 L9 6 L1 11 Z" />
+                      </svg>
+                      <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                        <path d="M1 1 L9 6 L1 11 Z" />
+                      </svg>
+                      <!-- <p class="arrow">→</p> -->
+                      <!-- <p class="arrow">→</p> -->
+                      <!-- <p class="arrow">→</p> -->
+                  </div>
                     <div data-role="stage-output"></div>
                   </div>
                   <div class="image-drop-cont" data-role="stage-prev-output" style="padding-bottom: 24px;">
                     <div class="drop-area image-drop" data-role="drop-file">
                       <img data-role="preview-img" src="#" alt="image preview" style="display: none">
                     </div>
+                  </div>
+                  <div class="action-btn-cont" data-role="other-actions" style="display:none">
+                    <button type="button" class="action-btn" data-role="compare-image" style="display:none">[ <p>Compare</p> ]</button>
+                    <button type="button" class="action-btn" data-role="download-image">[ <p>Download</p> ]</button>
                   </div>
                 </div>
               
@@ -317,15 +392,31 @@
     <div id="resizer"></div>
 
     <div id="canvas-area">
+      <!-- <img id="stage-hover-overlay" alt="" aria-hidden="true" /> -->
+      <!-- <div id="stage-hover-score" aria-hidden="true"></div> -->
+       <div id="compare-overlay-stack">
+        <img id="stage-hover-overlay" alt="" aria-hidden="true" />
+        <div id="compare-sim-column" aria-hidden="true">
+          <div id="compare-sim-label">Similarity<br>score</div>
+          <div id="compare-sim-track">
+            <div id="compare-sim-fill"></div>
+            <div id="compare-sim-badge" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+      <div id="active-chain-marker" aria-hidden="true"></div>
       <div id="initial-display"></div>
       <!-- <p id="filler-text">Translation will appear here</p> -->
       <!-- <pre id="result">—</pre> -->
+      <div id="canvas-translation-loading" hidden aria-live="polite" aria-busy="false">
+        <p>translating...</p>
+      </div>
       <div id="canvas-container" style="display:none"></div>
     </div>
 
-    <div id="download-canvas-btn-cont">
+    <!-- <div id="download-canvas-btn-cont">
       <button type="button" id="download-canvas-btn" style="display: none;">Download output</button>
-    </div>
+    </div> -->
   </div>
   </div>
 

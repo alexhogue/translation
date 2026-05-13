@@ -186,6 +186,18 @@
     });
   }
 
+  function renderFromImageAsync(url) {
+    const p = ensure();
+    if (!p) return Promise.resolve();
+    return new Promise((resolve) => {
+      p.loadImage(url, (img) => {
+        currentGrid = buildGridFromImage(img);
+        p.redraw();
+        resolve();
+      });
+    });
+  }
+
   function getText(url, activeTextArea) {
     const p = ensure();
     const ta = activeTextArea ?? window.activeInputTextarea;
@@ -209,4 +221,5 @@
   window.asyncColorText = returnTextAsync;
   window.colorTextForBox = getText;
   window.handleImageForTextColor = renderFromImage;
+  window.handleImageForTextColorAsync = renderFromImageAsync;
 })();
