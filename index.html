@@ -121,7 +121,7 @@
                     <button type="button" class="mode-btn" data-mode="french">Sentence split</button>
                     <!-- <button type="button" class="mode-btn" data-mode="french">Radial waves</button> -->
                     <!-- <button type="button" class="mode-btn" data-mode="neuron4">Neuron words</button> -->
-                    <button type="button" class="mode-btn" data-mode="binary">Binary</button>
+                    <button type="button" class="mode-btn" data-mode="binary">Binary stripes</button>
                     <!-- <button type="button" class="mode-btn" data-mode="french">French</button> -->
                   </div>
                 </div>
@@ -207,7 +207,7 @@
                       <button type="button" class="mode-btn" data-mode="hex">Hex grid</button>
                       <!-- <button type="button" class="mode-btn" data-mode="object">Object fragments</button> -->
                       <!-- <button type="button" class="mode-btn" data-mode="featurePoem">Contours</button> -->
-                      <button type="button" class="mode-btn" data-mode="feature">Raw features</button>
+                      <button type="button" class="mode-btn" data-mode="feature">Feature fingerprint</button>
                       <button type="button" class="mode-btn" data-mode="description">Image description</button>
                       <button type="button" class="mode-btn" data-mode="literal">Literal map</button>
                       <!-- <button type="button" class="mode-btn" data-mode="featurePoem">Mad libs</button> -->
@@ -290,7 +290,7 @@
                         <button type="button" class="mode-btn" data-mode="watercolor">Watercolor</button>
                         <button type="button" class="mode-btn" data-mode="french">Sentence split</button>
                         <!-- <button type="button" class="mode-btn" data-mode="neuron4">Neuron words</button> -->
-                        <button type="button" class="mode-btn" data-mode="binary">Binary</button>
+                        <button type="button" class="mode-btn" data-mode="binary">Binary stripes</button>
                         <!-- <button type="button" class="mode-btn" data-mode="french">French</button> -->
                       </div>
                     </div>
@@ -383,8 +383,6 @@
               
               
             </template>
-
-          <!-- <button id="submit-button" type="submit" style="display: none;">Translate</button> -->
         </div>
 
     </form>
@@ -397,10 +395,19 @@
        <div id="compare-overlay-stack">
         <img id="stage-hover-overlay" alt="" aria-hidden="true" />
         <div id="compare-sim-column" aria-hidden="true">
-          <div id="compare-sim-label">Similarity<br>score</div>
-          <div id="compare-sim-track">
-            <div id="compare-sim-fill"></div>
-            <div id="compare-sim-badge" aria-hidden="true"></div>
+          <div class="compare-sim-row" data-kind="semantic">
+            <div class="compare-sim-label">Semantic</div>
+            <div class="compare-sim-track">
+              <div class="compare-sim-fill"></div>
+              <div class="compare-sim-badge" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="compare-sim-row" data-kind="visual">
+            <div class="compare-sim-label">Visual</div>
+            <div class="compare-sim-track">
+              <div class="compare-sim-fill"></div>
+              <div class="compare-sim-badge" aria-hidden="true"></div>
+            </div>
           </div>
         </div>
       </div>

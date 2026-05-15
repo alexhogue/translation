@@ -8,7 +8,7 @@
   function alphabetIndex(ch) {
     // const c = (ch || "").toLowerCase();
     // const code = c.charCodeAt(0);
-    const str = String(ch);
+    const str = String(ch).toLowerCase();
     const cp = str.codePointAt(0);
     if (cp >= 97 && cp <= 122) return cp - 97;
     if (cp >= 48 && cp <= 57) {

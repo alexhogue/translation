@@ -6,7 +6,7 @@
   // const density = "@MWN#XGy%Ot?l!abovci-;:,.`  ";
   // const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
   // const density = "WMB8G&Aohkbdpwm0Z7LCJYzcvnrjft?*->i!lI;:/,`' .  " + "    ";
-  const density = "WMB8G&A3hkbdospwm509Z27LCJYfzcvnrjft?*- >i!l1I;:/,`' .  " + "    ";
+  const density = "WMB8XG&A3hkdeosqp509Z27LCYcvunrjft?*- >i!l1I;:/,`' .  " + "    ";
 
 
   function brightnessToChar(brightness) {

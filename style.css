@@ -338,9 +338,7 @@ button:hover {
    display: flex; */
    /* padding-bottom: 24px; */
 /* } */
-#submit-button {
-   height: 36px;
-}
+
 /* #mode-switch-area {
    padding-bottom: 24px;
 } */
@@ -705,20 +703,6 @@ canvas {
   max-width: 250px;
 }
 
-#stage-hover-score {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 13;
-  display: none;
-  padding: 6px 10px;
-  background: rgba(0,0,0,0.65);
-  color: var(--lightmode-background);
-  font-size: 14px;
-  line-height: 1;
-  pointer-events: none;
-}
-
 #compare-overlay-stack {
   position: absolute;
   inset: 0;
@@ -729,14 +713,6 @@ canvas {
 
 #compare-overlay-stack.is-visible {
   display: block;
-}
-
-#stage-hover-overlay {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  object-fit: fill; /* or contain */
-  opacity: 0.5;
 }
 
 #compare-overlay-stack #stage-hover-overlay {
@@ -751,17 +727,6 @@ canvas {
   z-index: 1;
 }
 
-/* Full-area compare: image fills stack; meter sits on top at the bottom */
-#compare-overlay-stack {
-  position: absolute;
-  inset: 0;
-  display: none;
-  z-index: 12;
-  pointer-events: none;
-}
-#compare-overlay-stack.is-visible {
-  display: block;
-}
 /* Image: entire stack area */
 #compare-overlay-stack #stage-hover-overlay {
   position: absolute;
@@ -781,17 +746,24 @@ canvas {
   bottom: 0;
   z-index: 2;
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
   padding: 10px;
-  gap: 12px;
   box-sizing: border-box;
   background: var(--lightmode-background);
   border-top: 1px solid var(--lightmode-text);
 }
 
-#compare-sim-label {
+.compare-sim-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.compare-sim-label {
   flex-shrink: 0;
+  width: 70px;
   font-size: 14px;
   font-family: "Nunito", sans-serif;
   line-height: 1.25;
@@ -801,7 +773,7 @@ canvas {
 }
 
 /* Thin black track (full width beside label) */
-#compare-sim-track {
+.compare-sim-track {
   flex: 1;
   height: 2px;
   min-width: 0;
@@ -810,7 +782,8 @@ canvas {
   border-radius: 1px;
 }
 
-#compare-sim-badge {
+
+.compare-sim-badge {
   position: absolute;
   top: 50%;
   left: 0%;
@@ -832,7 +805,7 @@ canvas {
 }
 
 /* White fill, slightly thicker, black border — grows from left */
-#compare-sim-fill {
+.compare-sim-fill {
   position: absolute;
   left: 0;
   top: 50%;
@@ -845,8 +818,8 @@ canvas {
   border-radius: 1px;
 }
 
-#compare-sim-fill,
-#compare-sim-badge {
+.compare-sim-fill,
+.compare-sim-badge {
   transition:
     width 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     left 0.7s cubic-bezier(0.22, 1, 0.36, 1);

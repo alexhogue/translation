@@ -3,6 +3,7 @@ import {
 } from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1";
 import {
   CLIPModel,
+  CLIPVisionModelWithProjection, 
   AutoTokenizer,
   AutoProcessor,
   RawImage,
@@ -242,11 +243,15 @@ async function createFeatureText(imageURL) {
   const pooled = meanPool2D(tokensByDim);
   if (!pooled) return "No features extracted.";
 
+  const normalized = l2Normalize(pooled);
+
   const topN = 100;
-  const lines = [];
-  for (let i = 0; i < Math.min(topN, pooled.length); i++) {
-    lines.push(`f[${i + 1}] = ${Number(pooled[i]).toFixed(4)}`);
-  }
+  const indexed = normalized.map((value, index) => ({ index, value }));
+  indexed.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  const top = indexed.slice(0, Math.min(topN, indexed.length));
+  const lines = top.map(
+    ({ index, value }) => `f[${index + 1}] = ${value.toFixed(4)}`
+  );
   return lines.join("\n");
 }
 
@@ -256,15 +261,16 @@ function l2Normalize(v) {
   const norm = Math.sqrt(v.reduce((s, x) => s + x * x, 0)) || 1e-8;
   return v.map((x) => x / norm);
 }
+const _imageNetEmbedCache = new Map();
+
 async function getImageEmbeddingFromPng(pngUrl) {
+  if (!pngUrl) return null;
+  if (_imageNetEmbedCache.has(pngUrl)) {
+    return _imageNetEmbedCache.get(pngUrl);
+  }
   const pipe = await getImageFeaturePipe();
   let out = await pipe(String(pngUrl));
-
-  // Convert Tensor -> JS array if needed
   if (out?.tolist) out = out.tolist();
-
-  // Normalize shape to [tokens, dim]
-  // common: [1, tokens, dim]
   while (
     Array.isArray(out) &&
     Array.isArray(out[0]) &&
@@ -272,10 +278,11 @@ async function getImageEmbeddingFromPng(pngUrl) {
   ) {
     out = out[0];
   }
-
   const pooled = meanPool2D(out);
   if (!pooled) return null;
-  return l2Normalize(pooled);
+  const normed = l2Normalize(pooled);
+  _imageNetEmbedCache.set(pngUrl, normed);
+  return normed;
 }
 
 function cosineSimilarity(a, b) {
@@ -291,17 +298,96 @@ function cosineSimilarity(a, b) {
   return dot / (Math.sqrt(magA) * Math.sqrt(magB) + 1e-8);
 }
 
+function stretch(sim, lo = 0.2, hi = 0.95) {
+  const t = (sim - lo) / (hi - lo);
+  return Math.max(0, Math.min(1, t));
+}
+
 async function getPngEmbeddingSimilarity(clickedPng, latestPng) {
   const [aEmb, bEmb] = await Promise.all([
-    getImageEmbeddingFromPng(clickedPng),
+    getImageEmbeddingFromPng(clickedPng), // ImageNet ViT mean-pool
     getImageEmbeddingFromPng(latestPng),
   ]);
   const similarity = cosineSimilarity(aEmb, bEmb); // -1..1
-  const pct =
-    similarity == null ? null : Math.round(((similarity + 1) / 2) * 100);
+  if (similarity == null) return { similarity: null, pct: null };
+  // ImageNet ViT mean-pool cosines on canvas renderings typically live in
+  // ~[0.35, 0.95]. Stretch that band across the bar.
+  const pct = Math.round(stretch(similarity, 0.1, 0.95) * 100);
   return { similarity, pct };
 }
 window.getPngEmbeddingSimilarity = getPngEmbeddingSimilarity;
+
+async function getClipImageSimilarity(clickedPng, latestPng) {
+  const [aEmb, bEmb] = await Promise.all([
+    getClipImageEmbeddingFromPng(clickedPng),
+    getClipImageEmbeddingFromPng(latestPng),
+  ]);
+  const similarity = cosineSimilarity(aEmb, bEmb); // -1..1
+  if (similarity == null) return { similarity: null, pct: null };
+  // CLIP image-image cosines on canvas renderings typically live in
+  // ~[0.20, 0.95]. Wider band than the ImageNet ViT — adjust if needed.
+  const pct = Math.round(stretch(similarity, 0.2, 0.95) * 100);
+  return { similarity, pct };
+}
+window.getClipImageSimilarity = getClipImageSimilarity;
+
+async function getPngSimilarity(clickedPng, latestPng) {
+  const load = (url) =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = url;
+    });
+
+  const [aImg, bImg] = await Promise.all([load(clickedPng), load(latestPng)]);
+
+  const w = 128;
+  const h = 128;
+  const c1 = document.createElement("canvas");
+  const c2 = document.createElement("canvas");
+  c1.width = c2.width = w;
+  c1.height = c2.height = h;
+
+  const x1 = c1.getContext("2d");
+  const x2 = c2.getContext("2d");
+
+  // Letterbox onto the cream background to avoid penalizing aspect-ratio
+  // differences. This is the only change from the original version.
+  x1.fillStyle = x2.fillStyle = "#f2f2ef";
+  x1.fillRect(0, 0, w, h);
+  x2.fillRect(0, 0, w, h);
+  const rA = Math.min(w / aImg.width, h / aImg.height);
+  const rB = Math.min(w / bImg.width, h / bImg.height);
+  const dwA = aImg.width * rA,
+    dhA = aImg.height * rA;
+  const dwB = bImg.width * rB,
+    dhB = bImg.height * rB;
+  x1.drawImage(aImg, (w - dwA) / 2, (h - dhA) / 2, dwA, dhA);
+  x2.drawImage(bImg, (w - dwB) / 2, (h - dhB) / 2, dwB, dhB);
+
+  const d1 = x1.getImageData(0, 0, w, h).data;
+  const d2 = x2.getImageData(0, 0, w, h).data;
+
+  let sum = 0;
+  for (let i = 0; i < d1.length; i += 4) {
+    const dr = d1[i] - d2[i];
+    const dg = d1[i + 1] - d2[i + 1];
+    const db = d1[i + 2] - d2[i + 2];
+    sum += dr * dr + dg * dg + db * db;
+  }
+
+  const rmse = Math.sqrt(sum / (w * h * 3));
+
+  // Pick one of these mappings — see notes below.
+  const similarity = Math.max(0, (60 - rmse) / 50); // original (generous; pulls toward 100%)
+  // const similarity = Math.max(0, Math.min(1, (60 - rmse) / 50));   // aggressive (spreads bar more)
+
+  const pct = Math.round(similarity * 100);
+  return { similarity, pct };
+}
+
+window.getPngSimilarity = getPngSimilarity;
 
 
 ////////
@@ -355,6 +441,49 @@ async function getClip() {
   return _clip;
 }
 
+let _clipVision = null;
+async function getClipVision() {
+  if (_clipVision) return _clipVision;
+  const modelId = "Xenova/clip-vit-base-patch32";
+  const [model, processor] = await Promise.all([
+    CLIPVisionModelWithProjection.from_pretrained(modelId),
+    AutoProcessor.from_pretrained(modelId),
+  ]);
+  _clipVision = { model, processor, modelId };
+  return _clipVision;
+}
+
+const _clipImageEmbedCache = new Map();
+
+async function getClipImageEmbeddingFromPng(pngUrl) {
+  if (!pngUrl) return null;
+  if (_clipImageEmbedCache.has(pngUrl)) {
+    return _clipImageEmbedCache.get(pngUrl);
+  }
+
+  const { model, processor } = await getClipVision();
+  const image = await RawImage.fromURL(String(pngUrl));
+  const imageInputs = await processor(image);
+
+  const { image_embeds } = await model(imageInputs);
+  let arr = image_embeds?.tolist ? image_embeds.tolist() : image_embeds;
+  while (
+    Array.isArray(arr) &&
+    Array.isArray(arr[0]) &&
+    Array.isArray(arr[0][0])
+  ) {
+    arr = arr[0];
+  }
+  const vec = Array.isArray(arr?.[0]) ? arr[0] : arr;
+  if (!Array.isArray(vec)) return null;
+
+  const normed = l2Normalize(vec);
+  _clipImageEmbedCache.set(pngUrl, normed);
+  return normed;
+}
+
+window.getClipImageEmbeddingFromPng = getClipImageEmbeddingFromPng;
+
 function tensorTo2D(t) {
   // Handles Tensor -> JS nested arrays
   const v = t?.tolist ? t.tolist() : [];
@@ -388,51 +517,6 @@ export async function getClipStageScores(textUrl, imageUrl) {
     model_id: modelId,
   };
 }
-
-async function getPngSimilarity(clickedPng, latestPng) {
-  const load = (url) =>
-    new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = url;
-    });
-
-  const [aImg, bImg] = await Promise.all([load(clickedPng), load(latestPng)]);
-
-  const w = 128;
-  const h = 128;
-  const c1 = document.createElement("canvas");
-  const c2 = document.createElement("canvas");
-  c1.width = c2.width = w;
-  c1.height = c2.height = h;
-
-  const x1 = c1.getContext("2d");
-  const x2 = c2.getContext("2d");
-  x1.drawImage(aImg, 0, 0, w, h);
-  x2.drawImage(bImg, 0, 0, w, h);
-
-  const d1 = x1.getImageData(0, 0, w, h).data;
-  const d2 = x2.getImageData(0, 0, w, h).data;
-
-  let sum = 0;
-  for (let i = 0; i < d1.length; i += 4) {
-    const dr = d1[i] - d2[i];
-    const dg = d1[i + 1] - d2[i + 1];
-    const db = d1[i + 2] - d2[i + 2];
-    sum += dr * dr + dg * dg + db * db;
-  }
-
-  const rmse = Math.sqrt(sum / (w * h * 3));
-  const similarity = Math.max(0, 1 - rmse / 255);
-  const pct = Math.round(similarity * 100);
-
-  return { similarity, pct };
-}
-
-window.getPngSimilarity = getPngSimilarity;
-
-
 
 
 /////////////

@@ -4,7 +4,8 @@
   // const density = " .:-=+*#%@";
   // const density = "@MWN#XGy%Ot?l!abovci-;:,.`  ";
   // const density = "@WMB$%8&#aohkbdpwmZ0LCJYzcvnrjft(}?~*->i!lI;:\",`'..  ";
-  const density = "WMB8G&Aaohkbdpwm0Z7LCJYzcvnrjft?*->i!lI;:/,`' .  " + "    ";
+  const density =
+    "WMB8XG&A3hkdeosqp509Z27LCYcvunrjft?*- >i!l1I;:/,`' .  " + "    ";
 
   function brightnessToChar(brightness) {
     const index = Math.floor((brightness / 255) * (density.length - 1));

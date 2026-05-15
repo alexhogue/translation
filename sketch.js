@@ -15,7 +15,6 @@ const resizer = document.getElementById("resizer");
 const sourceWrap = textInput.querySelector('[data-role="source-wrap"]');
 const sourceEl = textInput.querySelector('[data-role="input-text"]');
 const modeEl = document.querySelector(".mode-buttons");
-const submitBtn = document.getElementById("submit-button");
 const canvasContainerEl = document.getElementById("canvas-container");
 const toggleBtns = document.querySelectorAll(".toggle-button");
 const restartBtnCont = document.getElementById("restart-cont");
@@ -33,7 +32,6 @@ const compressBtn = document.getElementById("compress-carat");
 const pageTitle = document.getElementById("page-title");
 const arrowChain = document.getElementById("arrow-section");
 const arrowBtwn = document.querySelector(".between-arrows");
-const generalButtonArea = document.querySelector("button-area");
 const darkModeBtn = document.getElementById("dark-mode-btn");
 const originalImg = document.getElementById("original-img");
 const initialDisplay = document.getElementById("initial-display");
@@ -290,6 +288,18 @@ const controls = document.getElementById("controls-section");
 const overlay = document.getElementById("stage-hover-overlay");
 const overlayScore = document.getElementById("stage-hover-score");
 
+async function captureCanvasPngAfterPaint() {
+  // Wait two RAFs so any pending p5 setup/redraw is committed to the
+  // canvas pixels before we read them. Capturing too early can return a
+  // blank canvas (setup hasn't run) or stale pixels from a prior stage.
+  await new Promise((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve))
+  );
+  const canvas = document.querySelector("#canvas-container canvas");
+  if (!canvas) return null;
+  return canvas.toDataURL("image/png");
+}
+
 function resolveFirstTranslationAnchorPng(stageEl) {
   if (rootRecord?.kind === "image-to-text" && rootRecord.outputPng) {
     return rootRecord.outputPng;
@@ -351,17 +361,21 @@ async function showCompareOverlayFromBtn(compareBtn) {
     if (canvas) latestPng = canvas.toDataURL("image/png");
   }
   if (!latestPng) return;
-  const { similarity, pct } = await window.getPngEmbeddingSimilarity(
-    anchorPng,
-    latestPng
-  );
-  if (similarity == null) return;
+  const [
+    { similarity: semSim, pct: semPct },
+    { similarity: visSim, pct: visPct },
+  ] = await Promise.all([
+    window.getClipImageSimilarity(anchorPng, latestPng), // semantic = CLIP
+    window.getPngSimilarity(anchorPng, latestPng),
+  ]);
+  if (semSim == null && visSim == null) return;
   if (overlayScore) {
-    overlayScore.textContent = `${pct}% similarity`;
+    overlayScore.textContent = `Semantic ${semPct ?? "—"}% · Visual ${
+      visPct ?? "—"
+    }%`;
     overlayScore.style.display = "block";
   }
-
-  showCompareMeter(pct);
+  showCompareMeter({ semanticPct: semPct, visualPct: visPct });
 }
 
 
@@ -383,10 +397,18 @@ function hideCompareOverlay() {
 }
 
 const stack = document.getElementById("compare-overlay-stack");
-const pctEl = document.getElementById("compare-sim-pct");
-const fillEl = document.getElementById("compare-sim-fill");
-const labelEl = document.getElementById("compare-sim-label");
-const badgeEl = document.getElementById("compare-sim-badge");
+
+const semanticRow = document.querySelector(
+  '#compare-sim-column .compare-sim-row[data-kind="semantic"]'
+);
+const visualRow = document.querySelector(
+  '#compare-sim-column .compare-sim-row[data-kind="visual"]'
+);
+
+const semFillEl = semanticRow?.querySelector(".compare-sim-fill");
+const semBadgeEl = semanticRow?.querySelector(".compare-sim-badge");
+const visFillEl = visualRow?.querySelector(".compare-sim-fill");
+const visBadgeEl = visualRow?.querySelector(".compare-sim-badge");
 
 let activeCompareBtn = null;
 function setCompareBtnLabel(btn, mode) {
@@ -395,33 +417,41 @@ function setCompareBtnLabel(btn, mode) {
   label.textContent = mode === "hide" ? "Hide" : "Compare";
 }
 
-function showCompareMeter(pct) {
+function setMeterBar(fillEl, badgeEl, pct) {
+  if (pct == null) {
+    if (fillEl) fillEl.style.width = "0%";
+    if (badgeEl) {
+      badgeEl.textContent = "";
+      badgeEl.style.left = "0%";
+    }
+    return;
+  }
   const target = Math.max(0, Math.min(100, pct));
-  if (pctEl) pctEl.textContent = `Similarity\nscore`;
-  if (stack) stack.classList.add("is-visible");
   if (fillEl) fillEl.style.width = `${target}%`;
   if (badgeEl) {
     badgeEl.style.left = "0%";
     badgeEl.textContent = `${Math.round(target)}%`;
     badgeEl.style.transform = "translate(-50%, -50%)";
   }
-
-  if (fillEl) void fillEl.offsetWidth;
+  if (fillEl) void fillEl.offsetWidth; // force reflow so transition fires
   requestAnimationFrame(() => {
     if (fillEl) fillEl.style.width = `${target}%`;
     if (badgeEl) badgeEl.style.left = `${target}%`;
   });
 }
 
+function showCompareMeter(scores) {
+  if (stack) stack.classList.add("is-visible");
+  setMeterBar(semFillEl, semBadgeEl, scores?.semanticPct);
+  setMeterBar(visFillEl, visBadgeEl, scores?.visualPct);
+}
+
 function hideCompareMeter() {
   if (stack) stack.classList.remove("is-visible");
-  if (pctEl) pctEl.textContent = "—";
-  if (fillEl) fillEl.style.width = "0%";
-  if (badgeEl) {
-    badgeEl.textContent = "";
-    badgeEl.style.left = "0%";
-  }
+  setMeterBar(semFillEl, semBadgeEl, null);
+  setMeterBar(visFillEl, visBadgeEl, null);
 }
+
 
 
 document
@@ -663,32 +693,6 @@ restartBtnCont.querySelector("button").addEventListener("click", () => {
 
   if (!ok) return;
 
-  // toggleLocked = false;
-  // toggleMode = "";
-  // currentMode = "";
-  // downloadCount = 0;
-  // stages = [];
-  // stageSeq = 0;
-  // if (chainStagesEl) chainStagesEl.innerHTML = "";
-  // canvasContainerEl.innerHTML = "";
-  // sourceEl.value = "";
-  // window.currentImage = "";
-  // modeButtons.forEach((btn) => {
-  //   btn.removeAttribute("aria-pressed");
-  // });
-  // saveButton.style.display = "none";
-
-  // document.getElementById("mode-switch-cont").classList.remove("toggle-locked");
-  // toggleBtns.forEach((btn) => {
-  //   btn.removeAttribute("aria-pressed");
-  //   textControls.style.display = "none";
-  //   imageControls.style.display = "none";
-  //   btn.removeAttribute("aria-disabled", "true");
-  //   btn.removeAttribute("tabindex");
-  // });
-
-  // restartBtnCont.style.display = "none";
-
   window.location.reload();
 });
 
@@ -737,22 +741,6 @@ function refreshActiveCanvasFromText(rawText) {
   if (!t) updater.clear?.();
   else updater.render?.(t);
 }
-
-// async function refreshActiveCanvasFromImage(url, stageID) {
-//   if (toggleMode !== "visual") return;
-//   if (stageID === "root") {
-//     if (chainStagesEl) chainStagesEl.innerHTML = "";
-//   }
-//   if (currentMode === "rgb") {
-//     window.handleRGB?.(url);
-//   } else if (currentMode === "hex") {
-//     window.handleHex?.(url);
-//   } else if (currentMode === "typeArt") {
-//     window.handleImageForTextPicture?.(url);
-//   } else if (currentMode === "typeArtColor") {
-//     window.handleImageForTextColor?.(url);
-//   }
-// }
 
 function clearRootOutputPreviews() {
   const rootOutputs = document.querySelectorAll(
@@ -859,26 +847,6 @@ sourceEl.addEventListener("input", () => {
   updateIfText();
   refreshActiveCanvasFromText(sourceEl.value);
 });
-
-// function addAfterChain(currentStage) {
-//   currentStage.append(arrowChain);
-//   arrowChain.style.display = "flex";
-//   const arrowList = arrowChain.children;
-
-//   arrowList.forEach((arrow, index) => {
-//     arrow.animate(
-//       [
-//         { opacity: 0.5, transform: "translateX(-24px)" },
-//         { opacity: 1, transform: "translateX(0px)" },
-//       ],
-//       {
-//         duration: 500,
-//         fill: "forwards",
-//         delay: index * 100, // Staggers each element by 100ms
-//       }
-//     );
-//   });
-// }
 
 function cancelBetweenArrowAnimations(root = document) {
   root.querySelectorAll(".between-arrows .arrow").forEach((el) => {
@@ -1573,10 +1541,6 @@ document
       if (window.French) window.French.clear();
       if (window.Binary) window.Binary.clear();
 
-      // else {
-      //   const out = translateSync(text, mode);
-      //   // resultEl.textContent = out || '—';
-      // }
 
       // if (currentMode === "french") {
       //   try {
@@ -1617,14 +1581,13 @@ document
         await window.handleImageForTextPictureAsync(window.currentImage);
         toggleMode = "text";
 
-        const canvas = document.querySelector("#canvas-container canvas");
-        if (!canvas) return;
+        const pngDataUrl = await captureCanvasPngAfterPaint();
+        if (!pngDataUrl) return;
 
         text = await window.returnBrightnessText(window.currentImage);
         setStageOutputForEl(stage, text, "text");
 
         const stageId = stage.getAttribute("data-stage-id");
-        const pngDataUrl = canvas.toDataURL("image/png");
         maybeSetFirstTranslationAnchor(pngDataUrl);
         const rec = setStageRecordOutputById(
           stageId,
@@ -1661,14 +1624,13 @@ document
         await window.handleRGBAsync(window.currentImage);
         toggleMode = "text";
 
-        const canvas = document.querySelector("#canvas-container canvas");
-        if (!canvas) return;
+        const pngDataUrl = await captureCanvasPngAfterPaint();
+        if (!pngDataUrl) return;
 
         text = await window.returnRGBText(window.currentImage);
         setStageOutputForEl(stage, text, "text");
 
         const stageId = stage.getAttribute("data-stage-id");
-        const pngDataUrl = canvas.toDataURL("image/png");
         maybeSetFirstTranslationAnchor(pngDataUrl);
         const rec = setStageRecordOutputById(
           stageId,
@@ -1706,14 +1668,13 @@ document
         await window.handleHexAsync(window.currentImage);
         toggleMode = "text";
 
-        const canvas = document.querySelector("#canvas-container canvas");
-        if (!canvas) return;
+        const pngDataUrl = await captureCanvasPngAfterPaint();
+        if (!pngDataUrl) return;
 
         text = await window.returnHexText(window.currentImage);
         setStageOutputForEl(stage, text, "text");
 
         const stageId = stage.getAttribute("data-stage-id");
-        const pngDataUrl = canvas.toDataURL("image/png");
         maybeSetFirstTranslationAnchor(pngDataUrl);
         const rec = setStageRecordOutputById(
           stageId,
@@ -1749,14 +1710,14 @@ document
 
       if (currentMode === "feature") {
         toggleMode = "text";
-        const canvas = document.querySelector("#canvas-container canvas");
-        if (!canvas) return;
         text = await window.createFeatureText(window.currentImage);
         window.VisualText.render(text || "—");
         setStageOutputForEl(stage, text, "text");
 
+        const pngDataUrl = await captureCanvasPngAfterPaint();
+        if (!pngDataUrl) return;
+
         const stageId = stage.getAttribute("data-stage-id");
-        const pngDataUrl = canvas.toDataURL("image/png");
         maybeSetFirstTranslationAnchor(pngDataUrl);
         const rec = setStageRecordOutputById(
           stageId,
@@ -1787,14 +1748,14 @@ document
       }
       if (currentMode === "featurePoem") {
         toggleMode = "text";
-        const canvas = document.querySelector("#canvas-container canvas");
-        if (!canvas) return;
         text = await window.createFeaturePoem(window.currentImage);
         window.VisualText.render(text || "—");
         setStageOutputForEl(stage, text, "text");
 
+        const pngDataUrl = await captureCanvasPngAfterPaint();
+        if (!pngDataUrl) return;
+
         const stageId = stage.getAttribute("data-stage-id");
-        const pngDataUrl = canvas.toDataURL("image/png");
         maybeSetFirstTranslationAnchor(pngDataUrl);
         const rec = setStageRecordOutputById(
           stageId,
@@ -1829,14 +1790,14 @@ document
 
       if (currentMode === "literal") {
         toggleMode = "text";
-        const canvas = document.querySelector("#canvas-container canvas");
-        if (!canvas) return;
         text = await window.extractLiteralVisualTokens(window.currentImage);
         window.VisualText.render(text || "—");
         setStageOutputForEl(stage, text, "text");
 
+        const pngDataUrl = await captureCanvasPngAfterPaint();
+        if (!pngDataUrl) return;
+
         const stageId = stage.getAttribute("data-stage-id");
-        const pngDataUrl = canvas.toDataURL("image/png");
         maybeSetFirstTranslationAnchor(pngDataUrl);
         const rec = setStageRecordOutputById(
           stageId,
@@ -1870,16 +1831,15 @@ document
       }
 
       if (currentMode === "description") {
+        toggleMode = "text";
         text = await window.createDescription(window.currentImage);
         window.VisualText.render(text || "—");
         setStageOutputForEl(stage, text, "text");
 
-        toggleMode = "text";
-        const canvas = document.querySelector("#canvas-container canvas");
-        if (!canvas) return;
+        const pngDataUrl = await captureCanvasPngAfterPaint();
+        if (!pngDataUrl) return;
 
         const stageId = stage.getAttribute("data-stage-id");
-        const pngDataUrl = canvas.toDataURL("image/png");
         maybeSetFirstTranslationAnchor(pngDataUrl);
         const rec = setStageRecordOutputById(
           stageId,
@@ -1916,14 +1876,13 @@ document
         await window.handleImageForTextColorAsync(window.currentImage);
         toggleMode = "text";
 
-        const canvas = document.querySelector("#canvas-container canvas");
-        if (!canvas) return;
+        const pngDataUrl = await captureCanvasPngAfterPaint();
+        if (!pngDataUrl) return;
 
         text = await window.asyncColorText(window.currentImage);
         setStageOutputForEl(stage, text, "text");
 
         const stageId = stage.getAttribute("data-stage-id");
-        const pngDataUrl = canvas.toDataURL("image/png");
         maybeSetFirstTranslationAnchor(pngDataUrl);
         const rec = setStageRecordOutputById(
           stageId,
@@ -2237,8 +2196,6 @@ Object.defineProperty(window, "stages", {
   },
 });
 let stageSeq = 0;
-let textNumber = 1;
-let stageRepeatCount = 0;
 
 const chainStagesEl = document.getElementById("chain-stages");
 const tplTextToImage = document.getElementById("tpl-text-to-image");
@@ -2268,13 +2225,6 @@ function appendStage(kind, opts = {}) {
       pair_from_stage_id: null,
     },
   };
-
-  // if (stageRepeatCount === 1) {
-  //   numberString = String(++textNumber);
-  //   stageRepeatCount = 0;
-  // } else {
-  //   stageRepeatCount = 1;
-  // }
 
   const tpl = kind === "text-to-image" ? tplTextToImage : tplImageToText;
   if (!tpl || !chainStagesEl) {
